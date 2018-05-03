@@ -100,8 +100,7 @@ func Parse(s string) (*ParsedConsent, error) {
 	}
 
 	var cs = parseBytes(b)
-	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID,
-		numEntries int
+	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID, numEntries int
 	var created, updated int64
 	var isRange, defaultConsent, singleOrRange bool
 	var consentLanguage string
