@@ -81,8 +81,6 @@ type ParsedConsent struct {
 // of the consent string is only populated when the
 // EncodingType field is set to 1.
 type RangeEntry struct {
-	DefaultConsent bool
-	NumEntries     int
 	SingleOrRange  bool
 	SingleVendorID int
 	StartVendorID  int
