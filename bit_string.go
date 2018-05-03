@@ -18,8 +18,7 @@ type bitString struct {
 // parseBytes takes in a []byte |b| and returns a bitString |bs|
 // who's value is the concatenation of the 8 bit binary representation
 // of each element of |b|. Given that the consent string is not necessarily
-// a multiple of 8 bits, we pad the end of the string with 0s (which can
-// occur whenever the last byte is 0).
+// a multiple of 8 bits, we pad the end of the string with 0s.
 func parseBytes(b []byte) (bs bitString) {
 	for _, s := range b {
 		bs.value = bs.value + fmt.Sprintf("%08b", s)
