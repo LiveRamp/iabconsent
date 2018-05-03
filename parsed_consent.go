@@ -15,7 +15,6 @@ package iabconsent
 
 import (
 	"encoding/base64"
-	"fmt"
 	"time"
 )
 
@@ -72,7 +71,9 @@ type ParsedConsent struct {
 	MaxVendorID       int
 	IsRange           bool
 	ApprovedVendorIDs map[int]interface{}
-	RangeEntry        *RangeEntry
+	DefaultConsent bool
+	NumEntries int
+	RangeEntries      []*RangeEntry
 }
 
 // RangeEntry contains all fields in the Range Entry
@@ -102,7 +103,7 @@ func Parse(s string) (*ParsedConsent, error) {
 
 	var cs = parseBytes(b)
 	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID,
-		numEntries, singleVendorID, startVendorID, endVendorID int
+		numEntries int
 	var created, updated int64
 	var isRange, defaultConsent, singleOrRange bool
 	var consentLanguage string
@@ -121,7 +122,6 @@ func Parse(s string) (*ParsedConsent, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(created, updated)
 	cmpID, err = cs.parseInt(CmpIdOffset, CmpIdSize)
 	if err != nil {
 		return nil, err
@@ -142,38 +142,69 @@ func Parse(s string) (*ParsedConsent, error) {
 	if err != nil {
 		return nil, err
 	}
-	purposesAllowed = cs.parseBitList(PurposesOffset, PurposesSize)
+	purposesAllowed, err = cs.parseBitList(PurposesOffset, PurposesSize)
+	if err != nil {
+		return nil, err
+	}
 	maxVendorID, err = cs.parseInt(MaxVendorIdOffset, MaxVendorIdSize)
 	if err != nil {
 		return nil, err
 	}
-	isRange = cs.parseBit(EncodingTypeOffset)
+	isRange, err = cs.parseBit(EncodingTypeOffset)
+	if err != nil {
+		return nil, err
+	}
+
+	var rangeEntries []*RangeEntry
 
 	if isRange {
-		defaultConsent = cs.parseBit(DefaultConsentOffset)
+		defaultConsent, err = cs.parseBit(DefaultConsentOffset)
+		if err != nil {
+			return nil, err
+		}
 		numEntries, err = cs.parseInt(NumEntriesOffset, NumEntriesSize)
 		if err != nil {
 			return nil, err
 		}
-		singleOrRange = cs.parseBit(SingleOrRangeOffset)
 
-		if singleOrRange {
-			singleVendorID, err = cs.parseInt(SingleVendorIdOffset, SingleVendorIdSize)
-			if err != nil {
-				return nil, err
+		// Track how many range entry bits we've parsed since it's variable.
+		var parsedBits = 0
+
+		for i := 0; i < numEntries; i++ {
+			var singleVendorID, startVendorID, endVendorID int
+
+			singleOrRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
+
+			if !singleOrRange {
+				singleVendorID, err = cs.parseInt(SingleVendorIdOffset + parsedBits, SingleVendorIdSize)
+				if err != nil {
+					return nil, err
+				}
+				parsedBits += 17
+			} else {
+				startVendorID, err = cs.parseInt(StartVendorIdOffset + parsedBits, StartVendorIdSize)
+				if err != nil {
+					return nil, err
+				}
+				endVendorID, err = cs.parseInt(EndVendorIdOffset + parsedBits, EndVendorIdSize)
+				if err != nil {
+					return nil, err
+				}
+				parsedBits += 33
 			}
-		} else {
-			startVendorID, err = cs.parseInt(StartVendorIdOffset, StartVendorIdSize)
-			if err != nil {
-				return nil, err
-			}
-			endVendorID, err = cs.parseInt(EndVendorIdOffset, EndVendorIdSize)
-			if err != nil {
-				return nil, err
-			}
+
+			rangeEntries = append(rangeEntries, &RangeEntry{
+				SingleOrRange:  singleOrRange,
+				SingleVendorID: singleVendorID,
+				StartVendorID:  startVendorID,
+				EndVendorID:    endVendorID,
+			})
 		}
 	} else {
-		approvedVendorIDs = cs.parseBitList(VendorBitFieldOffset, len(cs.value)-1-VendorBitFieldOffset)
+		approvedVendorIDs, err = cs.parseBitList(VendorBitFieldOffset, maxVendorID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &ParsedConsent{
@@ -190,13 +221,8 @@ func Parse(s string) (*ParsedConsent, error) {
 		MaxVendorID:       maxVendorID,
 		IsRange:           isRange,
 		ApprovedVendorIDs: approvedVendorIDs,
-		RangeEntry: &RangeEntry{
-			DefaultConsent: defaultConsent,
-			NumEntries:     numEntries,
-			SingleOrRange:  singleOrRange,
-			SingleVendorID: singleVendorID,
-			StartVendorID:  startVendorID,
-			EndVendorID:    endVendorID,
-		},
+		DefaultConsent: defaultConsent,
+		NumEntries: numEntries,
+		RangeEntries: rangeEntries,
 	}, nil
 }

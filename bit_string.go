@@ -17,7 +17,9 @@ type bitString struct {
 
 // parseBytes takes in a []byte |b| and returns a bitString |bs|
 // who's value is the concatenation of the 8 bit binary representation
-// of each element of |b|.
+// of each element of |b|. Given that the consent string is not necessarily
+// a multiple of 8 bits, we pad the end of the string with 0s (which can
+// occur whenever the last byte is 0).
 func parseBytes(b []byte) (bs bitString) {
 	for _, s := range b {
 		bs.value = bs.value + fmt.Sprintf("%08b", s)
@@ -28,6 +30,9 @@ func parseBytes(b []byte) (bs bitString) {
 // parseInt64 takes a bit offset and size and converts the binary
 // number produced from that substring slice into an int64.
 func (b bitString) parseInt64(offset, size int) (int64, error) {
+	if len(b.value) - 1 < offset + size {
+		return 0, fmt.Errorf("index out of range")
+	}
 	return strconv.ParseInt(b.value[offset:(offset+size)], 2, 64)
 }
 
@@ -43,20 +48,26 @@ func (b bitString) parseInt(offset, size int) (int, error) {
 // of bits representing purposes as defined in the IAB spec.
 // More on the purposes here: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#purposes-features.
 // The resulting map's keys represent the purposes allowed for this user.
-func (b bitString) parseBitList(offset, size int) map[int]interface{} {
+func (b bitString) parseBitList(offset, size int) (map[int]interface{}, error) {
+	if len(b.value) - 1 < offset + size {
+		return nil, fmt.Errorf("index out of range")
+	}
 	var purposes = make(map[int]interface{})
 	for i, v := range b.value[offset:(offset + size)] {
 		if v == '1' {
 			purposes[i+1] = true
 		}
 	}
-	return purposes
+	return purposes, nil
 }
 
 // parseBit returns a bool representing the bit at the
 // passed offset.
-func (b bitString) parseBit(offset int) bool {
-	return b.value[offset] == '1'
+func (b bitString) parseBit(offset int) (bool, error) {
+	if len(b.value) - 1 < offset {
+		return false, fmt.Errorf("index out of range")
+	}
+	return b.value[offset] == '1', nil
 }
 
 // parseString take a bit offset and size which should represent
@@ -64,6 +75,10 @@ func (b bitString) parseBit(offset int) bool {
 // a letter and returned in a final string. parseString will error
 // if size is not divisible by 6.
 func (b bitString) parseString(offset, size int) (string, error) {
+	if len(b.value) - 1 < offset + size {
+		return "", fmt.Errorf("index out of range")
+	}
+
 	var numChars = size / 6
 	var retString = ""
 
