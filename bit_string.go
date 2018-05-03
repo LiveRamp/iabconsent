@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Common error messages for bitString methods.
 var (
 	errOutOfRange  = errors.New("index out of range")
 	errWrongLength = errors.New("bit string length must be multiple of 6")
