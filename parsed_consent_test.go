@@ -33,31 +33,31 @@ func (p *ParsedConsentSuite) TestErrorCases(c *gc.C) {
 
 func (p *ParsedConsentSuite) TestParseConsentStrings(c *gc.C) {
 	var cases = []struct {
-		Type consentType
+		Type          consentType
 		EncodedString string
 	}{
 		{
-			Type:         BitField,
+			Type:          BitField,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAplY",
 		},
 		{
-			Type:         SingleRangeWithSingleID,
+			Type:          SingleRangeWithSingleID,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqABAD2AAAAAAAAAAAAAAAAAAAAAAAAAA",
 		},
 		{
-			Type:         SingleRangeWithRange,
+			Type:          SingleRangeWithRange,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqABgD2AdQAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		},
 		{
-			Type:         MultipleRangesWithSingleID,
+			Type:          MultipleRangesWithSingleID,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACAD2AOoAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		},
 		{
-			Type:         MultipleRangesWithRange,
+			Type:          MultipleRangesWithRange,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACgD2AdUBWQHIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		},
 		{
-			Type:         MultipleRangesMixed,
+			Type:          MultipleRangesMixed,
 			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACAD3AVkByAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		},
 	}

@@ -71,8 +71,8 @@ type ParsedConsent struct {
 	MaxVendorID       int
 	IsRange           bool
 	ApprovedVendorIDs map[int]interface{}
-	DefaultConsent bool
-	NumEntries int
+	DefaultConsent    bool
+	NumEntries        int
 	RangeEntries      []*RangeEntry
 }
 
@@ -176,17 +176,17 @@ func Parse(s string) (*ParsedConsent, error) {
 			singleOrRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
 
 			if !singleOrRange {
-				singleVendorID, err = cs.parseInt(SingleVendorIdOffset + parsedBits, SingleVendorIdSize)
+				singleVendorID, err = cs.parseInt(SingleVendorIdOffset+parsedBits, SingleVendorIdSize)
 				if err != nil {
 					return nil, err
 				}
 				parsedBits += 17
 			} else {
-				startVendorID, err = cs.parseInt(StartVendorIdOffset + parsedBits, StartVendorIdSize)
+				startVendorID, err = cs.parseInt(StartVendorIdOffset+parsedBits, StartVendorIdSize)
 				if err != nil {
 					return nil, err
 				}
-				endVendorID, err = cs.parseInt(EndVendorIdOffset + parsedBits, EndVendorIdSize)
+				endVendorID, err = cs.parseInt(EndVendorIdOffset+parsedBits, EndVendorIdSize)
 				if err != nil {
 					return nil, err
 				}
@@ -221,8 +221,8 @@ func Parse(s string) (*ParsedConsent, error) {
 		MaxVendorID:       maxVendorID,
 		IsRange:           isRange,
 		ApprovedVendorIDs: approvedVendorIDs,
-		DefaultConsent: defaultConsent,
-		NumEntries: numEntries,
-		RangeEntries: rangeEntries,
+		DefaultConsent:    defaultConsent,
+		NumEntries:        numEntries,
+		RangeEntries:      rangeEntries,
 	}, nil
 }
