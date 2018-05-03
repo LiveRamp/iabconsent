@@ -1,3 +1,16 @@
+/*
+
+Package iabconsent provides structs and methods for parsing
+Vendor Consent Strings as defined by the IAB Consent String 1.1 Spec.
+More info on the spec here:
+https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#vendor-consent-string-format-.
+
+Copyright (c) 2018 Andy Day. All rights reserved.
+
+Written by Andy Day, Software Engineer @ LiveRamp
+for use in the LiveRamp Pixel Server.
+
+*/
 package iabconsent
 
 import (
@@ -6,6 +19,8 @@ import (
 	"time"
 )
 
+// These constants represent the bit offsets and sizes of the
+// fields in the IAB Consent String 1.1 Spec.
 const (
 	VersionBitOffset        = 0
 	VersionBitSize          = 6
@@ -28,7 +43,7 @@ const (
 	MaxVendorIdOffset       = 156
 	MaxVendorIdSize         = 16
 	EncodingTypeOffset      = 172
-	VendorBitfieldOffset    = 173
+	VendorBitFieldOffset    = 173
 	DefaultConsentOffset    = 173
 	NumEntriesOffset        = 174
 	NumEntriesSize          = 12
@@ -41,6 +56,8 @@ const (
 	EndVendorIdSize         = 16
 )
 
+// ParsedConsent contains all fields defined in the
+// IAB Consent String 1.1 Spec.
 type ParsedConsent struct {
 	ConsentString     string
 	Version           int
@@ -58,6 +75,10 @@ type ParsedConsent struct {
 	RangeEntry        *RangeEntry
 }
 
+// RangeEntry contains all fields in the Range Entry
+// portion of the Vendor Consent String. This portion
+// of the consent string is only populated when the
+// EncodingType field is set to 1.
 type RangeEntry struct {
 	DefaultConsent bool
 	NumEntries     int
@@ -67,7 +88,9 @@ type RangeEntry struct {
 	EndVendorID    int
 }
 
-// Parse...
+// Parse takes a base64 Raw URL Encoded string which represents
+// a Vendor Consent String and returns a ParsedConsent with
+// it's fields populated with the values stored in the string.
 func Parse(s string) (*ParsedConsent, error) {
 	var b []byte
 	var err error
@@ -77,7 +100,7 @@ func Parse(s string) (*ParsedConsent, error) {
 		return nil, err
 	}
 
-	var cs = ParseBytes(b)
+	var cs = parseBytes(b)
 	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID,
 		numEntries, singleVendorID, startVendorID, endVendorID int
 	var created, updated int64
@@ -86,71 +109,71 @@ func Parse(s string) (*ParsedConsent, error) {
 	var purposesAllowed = make(map[int]interface{})
 	var approvedVendorIDs = make(map[int]interface{})
 
-	version, err = cs.ParseInt(VersionBitOffset, VersionBitSize)
+	version, err = cs.parseInt(VersionBitOffset, VersionBitSize)
 	if err != nil {
 		return nil, err
 	}
-	created, err = cs.ParseInt64(CreatedBitOffset, CreatedBitSize)
+	created, err = cs.parseInt64(CreatedBitOffset, CreatedBitSize)
 	if err != nil {
 		return nil, err
 	}
-	updated, err = cs.ParseInt64(UpdatedBitOffset, UpdatedBitSize)
+	updated, err = cs.parseInt64(UpdatedBitOffset, UpdatedBitSize)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println(created, updated)
-	cmpID, err = cs.ParseInt(CmpIdOffset, CmpIdSize)
+	cmpID, err = cs.parseInt(CmpIdOffset, CmpIdSize)
 	if err != nil {
 		return nil, err
 	}
-	cmpVersion, err = cs.ParseInt(CmpVersionOffset, CmpVersionSize)
+	cmpVersion, err = cs.parseInt(CmpVersionOffset, CmpVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	consentScreen, err = cs.ParseInt(ConsentScreenSizeOffset, ConsentScreenSize)
+	consentScreen, err = cs.parseInt(ConsentScreenSizeOffset, ConsentScreenSize)
 	if err != nil {
 		return nil, err
 	}
-	consentLanguage, err = cs.ParseString(ConsentLanguageOffset, ConsentLanguageSize)
+	consentLanguage, err = cs.parseString(ConsentLanguageOffset, ConsentLanguageSize)
 	if err != nil {
 		return nil, err
 	}
-	vendorListVersion, err = cs.ParseInt(VendorListVersionOffset, VendorListVersionSize)
+	vendorListVersion, err = cs.parseInt(VendorListVersionOffset, VendorListVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	purposesAllowed = cs.ParseBitList(PurposesOffset, PurposesSize)
-	maxVendorID, err = cs.ParseInt(MaxVendorIdOffset, MaxVendorIdSize)
+	purposesAllowed = cs.parseBitList(PurposesOffset, PurposesSize)
+	maxVendorID, err = cs.parseInt(MaxVendorIdOffset, MaxVendorIdSize)
 	if err != nil {
 		return nil, err
 	}
-	isRange = cs.ParseBit(EncodingTypeOffset)
+	isRange = cs.parseBit(EncodingTypeOffset)
 
 	if isRange {
-		defaultConsent = cs.ParseBit(DefaultConsentOffset)
-		numEntries, err = cs.ParseInt(NumEntriesOffset, NumEntriesSize)
+		defaultConsent = cs.parseBit(DefaultConsentOffset)
+		numEntries, err = cs.parseInt(NumEntriesOffset, NumEntriesSize)
 		if err != nil {
 			return nil, err
 		}
-		singleOrRange = cs.ParseBit(SingleOrRangeOffset)
+		singleOrRange = cs.parseBit(SingleOrRangeOffset)
 
 		if singleOrRange {
-			singleVendorID, err = cs.ParseInt(SingleVendorIdOffset, SingleVendorIdSize)
+			singleVendorID, err = cs.parseInt(SingleVendorIdOffset, SingleVendorIdSize)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			startVendorID, err = cs.ParseInt(StartVendorIdOffset, StartVendorIdSize)
+			startVendorID, err = cs.parseInt(StartVendorIdOffset, StartVendorIdSize)
 			if err != nil {
 				return nil, err
 			}
-			endVendorID, err = cs.ParseInt(EndVendorIdOffset, EndVendorIdSize)
+			endVendorID, err = cs.parseInt(EndVendorIdOffset, EndVendorIdSize)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		approvedVendorIDs = cs.ParseBitList(VendorBitfieldOffset, len(cs.value)-1-VendorBitfieldOffset)
+		approvedVendorIDs = cs.parseBitList(VendorBitFieldOffset, len(cs.value)-1-VendorBitFieldOffset)
 	}
 
 	return &ParsedConsent{
