@@ -16,7 +16,7 @@ func (p *BitStringSuite) TestParseBytes(c *gc.C) {
 
 func (p *BitStringSuite) TestParseInt(c *gc.C) {
 	i, err := dummyBitString().parseInt(4, 100)
-	c.Check(err.Error(), gc.Equals, "index out of range")
+	c.Check(err, gc.Equals, errOutOfRange)
 
 	i, err = dummyBitString().parseInt(4, 8)
 	c.Check(err, gc.IsNil)
@@ -25,7 +25,7 @@ func (p *BitStringSuite) TestParseInt(c *gc.C) {
 
 func (p *BitStringSuite) TestParseInt64(c *gc.C) {
 	i, err := dummyBitString().parseInt64(4, 100)
-	c.Check(err.Error(), gc.Equals, "index out of range")
+	c.Check(err, gc.Equals, errOutOfRange)
 
 	i, err = dummyBitString().parseInt64(4, 8)
 	c.Check(err, gc.IsNil)
@@ -34,7 +34,7 @@ func (p *BitStringSuite) TestParseInt64(c *gc.C) {
 
 func (p *BitStringSuite) TestParseBitList(c *gc.C) {
 	i, err := dummyBitString().parseBitList(4, 100)
-	c.Check(err.Error(), gc.Equals, "index out of range")
+	c.Check(err, gc.Equals, errOutOfRange)
 
 	i, err = dummyBitString().parseBitList(4, 8)
 	c.Check(err, gc.IsNil)
@@ -48,7 +48,7 @@ func (p *BitStringSuite) TestParseBitList(c *gc.C) {
 
 func (p *BitStringSuite) TestParseBit(c *gc.C) {
 	i, err := dummyBitString().parseBit(100)
-	c.Check(err.Error(), gc.Equals, "index out of range")
+	c.Check(err, gc.Equals, errOutOfRange)
 
 	i, err = dummyBitString().parseBit(4)
 	c.Check(err, gc.IsNil)
@@ -57,10 +57,10 @@ func (p *BitStringSuite) TestParseBit(c *gc.C) {
 
 func (p *BitStringSuite) TestParseString(c *gc.C) {
 	i, err := dummyBitString().parseString(4, 11)
-	c.Check(err.Error(), gc.Equals, "bit string length must be multiple of 6")
+	c.Check(err, gc.Equals, errWrongLength)
 
 	i, err = dummyBitString().parseString(4, 13)
-	c.Check(err.Error(), gc.Equals, "index out of range")
+	c.Check(err, gc.Equals, errOutOfRange)
 
 	i, err = dummyBitString().parseString(4, 12)
 	c.Check(err, gc.IsNil)

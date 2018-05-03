@@ -1,8 +1,14 @@
 package iabconsent
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+)
+
+var (
+	errOutOfRange = errors.New("index out of range")
+	errWrongLength = errors.New("bit string length must be multiple of 6")
 )
 
 // bitString is a simple struct which has only one field, value.
@@ -30,7 +36,7 @@ func parseBytes(b []byte) (bs bitString) {
 // number produced from that substring slice into an int64.
 func (b bitString) parseInt64(offset, size int) (int64, error) {
 	if len(b.value)-1 < offset+size {
-		return 0, fmt.Errorf("index out of range")
+		return 0, errOutOfRange
 	}
 	return strconv.ParseInt(b.value[offset:(offset+size)], 2, 64)
 }
@@ -49,7 +55,7 @@ func (b bitString) parseInt(offset, size int) (int, error) {
 // The resulting map's keys represent the purposes allowed for this user.
 func (b bitString) parseBitList(offset, size int) (map[int]interface{}, error) {
 	if len(b.value)-1 < offset+size {
-		return nil, fmt.Errorf("index out of range")
+		return nil, errOutOfRange
 	}
 	var purposes = make(map[int]interface{})
 	for i, v := range b.value[offset:(offset + size)] {
@@ -64,7 +70,7 @@ func (b bitString) parseBitList(offset, size int) (map[int]interface{}, error) {
 // passed offset.
 func (b bitString) parseBit(offset int) (bool, error) {
 	if len(b.value)-1 < offset {
-		return false, fmt.Errorf("index out of range")
+		return false, errOutOfRange
 	}
 	return b.value[offset] == '1', nil
 }
@@ -75,14 +81,14 @@ func (b bitString) parseBit(offset int) (bool, error) {
 // if size is not divisible by 6.
 func (b bitString) parseString(offset, size int) (string, error) {
 	if len(b.value)-1 < offset+size {
-		return "", fmt.Errorf("index out of range")
+		return "", errOutOfRange
 	}
 
 	var numChars = size / 6
 	var retString = ""
 
 	if size%6 != 0 {
-		return "", fmt.Errorf("bit string length must be multiple of 6")
+		return "", errWrongLength
 	}
 	for i := 0; i < numChars; i++ {
 		str, _ := b.parseInt64(offset+6*i, 6)
