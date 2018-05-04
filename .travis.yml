@@ -1,0 +1,10 @@
+language: go
+
+go:
+  - 1.8.x
+
+before_install:
+  - go get -v github.com/go-check/check
+
+script:
+  - go test ./...
