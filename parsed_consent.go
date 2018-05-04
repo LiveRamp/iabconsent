@@ -5,7 +5,7 @@ Vendor Consent Strings as defined by the IAB Consent String 1.1 Spec.
 More info on the spec here:
 https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#vendor-consent-string-format-.
 
-Copyright (c) 2018 Andy Day. All rights reserved.
+Copyright (c) 2018 LiveRamp. All rights reserved.
 
 Written by Andy Day, Software Engineer @ LiveRamp
 for use in the LiveRamp Pixel Server.
@@ -172,7 +172,7 @@ func Parse(s string) (*ParsedConsent, error) {
 
 			isIDRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
 
-			if 	isIDRange {
+			if isIDRange {
 				startVendorID, err = cs.parseInt(StartVendorIdOffset+parsedBits, StartVendorIdSize)
 				if err != nil {
 					return nil, err
