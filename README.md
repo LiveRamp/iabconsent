@@ -9,7 +9,7 @@ go get -v github.com/LiveRamp/iabconsent
 This package defines a struct (`ParsedConsent`) which contains all of the fields of the IAB Consent String. The function `Parse(s string)` accepts the Base64 Raw URL Encoded cookie string and returns a `ParsedConsent` with all relevent fields populated.
 
 Example use:
-```
+```go
 package main
 
 import (
