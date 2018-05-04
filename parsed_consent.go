@@ -102,7 +102,7 @@ func Parse(s string) (*ParsedConsent, error) {
 	var cs = parseBytes(b)
 	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID, numEntries int
 	var created, updated int64
-	var isRange, defaultConsent, singleOrRange bool
+	var isRangeEntries, defaultConsent, isIDRange bool
 	var consentLanguage string
 	var purposesAllowed = make(map[int]interface{})
 	var approvedVendorIDs = make(map[int]interface{})
@@ -147,14 +147,14 @@ func Parse(s string) (*ParsedConsent, error) {
 	if err != nil {
 		return nil, err
 	}
-	isRange, err = cs.parseBit(EncodingTypeOffset)
+	isRangeEntries, err = cs.parseBit(EncodingTypeOffset)
 	if err != nil {
 		return nil, err
 	}
 
 	var rangeEntries []*RangeEntry
 
-	if isRange {
+	if isRangeEntries {
 		defaultConsent, err = cs.parseBit(DefaultConsentOffset)
 		if err != nil {
 			return nil, err
@@ -170,15 +170,9 @@ func Parse(s string) (*ParsedConsent, error) {
 		for i := 0; i < numEntries; i++ {
 			var singleVendorID, startVendorID, endVendorID int
 
-			singleOrRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
+			isIDRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
 
-			if !singleOrRange {
-				singleVendorID, err = cs.parseInt(SingleVendorIdOffset+parsedBits, SingleVendorIdSize)
-				if err != nil {
-					return nil, err
-				}
-				parsedBits += 17
-			} else {
+			if 	isIDRange {
 				startVendorID, err = cs.parseInt(StartVendorIdOffset+parsedBits, StartVendorIdSize)
 				if err != nil {
 					return nil, err
@@ -188,10 +182,16 @@ func Parse(s string) (*ParsedConsent, error) {
 					return nil, err
 				}
 				parsedBits += 33
+			} else {
+				singleVendorID, err = cs.parseInt(SingleVendorIdOffset+parsedBits, SingleVendorIdSize)
+				if err != nil {
+					return nil, err
+				}
+				parsedBits += 17
 			}
 
 			rangeEntries = append(rangeEntries, &RangeEntry{
-				SingleOrRange:  singleOrRange,
+				SingleOrRange:  isIDRange,
 				SingleVendorID: singleVendorID,
 				StartVendorID:  startVendorID,
 				EndVendorID:    endVendorID,
@@ -216,7 +216,7 @@ func Parse(s string) (*ParsedConsent, error) {
 		VendorListVersion: vendorListVersion,
 		PurposesAllowed:   purposesAllowed,
 		MaxVendorID:       maxVendorID,
-		IsRange:           isRange,
+		IsRange:           isRangeEntries,
 		ApprovedVendorIDs: approvedVendorIDs,
 		DefaultConsent:    defaultConsent,
 		NumEntries:        numEntries,
