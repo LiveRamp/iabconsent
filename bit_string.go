@@ -54,11 +54,11 @@ func (b bitString) parseInt(offset, size int) (int, error) {
 // of bits representing purposes as defined in the IAB spec.
 // More on the purposes here: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#purposes-features.
 // The resulting map's keys represent the purposes allowed for this user.
-func (b bitString) parseBitList(offset, size int) (map[int]interface{}, error) {
+func (b bitString) parseBitList(offset, size int) (map[int]bool, error) {
 	if len(b.value)-1 < offset+size {
 		return nil, errOutOfRange
 	}
-	var purposes = make(map[int]interface{})
+	var purposes = make(map[int]bool)
 	for i, v := range b.value[offset:(offset + size)] {
 		if v == '1' {
 			purposes[i+1] = true

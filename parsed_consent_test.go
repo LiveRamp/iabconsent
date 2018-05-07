@@ -102,8 +102,6 @@ func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
 	c.Check(pc.VendorAllowed(500), gc.Equals, false)
 }
 
-
-
 func normalizeParsedConsent(p *ParsedConsent) {
 	sort.Slice(p.RangeEntries, func(i, j int) bool {
 		return p.RangeEntries[i].IsIDRange

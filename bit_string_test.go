@@ -38,7 +38,7 @@ func (p *BitStringSuite) TestParseBitList(c *gc.C) {
 
 	i, err = dummyBitString().parseBitList(4, 8)
 	c.Check(err, gc.IsNil)
-	c.Check(i, gc.DeepEquals, map[int]interface{}{
+	c.Check(i, gc.DeepEquals, map[int]bool{
 		2: true,
 		5: true,
 		6: true,

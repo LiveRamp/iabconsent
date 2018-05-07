@@ -67,10 +67,10 @@ type ParsedConsent struct {
 	ConsentScreen     int
 	ConsentLanguage   string
 	VendorListVersion int
-	PurposesAllowed   map[int]interface{}
+	PurposesAllowed   map[int]bool
 	MaxVendorID       int
 	IsRange           bool
-	ApprovedVendorIDs map[int]interface{}
+	ApprovedVendorIDs map[int]bool
 	DefaultConsent    bool
 	NumEntries        int
 	RangeEntries      []*RangeEntry
@@ -104,8 +104,8 @@ func Parse(s string) (*ParsedConsent, error) {
 	var created, updated int64
 	var isRangeEntries, defaultConsent, isIDRange bool
 	var consentLanguage string
-	var purposesAllowed = make(map[int]interface{})
-	var approvedVendorIDs = make(map[int]interface{})
+	var purposesAllowed = make(map[int]bool)
+	var approvedVendorIDs = make(map[int]bool)
 
 	version, err = cs.parseInt(VersionBitOffset, VersionBitSize)
 	if err != nil {
