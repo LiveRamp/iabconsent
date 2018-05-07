@@ -74,9 +74,39 @@ func (p *ParsedConsentSuite) TestParseConsentStrings(c *gc.C) {
 	}
 }
 
+func (p *ParsedConsentSuite) TestPurposesConsented(c *gc.C) {
+	pc := consentFixtures[BitField]
+
+	cids := []int{1, 3}
+	c.Check(pc.PurposesConsented(cids), gc.Equals, true)
+
+	cids = []int{1, 4}
+	c.Check(pc.PurposesConsented(cids), gc.Equals, false)
+}
+
+func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
+	pc := consentFixtures[BitField]
+
+	c.Check(pc.VendorAllowed(1), gc.Equals, true)
+	c.Check(pc.VendorAllowed(3), gc.Equals, false)
+
+	pc = consentFixtures[MultipleRangesMixed]
+
+	c.Check(pc.VendorAllowed(123), gc.Equals, true)
+	c.Check(pc.VendorAllowed(345), gc.Equals, true)
+	c.Check(pc.VendorAllowed(400), gc.Equals, true)
+	c.Check(pc.VendorAllowed(456), gc.Equals, true)
+
+	c.Check(pc.VendorAllowed(1), gc.Equals, false)
+	c.Check(pc.VendorAllowed(150), gc.Equals, false)
+	c.Check(pc.VendorAllowed(500), gc.Equals, false)
+}
+
+
+
 func normalizeParsedConsent(p *ParsedConsent) {
 	sort.Slice(p.RangeEntries, func(i, j int) bool {
-		return p.RangeEntries[i].SingleOrRange
+		return p.RangeEntries[i].IsIDRange
 	})
 	sort.Slice(p.RangeEntries, func(i, j int) bool {
 		return p.RangeEntries[i].SingleVendorID < p.RangeEntries[j].SingleVendorID

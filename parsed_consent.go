@@ -81,7 +81,7 @@ type ParsedConsent struct {
 // of the consent string is only populated when the
 // EncodingType field is set to 1.
 type RangeEntry struct {
-	SingleOrRange  bool
+	IsIDRange      bool
 	SingleVendorID int
 	StartVendorID  int
 	EndVendorID    int
@@ -191,7 +191,7 @@ func Parse(s string) (*ParsedConsent, error) {
 			}
 
 			rangeEntries = append(rangeEntries, &RangeEntry{
-				SingleOrRange:  isIDRange,
+				IsIDRange:      isIDRange,
 				SingleVendorID: singleVendorID,
 				StartVendorID:  startVendorID,
 				EndVendorID:    endVendorID,
@@ -222,4 +222,42 @@ func Parse(s string) (*ParsedConsent, error) {
 		NumEntries:        numEntries,
 		RangeEntries:      rangeEntries,
 	}, nil
+}
+
+// PurposesConsented returns true if each consent ID in |pu|
+// exists in the ParsedConsent, and false if any does not.
+func (p *ParsedConsent) PurposesConsented(pu []int) bool {
+	for _, rp := range pu {
+		if _, ok := p.PurposesAllowed[rp]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+// VendorAllowed returns true if the ParsedConsent contains
+// affirmative consent for Vendor of ID |i|.
+func (p *ParsedConsent) VendorAllowed(i int) bool {
+	if p.IsRange {
+		// DefaultConsent indicates the consent for those
+		// not covered by any Range Entries. Vendors covered
+		// in RangeEntries have the opposite consent of
+		// DefaultConsent.
+		for _, re := range p.RangeEntries {
+			if re.IsIDRange {
+				if re.StartVendorID <= i &&
+					re.EndVendorID >= i {
+					return !p.DefaultConsent
+				}
+			} else {
+				if re.SingleVendorID == i {
+					return !p.DefaultConsent
+				}
+			}
+		}
+	} else {
+		var _, ok = p.ApprovedVendorIDs[i]
+		return ok
+	}
+	return p.DefaultConsent
 }
