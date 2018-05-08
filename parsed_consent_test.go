@@ -74,14 +74,31 @@ func (p *ParsedConsentSuite) TestParseConsentStrings(c *gc.C) {
 	}
 }
 
-func (p *ParsedConsentSuite) TestPurposesConsented(c *gc.C) {
+func (p *ParsedConsentSuite) TestGetMethods(c *gc.C) {
+	pc := consentFixtures[BitField]
+	c.Check(pc.ConsentString(), gc.Equals, pc.consentString)
+	c.Check(pc.Version(), gc.Equals, pc.version)
+	c.Check(pc.Created(), gc.Equals, pc.created)
+	c.Check(pc.LastUpdated(), gc.Equals, pc.lastUpdated)
+	c.Check(pc.CmpID(), gc.Equals, pc.cmpID)
+	c.Check(pc.CmpVersion(), gc.Equals, pc.cmpVersion)
+	c.Check(pc.ConsentScreen(), gc.Equals, pc.consentScreen)
+	c.Check(pc.ConsentLanguage(), gc.Equals, pc.consentLanguage)
+	c.Check(pc.VendorListVersion(), gc.Equals, pc.vendorListVersion)
+	c.Check(pc.MaxVendorID(), gc.Equals, pc.maxVendorID)
+}
+
+func (p *ParsedConsentSuite) TestPurposeAllowed(c *gc.C) {
+	pc := consentFixtures[BitField]
+	c.Check(pc.PurposeAllowed(1), gc.Equals, true)
+	c.Check(pc.PurposeAllowed(2), gc.Equals, false)
+}
+
+func (p *ParsedConsentSuite) TestPurposesAllowed(c *gc.C) {
 	pc := consentFixtures[BitField]
 
-	cids := []int{1, 3}
-	c.Check(pc.PurposesConsented(cids), gc.Equals, true)
-
-	cids = []int{1, 4}
-	c.Check(pc.PurposesConsented(cids), gc.Equals, false)
+	c.Check(pc.PurposesAllowed([]int{1, 3}), gc.Equals, true)
+	c.Check(pc.PurposesAllowed([]int{1, 4}), gc.Equals, false)
 }
 
 func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
@@ -103,14 +120,14 @@ func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
 }
 
 func normalizeParsedConsent(p *ParsedConsent) {
-	sort.Slice(p.RangeEntries, func(i, j int) bool {
-		return p.RangeEntries[i].IsIDRange
+	sort.Slice(p.rangeEntries, func(i, j int) bool {
+		return p.rangeEntries[i].IsIDRange
 	})
-	sort.Slice(p.RangeEntries, func(i, j int) bool {
-		return p.RangeEntries[i].SingleVendorID < p.RangeEntries[j].SingleVendorID
+	sort.Slice(p.rangeEntries, func(i, j int) bool {
+		return p.rangeEntries[i].SingleVendorID < p.rangeEntries[j].SingleVendorID
 	})
-	sort.Slice(p.RangeEntries, func(i, j int) bool {
-		return p.RangeEntries[i].StartVendorID < p.RangeEntries[j].StartVendorID
+	sort.Slice(p.rangeEntries, func(i, j int) bool {
+		return p.rangeEntries[i].StartVendorID < p.rangeEntries[j].StartVendorID
 	})
 }
 

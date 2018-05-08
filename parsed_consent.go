@@ -58,29 +58,124 @@ const (
 // ParsedConsent contains all fields defined in the
 // IAB Consent String 1.1 Spec.
 type ParsedConsent struct {
-	ConsentString     string
-	Version           int
-	Created           time.Time
-	LastUpdated       time.Time
-	CmpID             int
-	CmpVersion        int
-	ConsentScreen     int
-	ConsentLanguage   string
-	VendorListVersion int
-	PurposesAllowed   map[int]bool
-	MaxVendorID       int
-	IsRange           bool
-	ApprovedVendorIDs map[int]bool
-	DefaultConsent    bool
-	NumEntries        int
-	RangeEntries      []*RangeEntry
+	consentString     string
+	version           int
+	created           time.Time
+	lastUpdated       time.Time
+	cmpID             int
+	cmpVersion        int
+	consentScreen     int
+	consentLanguage   string
+	vendorListVersion int
+	purposesAllowed   map[int]bool
+	maxVendorID       int
+	isRange           bool
+	approvedVendorIDs map[int]bool
+	defaultConsent    bool
+	numEntries        int
+	rangeEntries      []*rangeEntry
 }
 
-// RangeEntry contains all fields in the Range Entry
+// ConsentString returns the consentString.
+func (p *ParsedConsent) ConsentString() string {
+	return p.consentString
+}
+
+// Version returns the version.
+func (p *ParsedConsent) Version() int {
+	return p.version
+}
+
+// Created returns the created.
+func (p *ParsedConsent) Created() time.Time {
+	return p.created
+}
+
+// LastUpdated returns lastUpdated.
+func (p *ParsedConsent) LastUpdated() time.Time {
+	return p.lastUpdated
+}
+
+// CmpID returns cmpID.
+func (p *ParsedConsent) CmpID() int {
+	return p.cmpID
+}
+
+// CmpVersion returns cmpVersion.
+func (p *ParsedConsent) CmpVersion() int {
+	return p.cmpVersion
+}
+
+// ConsentScreen returns consentScreen.
+func (p *ParsedConsent) ConsentScreen() int {
+	return p.consentScreen
+}
+
+// ConsentLanguage returns consentLanguage.
+func (p *ParsedConsent) ConsentLanguage() string {
+	return p.consentLanguage
+}
+
+// VendorListVersion returns vendorListVersion.
+func (p *ParsedConsent) VendorListVersion() int {
+	return p.vendorListVersion
+}
+
+// MaxVendorID returns maxVendorID.
+func (p *ParsedConsent) MaxVendorID() int {
+	return p.maxVendorID
+}
+
+// PurposeAllowed returns true if the consent ID |pu|
+// exists in the ParsedConsent and false otherwise.
+func (p *ParsedConsent) PurposeAllowed(pu int) bool {
+	_, ok := p.purposesAllowed[pu]
+	return ok
+}
+
+// PurposesAllowed returns true if each consent ID in |pu|
+// exists in the ParsedConsent, and false if any does not.
+func (p *ParsedConsent) PurposesAllowed(pu []int) bool {
+	for _, rp := range pu {
+		if !p.PurposeAllowed(rp) {
+			return false
+		}
+	}
+	return true
+}
+
+// VendorAllowed returns true if the ParsedConsent contains
+// affirmative consent for Vendor of ID |i|.
+func (p *ParsedConsent) VendorAllowed(i int) bool {
+	if p.isRange {
+		// defaultConsent indicates the consent for those
+		// not covered by any Range Entries. Vendors covered
+		// in rangeEntries have the opposite consent of
+		// defaultConsent.
+		for _, re := range p.rangeEntries {
+			if re.IsIDRange {
+				if re.StartVendorID <= i &&
+					re.EndVendorID >= i {
+					return !p.defaultConsent
+				}
+			} else {
+				if re.SingleVendorID == i {
+					return !p.defaultConsent
+				}
+			}
+		}
+	} else {
+		var _, ok = p.approvedVendorIDs[i]
+		return ok
+	}
+	return p.defaultConsent
+}
+
+// rangeEntry contains all fields in the Range Entry
 // portion of the Vendor Consent String. This portion
 // of the consent string is only populated when the
 // EncodingType field is set to 1.
-type RangeEntry struct {
+type rangeEntry struct {
 	IsIDRange      bool
 	SingleVendorID int
 	StartVendorID  int
@@ -152,7 +247,7 @@ func Parse(s string) (*ParsedConsent, error) {
 		return nil, err
 	}
 
-	var rangeEntries []*RangeEntry
+	var rangeEntries []*rangeEntry
 
 	if isRangeEntries {
 		defaultConsent, err = cs.parseBit(DefaultConsentOffset)
@@ -190,7 +285,7 @@ func Parse(s string) (*ParsedConsent, error) {
 				parsedBits += 17
 			}
 
-			rangeEntries = append(rangeEntries, &RangeEntry{
+			rangeEntries = append(rangeEntries, &rangeEntry{
 				IsIDRange:      isIDRange,
 				SingleVendorID: singleVendorID,
 				StartVendorID:  startVendorID,
@@ -205,59 +300,21 @@ func Parse(s string) (*ParsedConsent, error) {
 	}
 
 	return &ParsedConsent{
-		ConsentString:     cs.value,
-		Version:           version,
-		Created:           time.Unix(created/10, created%10),
-		LastUpdated:       time.Unix(updated/10, updated%10),
-		CmpID:             cmpID,
-		CmpVersion:        cmpVersion,
-		ConsentScreen:     consentScreen,
-		ConsentLanguage:   consentLanguage,
-		VendorListVersion: vendorListVersion,
-		PurposesAllowed:   purposesAllowed,
-		MaxVendorID:       maxVendorID,
-		IsRange:           isRangeEntries,
-		ApprovedVendorIDs: approvedVendorIDs,
-		DefaultConsent:    defaultConsent,
-		NumEntries:        numEntries,
-		RangeEntries:      rangeEntries,
+		consentString:     cs.value,
+		version:           version,
+		created:           time.Unix(created/10, created%10),
+		lastUpdated:       time.Unix(updated/10, updated%10),
+		cmpID:             cmpID,
+		cmpVersion:        cmpVersion,
+		consentScreen:     consentScreen,
+		consentLanguage:   consentLanguage,
+		vendorListVersion: vendorListVersion,
+		purposesAllowed:   purposesAllowed,
+		maxVendorID:       maxVendorID,
+		isRange:           isRangeEntries,
+		approvedVendorIDs: approvedVendorIDs,
+		defaultConsent:    defaultConsent,
+		numEntries:        numEntries,
+		rangeEntries:      rangeEntries,
 	}, nil
-}
-
-// PurposesConsented returns true if each consent ID in |pu|
-// exists in the ParsedConsent, and false if any does not.
-func (p *ParsedConsent) PurposesConsented(pu []int) bool {
-	for _, rp := range pu {
-		if _, ok := p.PurposesAllowed[rp]; !ok {
-			return false
-		}
-	}
-	return true
-}
-
-// VendorAllowed returns true if the ParsedConsent contains
-// affirmative consent for Vendor of ID |i|.
-func (p *ParsedConsent) VendorAllowed(i int) bool {
-	if p.IsRange {
-		// DefaultConsent indicates the consent for those
-		// not covered by any Range Entries. Vendors covered
-		// in RangeEntries have the opposite consent of
-		// DefaultConsent.
-		for _, re := range p.RangeEntries {
-			if re.IsIDRange {
-				if re.StartVendorID <= i &&
-					re.EndVendorID >= i {
-					return !p.DefaultConsent
-				}
-			} else {
-				if re.SingleVendorID == i {
-					return !p.DefaultConsent
-				}
-			}
-		}
-	} else {
-		var _, ok = p.ApprovedVendorIDs[i]
-		return ok
-	}
-	return p.DefaultConsent
 }
