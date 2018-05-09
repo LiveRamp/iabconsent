@@ -66,8 +66,8 @@ var consentFixtures = map[consentType]*ParsedConsent{
 		numEntries:        1,
 		rangeEntries: []*rangeEntry{
 			{
-				IsIDRange:      false,
-				SingleVendorID: 123,
+				StartVendorID: 123,
+				EndVendorID:   123,
 			},
 		},
 	},
@@ -94,7 +94,6 @@ var consentFixtures = map[consentType]*ParsedConsent{
 		numEntries:        1,
 		rangeEntries: []*rangeEntry{
 			{
-				IsIDRange:     true,
 				StartVendorID: 123,
 				EndVendorID:   234,
 			},
@@ -123,12 +122,12 @@ var consentFixtures = map[consentType]*ParsedConsent{
 		numEntries:        2,
 		rangeEntries: []*rangeEntry{
 			{
-				IsIDRange:      false,
-				SingleVendorID: 123,
+				StartVendorID: 123,
+				EndVendorID:   123,
 			},
 			{
-				IsIDRange:      false,
-				SingleVendorID: 234,
+				StartVendorID: 234,
+				EndVendorID:   234,
 			},
 		},
 	},
@@ -155,12 +154,10 @@ var consentFixtures = map[consentType]*ParsedConsent{
 		numEntries:        2,
 		rangeEntries: []*rangeEntry{
 			{
-				IsIDRange:     true,
 				StartVendorID: 123,
 				EndVendorID:   234,
 			},
 			{
-				IsIDRange:     true,
 				StartVendorID: 345,
 				EndVendorID:   456,
 			},
@@ -189,11 +186,10 @@ var consentFixtures = map[consentType]*ParsedConsent{
 		numEntries:        2,
 		rangeEntries: []*rangeEntry{
 			{
-				IsIDRange:      false,
-				SingleVendorID: 123,
+				StartVendorID: 123,
+				EndVendorID:   123,
 			},
 			{
-				IsIDRange:     true,
 				StartVendorID: 345,
 				EndVendorID:   456,
 			},

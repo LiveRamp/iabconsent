@@ -1,9 +1,11 @@
 package iabconsent
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // Common error messages for bitString methods.
@@ -23,20 +25,23 @@ type bitString struct {
 }
 
 // parseBytes takes in a []byte |b| and returns a bitString |bs|
-// who's value is the concatenation of the 8 bit binary representation
+// whose value is the concatenation of the 8 bit binary representation
 // of each element of |b|. Given that the consent string is not necessarily
 // a multiple of 8 bits, we pad the end of the string with 0s.
-func parseBytes(b []byte) (bs bitString) {
+func parseBytes(b []byte) bitString {
+	var buffer bytes.Buffer
+
 	for _, s := range b {
-		bs.value = bs.value + fmt.Sprintf("%08b", s)
+		buffer.WriteString(fmt.Sprintf("%08b", s))
 	}
-	return
+
+	return bitString{value: buffer.String()}
 }
 
 // parseInt64 takes a bit offset and size and converts the binary
 // number produced from that substring slice into an int64.
 func (b bitString) parseInt64(offset, size int) (int64, error) {
-	if len(b.value)-1 < offset+size {
+	if len(b.value) - 1 < offset+size {
 		return 0, errOutOfRange
 	}
 	return strconv.ParseInt(b.value[offset:(offset+size)], 2, 64)
@@ -46,7 +51,20 @@ func (b bitString) parseInt64(offset, size int) (int64, error) {
 // number produced from that substring slice into an int.
 func (b bitString) parseInt(offset, size int) (int, error) {
 	var s, err = b.parseInt64(offset, size)
-	return int(s), err
+	if err != nil {
+		return 0, err
+	}
+	return int(s), nil
+}
+
+// parseTime takes a bit offset and size and converts the binary
+// number produced from that substring slice into a time.Time.
+func (b bitString) parseTime(offset, size int) (time.Time, error) {
+	var s, err = b.parseInt64(offset, size)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Unix(s/10, s%10), nil
 }
 
 // parseBitList takes a bit offset and size which specify a range
@@ -55,7 +73,7 @@ func (b bitString) parseInt(offset, size int) (int, error) {
 // More on the purposes here: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#purposes-features.
 // The resulting map's keys represent the purposes allowed for this user.
 func (b bitString) parseBitList(offset, size int) (map[int]bool, error) {
-	if len(b.value)-1 < offset+size {
+	if len(b.value) - 1 < offset + size {
 		return nil, errOutOfRange
 	}
 	var purposes = make(map[int]bool)
@@ -70,7 +88,7 @@ func (b bitString) parseBitList(offset, size int) (map[int]bool, error) {
 // parseBit returns a bool representing the bit at the
 // passed offset.
 func (b bitString) parseBit(offset int) (bool, error) {
-	if len(b.value)-1 < offset {
+	if len(b.value) - 1 < offset {
 		return false, errOutOfRange
 	}
 	return b.value[offset] == '1', nil
@@ -81,7 +99,7 @@ func (b bitString) parseBit(offset int) (bool, error) {
 // a letter and returned in a final string. parseString will error
 // if size is not divisible by 6.
 func (b bitString) parseString(offset, size int) (string, error) {
-	if len(b.value)-1 < offset+size {
+	if len(b.value) - 1 < offset + size {
 		return "", errOutOfRange
 	}
 

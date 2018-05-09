@@ -46,13 +46,8 @@ const (
 	DefaultConsentOffset    = 173
 	NumEntriesOffset        = 174
 	NumEntriesSize          = 12
-	SingleOrRangeOffset     = 186
-	SingleVendorIdOffset    = 187
-	SingleVendorIdSize      = 16
-	StartVendorIdOffset     = 187
-	StartVendorIdSize       = 16
-	EndVendorIdOffset       = 203
-	EndVendorIdSize         = 16
+	RangeEntryOffset        = 186
+	VendorIdSize            = 16
 )
 
 // ParsedConsent contains all fields defined in the
@@ -153,15 +148,9 @@ func (p *ParsedConsent) VendorAllowed(i int) bool {
 		// in rangeEntries have the opposite consent of
 		// defaultConsent.
 		for _, re := range p.rangeEntries {
-			if re.IsIDRange {
-				if re.StartVendorID <= i &&
-					re.EndVendorID >= i {
-					return !p.defaultConsent
-				}
-			} else {
-				if re.SingleVendorID == i {
-					return !p.defaultConsent
-				}
+			if re.StartVendorID <= i &&
+				re.EndVendorID >= i {
+				return !p.defaultConsent
 			}
 		}
 	} else {
@@ -176,10 +165,8 @@ func (p *ParsedConsent) VendorAllowed(i int) bool {
 // of the consent string is only populated when the
 // EncodingType field is set to 1.
 type rangeEntry struct {
-	IsIDRange      bool
-	SingleVendorID int
-	StartVendorID  int
-	EndVendorID    int
+	StartVendorID int
+	EndVendorID   int
 }
 
 // Parse takes a base64 Raw URL Encoded string which represents
@@ -194,55 +181,55 @@ func Parse(s string) (*ParsedConsent, error) {
 		return nil, err
 	}
 
-	var cs = parseBytes(b)
+	var bs = parseBytes(b)
 	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID, numEntries int
-	var created, updated int64
+	var created, updated time.Time
 	var isRangeEntries, defaultConsent, isIDRange bool
 	var consentLanguage string
 	var purposesAllowed = make(map[int]bool)
 	var approvedVendorIDs = make(map[int]bool)
 
-	version, err = cs.parseInt(VersionBitOffset, VersionBitSize)
+	version, err = bs.parseInt(VersionBitOffset, VersionBitSize)
 	if err != nil {
 		return nil, err
 	}
-	created, err = cs.parseInt64(CreatedBitOffset, CreatedBitSize)
+	created, err = bs.parseTime(CreatedBitOffset, CreatedBitSize)
 	if err != nil {
 		return nil, err
 	}
-	updated, err = cs.parseInt64(UpdatedBitOffset, UpdatedBitSize)
+	updated, err = bs.parseTime(UpdatedBitOffset, UpdatedBitSize)
 	if err != nil {
 		return nil, err
 	}
-	cmpID, err = cs.parseInt(CmpIdOffset, CmpIdSize)
+	cmpID, err = bs.parseInt(CmpIdOffset, CmpIdSize)
 	if err != nil {
 		return nil, err
 	}
-	cmpVersion, err = cs.parseInt(CmpVersionOffset, CmpVersionSize)
+	cmpVersion, err = bs.parseInt(CmpVersionOffset, CmpVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	consentScreen, err = cs.parseInt(ConsentScreenSizeOffset, ConsentScreenSize)
+	consentScreen, err = bs.parseInt(ConsentScreenSizeOffset, ConsentScreenSize)
 	if err != nil {
 		return nil, err
 	}
-	consentLanguage, err = cs.parseString(ConsentLanguageOffset, ConsentLanguageSize)
+	consentLanguage, err = bs.parseString(ConsentLanguageOffset, ConsentLanguageSize)
 	if err != nil {
 		return nil, err
 	}
-	vendorListVersion, err = cs.parseInt(VendorListVersionOffset, VendorListVersionSize)
+	vendorListVersion, err = bs.parseInt(VendorListVersionOffset, VendorListVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	purposesAllowed, err = cs.parseBitList(PurposesOffset, PurposesSize)
+	purposesAllowed, err = bs.parseBitList(PurposesOffset, PurposesSize)
 	if err != nil {
 		return nil, err
 	}
-	maxVendorID, err = cs.parseInt(MaxVendorIdOffset, MaxVendorIdSize)
+	maxVendorID, err = bs.parseInt(MaxVendorIdOffset, MaxVendorIdSize)
 	if err != nil {
 		return nil, err
 	}
-	isRangeEntries, err = cs.parseBit(EncodingTypeOffset)
+	isRangeEntries, err = bs.parseBit(EncodingTypeOffset)
 	if err != nil {
 		return nil, err
 	}
@@ -250,11 +237,11 @@ func Parse(s string) (*ParsedConsent, error) {
 	var rangeEntries []*rangeEntry
 
 	if isRangeEntries {
-		defaultConsent, err = cs.parseBit(DefaultConsentOffset)
+		defaultConsent, err = bs.parseBit(DefaultConsentOffset)
 		if err != nil {
 			return nil, err
 		}
-		numEntries, err = cs.parseInt(NumEntriesOffset, NumEntriesSize)
+		numEntries, err = bs.parseInt(NumEntriesOffset, NumEntriesSize)
 		if err != nil {
 			return nil, err
 		}
@@ -263,47 +250,48 @@ func Parse(s string) (*ParsedConsent, error) {
 		var parsedBits = 0
 
 		for i := 0; i < numEntries; i++ {
-			var singleVendorID, startVendorID, endVendorID int
+			var startVendorID, endVendorID int
 
-			isIDRange, err = cs.parseBit(SingleOrRangeOffset + parsedBits)
+			isIDRange, err = bs.parseBit(RangeEntryOffset + parsedBits)
+			parsedBits++
 
 			if isIDRange {
-				startVendorID, err = cs.parseInt(StartVendorIdOffset+parsedBits, StartVendorIdSize)
+				startVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
-				endVendorID, err = cs.parseInt(EndVendorIdOffset+parsedBits, EndVendorIdSize)
+				parsedBits += VendorIdSize
+				endVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
-				parsedBits += 33
+				parsedBits += VendorIdSize
 			} else {
-				singleVendorID, err = cs.parseInt(SingleVendorIdOffset+parsedBits, SingleVendorIdSize)
+				startVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
-				parsedBits += 17
+				endVendorID = startVendorID
+				parsedBits += VendorIdSize
 			}
 
 			rangeEntries = append(rangeEntries, &rangeEntry{
-				IsIDRange:      isIDRange,
-				SingleVendorID: singleVendorID,
-				StartVendorID:  startVendorID,
-				EndVendorID:    endVendorID,
+				StartVendorID: startVendorID,
+				EndVendorID:   endVendorID,
 			})
 		}
 	} else {
-		approvedVendorIDs, err = cs.parseBitList(VendorBitFieldOffset, maxVendorID)
+		approvedVendorIDs, err = bs.parseBitList(VendorBitFieldOffset, maxVendorID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &ParsedConsent{
-		consentString:     cs.value,
+		consentString:     bs.value,
 		version:           version,
-		created:           time.Unix(created/10, created%10),
-		lastUpdated:       time.Unix(updated/10, updated%10),
+		created:           created,
+		lastUpdated:       updated,
 		cmpID:             cmpID,
 		cmpVersion:        cmpVersion,
 		consentScreen:     consentScreen,

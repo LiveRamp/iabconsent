@@ -121,12 +121,6 @@ func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
 
 func normalizeParsedConsent(p *ParsedConsent) {
 	sort.Slice(p.rangeEntries, func(i, j int) bool {
-		return p.rangeEntries[i].IsIDRange
-	})
-	sort.Slice(p.rangeEntries, func(i, j int) bool {
-		return p.rangeEntries[i].SingleVendorID < p.rangeEntries[j].SingleVendorID
-	})
-	sort.Slice(p.rangeEntries, func(i, j int) bool {
 		return p.rangeEntries[i].StartVendorID < p.rangeEntries[j].StartVendorID
 	})
 }
