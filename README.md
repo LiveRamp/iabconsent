@@ -1,4 +1,6 @@
 # iabconsent
+[![Build Status](https://travis-ci.org/LiveRamp/iabconsent.svg?branch=master)](https://travis-ci.org/LiveRamp/iabconsent)
+
 A Golang implementation of the IAB Consent String 1.1 Spec
 
 To install:
