@@ -3,7 +3,7 @@ package iabconsent
 import (
 	"testing"
 
-	gc "github.com/go-check/check"
+	"github.com/go-check/check"
 )
 
-func Test(t *testing.T) { gc.TestingT(t) }
+func Test(t *testing.T) { check.TestingT(t) }

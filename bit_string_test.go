@@ -1,44 +1,44 @@
 package iabconsent
 
 import (
-	gc "github.com/go-check/check"
+	"github.com/go-check/check"
 )
 
 type BitStringSuite struct{}
 
-func (p *BitStringSuite) TestParseBytes(c *gc.C) {
+func (p *BitStringSuite) TestParseBytes(c *check.C) {
 	b := []byte{1, 2, 3, 4}
 	s := "00000001000000100000001100000100"
-	bs := parseBytes(b)
+	bs := ParseBytes(b)
 
-	c.Check(bs.value, gc.Equals, s)
+	c.Check(bs.value, check.Equals, s)
 }
 
-func (p *BitStringSuite) TestParseInt(c *gc.C) {
-	i, err := dummyBitString().parseInt(4, 100)
-	c.Check(err, gc.Equals, errOutOfRange)
+func (p *BitStringSuite) TestParseInt(c *check.C) {
+	i, err := dummyBitString().ParseInt(4, 100)
+	c.Check(err, check.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseInt(4, 8)
-	c.Check(err, gc.IsNil)
-	c.Check(i, gc.Equals, 78)
+	i, err = dummyBitString().ParseInt(4, 8)
+	c.Check(err, check.IsNil)
+	c.Check(i, check.Equals, 78)
 }
 
-func (p *BitStringSuite) TestParseInt64(c *gc.C) {
-	i, err := dummyBitString().parseInt64(4, 100)
-	c.Check(err, gc.Equals, errOutOfRange)
+func (p *BitStringSuite) TestParseInt64(c *check.C) {
+	i, err := dummyBitString().ParseInt64(4, 100)
+	c.Check(err, check.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseInt64(4, 8)
-	c.Check(err, gc.IsNil)
-	c.Check(i, gc.Equals, int64(78))
+	i, err = dummyBitString().ParseInt64(4, 8)
+	c.Check(err, check.IsNil)
+	c.Check(i, check.Equals, int64(78))
 }
 
-func (p *BitStringSuite) TestParseBitList(c *gc.C) {
-	i, err := dummyBitString().parseBitList(4, 100)
-	c.Check(err, gc.Equals, errOutOfRange)
+func (p *BitStringSuite) TestParseBitList(c *check.C) {
+	i, err := dummyBitString().ParseBitList(4, 100)
+	c.Check(err, check.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseBitList(4, 8)
-	c.Check(err, gc.IsNil)
-	c.Check(i, gc.DeepEquals, map[int]bool{
+	i, err = dummyBitString().ParseBitList(4, 8)
+	c.Check(err, check.IsNil)
+	c.Check(i, check.DeepEquals, map[int]bool{
 		2: true,
 		5: true,
 		6: true,
@@ -46,30 +46,30 @@ func (p *BitStringSuite) TestParseBitList(c *gc.C) {
 	})
 }
 
-func (p *BitStringSuite) TestParseBit(c *gc.C) {
-	i, err := dummyBitString().parseBool(100)
-	c.Check(err, gc.Equals, errOutOfRange)
+func (p *BitStringSuite) TestParseBit(c *check.C) {
+	i, err := dummyBitString().ParseBool(100)
+	c.Check(err, check.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseBool(4)
-	c.Check(err, gc.IsNil)
-	c.Check(i, gc.Equals, false)
+	i, err = dummyBitString().ParseBool(4)
+	c.Check(err, check.IsNil)
+	c.Check(i, check.Equals, false)
 }
 
-func (p *BitStringSuite) TestParseString(c *gc.C) {
-	i, err := dummyBitString().parseString(4, 11)
-	c.Check(err, gc.Equals, errWrongLength)
+func (p *BitStringSuite) TestParseString(c *check.C) {
+	i, err := dummyBitString().ParseString(4, 11)
+	c.Check(err, check.Equals, errWrongLength)
 
-	i, err = dummyBitString().parseString(4, 13)
-	c.Check(err, gc.Equals, errOutOfRange)
+	i, err = dummyBitString().ParseString(4, 13)
+	c.Check(err, check.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseString(4, 12)
-	c.Check(err, gc.IsNil)
-	c.Check(i, gc.Equals, "Td")
+	i, err = dummyBitString().ParseString(4, 12)
+	c.Check(err, check.IsNil)
+	c.Check(i, check.Equals, "Td")
 }
 
-// dummyBitString returns a *bitString to test on.
-func dummyBitString() *bitString {
-	return &bitString{"00000100111000110"}
+// dummyBitString returns a *BitString to test on.
+func dummyBitString() *BitString {
+	return &BitString{"00000100111000110"}
 }
 
-var _ = gc.Suite(&BitStringSuite{})
+var _ = check.Suite(&BitStringSuite{})

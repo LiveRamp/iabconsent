@@ -3,12 +3,12 @@ package iabconsent
 import (
 	"sort"
 
-	gc "github.com/go-check/check"
+	"github.com/go-check/check"
 )
 
 type ParsedConsentSuite struct{}
 
-func (p *ParsedConsentSuite) TestErrorCases(c *gc.C) {
+func (p *ParsedConsentSuite) TestErrorCases(c *check.C) {
 	var cases = []struct {
 		EncodedString string
 		Error         string
@@ -27,11 +27,11 @@ func (p *ParsedConsentSuite) TestErrorCases(c *gc.C) {
 	for _, tc := range cases {
 		c.Log(tc.EncodedString)
 		_, err := Parse(tc.EncodedString)
-		c.Check(err.Error(), gc.Equals, tc.Error)
+		c.Check(err.Error(), check.Equals, tc.Error)
 	}
 }
 
-func (p *ParsedConsentSuite) TestParseConsentStrings(c *gc.C) {
+func (p *ParsedConsentSuite) TestParseConsentStrings(c *check.C) {
 	var cases = []struct {
 		Type          consentType
 		EncodedString string
@@ -65,58 +65,58 @@ func (p *ParsedConsentSuite) TestParseConsentStrings(c *gc.C) {
 	for _, tc := range cases {
 		c.Log(tc)
 		pc, err := Parse(tc.EncodedString)
-		c.Check(err, gc.IsNil)
+		c.Check(err, check.IsNil)
 
 		normalizeParsedConsent(pc)
 		normalizeParsedConsent(consentFixtures[tc.Type])
 
-		c.Assert(pc, gc.DeepEquals, consentFixtures[tc.Type])
+		c.Assert(pc, check.DeepEquals, consentFixtures[tc.Type])
 	}
 }
 
-func (p *ParsedConsentSuite) TestGetMethods(c *gc.C) {
+func (p *ParsedConsentSuite) TestGetMethods(c *check.C) {
 	pc := consentFixtures[BitField]
-	c.Check(pc.ConsentString(), gc.Equals, pc.consentString)
-	c.Check(pc.Version(), gc.Equals, pc.version)
-	c.Check(pc.Created(), gc.Equals, pc.created)
-	c.Check(pc.LastUpdated(), gc.Equals, pc.lastUpdated)
-	c.Check(pc.CmpID(), gc.Equals, pc.cmpID)
-	c.Check(pc.CmpVersion(), gc.Equals, pc.cmpVersion)
-	c.Check(pc.ConsentScreen(), gc.Equals, pc.consentScreen)
-	c.Check(pc.ConsentLanguage(), gc.Equals, pc.consentLanguage)
-	c.Check(pc.VendorListVersion(), gc.Equals, pc.vendorListVersion)
-	c.Check(pc.MaxVendorID(), gc.Equals, pc.maxVendorID)
+	c.Check(pc.ConsentString(), check.Equals, pc.consentString)
+	c.Check(pc.Version(), check.Equals, pc.version)
+	c.Check(pc.Created(), check.Equals, pc.created)
+	c.Check(pc.LastUpdated(), check.Equals, pc.lastUpdated)
+	c.Check(pc.CmpID(), check.Equals, pc.cmpID)
+	c.Check(pc.CmpVersion(), check.Equals, pc.cmpVersion)
+	c.Check(pc.ConsentScreen(), check.Equals, pc.consentScreen)
+	c.Check(pc.ConsentLanguage(), check.Equals, pc.consentLanguage)
+	c.Check(pc.VendorListVersion(), check.Equals, pc.vendorListVersion)
+	c.Check(pc.MaxVendorID(), check.Equals, pc.maxVendorID)
 }
 
-func (p *ParsedConsentSuite) TestPurposeAllowed(c *gc.C) {
+func (p *ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
 	pc := consentFixtures[BitField]
-	c.Check(pc.PurposeAllowed(1), gc.Equals, true)
-	c.Check(pc.PurposeAllowed(2), gc.Equals, false)
+	c.Check(pc.PurposeAllowed(1), check.Equals, true)
+	c.Check(pc.PurposeAllowed(2), check.Equals, false)
 }
 
-func (p *ParsedConsentSuite) TestPurposesAllowed(c *gc.C) {
+func (p *ParsedConsentSuite) TestPurposesAllowed(c *check.C) {
 	pc := consentFixtures[BitField]
 
-	c.Check(pc.PurposesAllowed([]int{1, 3}), gc.Equals, true)
-	c.Check(pc.PurposesAllowed([]int{1, 4}), gc.Equals, false)
+	c.Check(pc.PurposesAllowed([]int{1, 3}), check.Equals, true)
+	c.Check(pc.PurposesAllowed([]int{1, 4}), check.Equals, false)
 }
 
-func (p *ParsedConsentSuite) TestVendorAllowed(c *gc.C) {
+func (p *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
 	pc := consentFixtures[BitField]
 
-	c.Check(pc.VendorAllowed(1), gc.Equals, true)
-	c.Check(pc.VendorAllowed(3), gc.Equals, false)
+	c.Check(pc.VendorAllowed(1), check.Equals, true)
+	c.Check(pc.VendorAllowed(3), check.Equals, false)
 
 	pc = consentFixtures[MultipleRangesMixed]
 
-	c.Check(pc.VendorAllowed(123), gc.Equals, true)
-	c.Check(pc.VendorAllowed(345), gc.Equals, true)
-	c.Check(pc.VendorAllowed(400), gc.Equals, true)
-	c.Check(pc.VendorAllowed(456), gc.Equals, true)
+	c.Check(pc.VendorAllowed(123), check.Equals, true)
+	c.Check(pc.VendorAllowed(345), check.Equals, true)
+	c.Check(pc.VendorAllowed(400), check.Equals, true)
+	c.Check(pc.VendorAllowed(456), check.Equals, true)
 
-	c.Check(pc.VendorAllowed(1), gc.Equals, false)
-	c.Check(pc.VendorAllowed(150), gc.Equals, false)
-	c.Check(pc.VendorAllowed(500), gc.Equals, false)
+	c.Check(pc.VendorAllowed(1), check.Equals, false)
+	c.Check(pc.VendorAllowed(150), check.Equals, false)
+	c.Check(pc.VendorAllowed(500), check.Equals, false)
 }
 
 func normalizeParsedConsent(p *ParsedConsent) {
@@ -125,4 +125,4 @@ func normalizeParsedConsent(p *ParsedConsent) {
 	})
 }
 
-var _ = gc.Suite(&ParsedConsentSuite{})
+var _ = check.Suite(&ParsedConsentSuite{})

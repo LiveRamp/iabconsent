@@ -183,7 +183,7 @@ func Parse(s string) (*ParsedConsent, error) {
 		return nil, err
 	}
 
-	var bs = parseBytes(b)
+	var bs = ParseBytes(b)
 	var version, cmpID, cmpVersion, consentScreen, vendorListVersion, maxVendorID, numEntries int
 	var created, updated time.Time
 	var isRangeEntries, defaultConsent, isIDRange bool
@@ -191,47 +191,47 @@ func Parse(s string) (*ParsedConsent, error) {
 	var purposesAllowed = make(map[int]bool)
 	var approvedVendorIDs = make(map[int]bool)
 
-	version, err = bs.parseInt(VersionBitOffset, VersionBitSize)
+	version, err = bs.ParseInt(VersionBitOffset, VersionBitSize)
 	if err != nil {
 		return nil, err
 	}
-	created, err = bs.parseTime(CreatedBitOffset, CreatedBitSize)
+	created, err = bs.ParseTime(CreatedBitOffset, CreatedBitSize)
 	if err != nil {
 		return nil, err
 	}
-	updated, err = bs.parseTime(UpdatedBitOffset, UpdatedBitSize)
+	updated, err = bs.ParseTime(UpdatedBitOffset, UpdatedBitSize)
 	if err != nil {
 		return nil, err
 	}
-	cmpID, err = bs.parseInt(CmpIdOffset, CmpIdSize)
+	cmpID, err = bs.ParseInt(CmpIdOffset, CmpIdSize)
 	if err != nil {
 		return nil, err
 	}
-	cmpVersion, err = bs.parseInt(CmpVersionOffset, CmpVersionSize)
+	cmpVersion, err = bs.ParseInt(CmpVersionOffset, CmpVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	consentScreen, err = bs.parseInt(ConsentScreenSizeOffset, ConsentScreenSize)
+	consentScreen, err = bs.ParseInt(ConsentScreenSizeOffset, ConsentScreenSize)
 	if err != nil {
 		return nil, err
 	}
-	consentLanguage, err = bs.parseString(ConsentLanguageOffset, ConsentLanguageSize)
+	consentLanguage, err = bs.ParseString(ConsentLanguageOffset, ConsentLanguageSize)
 	if err != nil {
 		return nil, err
 	}
-	vendorListVersion, err = bs.parseInt(VendorListVersionOffset, VendorListVersionSize)
+	vendorListVersion, err = bs.ParseInt(VendorListVersionOffset, VendorListVersionSize)
 	if err != nil {
 		return nil, err
 	}
-	purposesAllowed, err = bs.parseBitList(PurposesOffset, PurposesSize)
+	purposesAllowed, err = bs.ParseBitList(PurposesOffset, PurposesSize)
 	if err != nil {
 		return nil, err
 	}
-	maxVendorID, err = bs.parseInt(MaxVendorIdOffset, MaxVendorIdSize)
+	maxVendorID, err = bs.ParseInt(MaxVendorIdOffset, MaxVendorIdSize)
 	if err != nil {
 		return nil, err
 	}
-	isRangeEntries, err = bs.parseBool(EncodingTypeOffset)
+	isRangeEntries, err = bs.ParseBool(EncodingTypeOffset)
 	if err != nil {
 		return nil, err
 	}
@@ -239,11 +239,11 @@ func Parse(s string) (*ParsedConsent, error) {
 	var rangeEntries []*rangeEntry
 
 	if isRangeEntries {
-		defaultConsent, err = bs.parseBool(DefaultConsentOffset)
+		defaultConsent, err = bs.ParseBool(DefaultConsentOffset)
 		if err != nil {
 			return nil, err
 		}
-		numEntries, err = bs.parseInt(NumEntriesOffset, NumEntriesSize)
+		numEntries, err = bs.ParseInt(NumEntriesOffset, NumEntriesSize)
 		if err != nil {
 			return nil, err
 		}
@@ -254,22 +254,22 @@ func Parse(s string) (*ParsedConsent, error) {
 		for i := 0; i < numEntries; i++ {
 			var startVendorID, endVendorID int
 
-			isIDRange, err = bs.parseBool(RangeEntryOffset + parsedBits)
+			isIDRange, err = bs.ParseBool(RangeEntryOffset + parsedBits)
 			parsedBits++
 
 			if isIDRange {
-				startVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
+				startVendorID, err = bs.ParseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
 				parsedBits += VendorIdSize
-				endVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
+				endVendorID, err = bs.ParseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
 				parsedBits += VendorIdSize
 			} else {
-				startVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
+				startVendorID, err = bs.ParseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
@@ -283,7 +283,7 @@ func Parse(s string) (*ParsedConsent, error) {
 			})
 		}
 	} else {
-		approvedVendorIDs, err = bs.parseBitList(VendorBitFieldOffset, maxVendorID)
+		approvedVendorIDs, err = bs.ParseBitList(VendorBitFieldOffset, maxVendorID)
 		if err != nil {
 			return nil, err
 		}
