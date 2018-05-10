@@ -47,10 +47,10 @@ func (p *BitStringSuite) TestParseBitList(c *gc.C) {
 }
 
 func (p *BitStringSuite) TestParseBit(c *gc.C) {
-	i, err := dummyBitString().parseBit(100)
+	i, err := dummyBitString().parseBool(100)
 	c.Check(err, gc.Equals, errOutOfRange)
 
-	i, err = dummyBitString().parseBit(4)
+	i, err = dummyBitString().parseBool(4)
 	c.Check(err, gc.IsNil)
 	c.Check(i, gc.Equals, false)
 }

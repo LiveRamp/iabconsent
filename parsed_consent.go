@@ -172,6 +172,8 @@ type rangeEntry struct {
 // Parse takes a base64 Raw URL Encoded string which represents
 // a Vendor Consent String and returns a ParsedConsent with
 // it's fields populated with the values stored in the string.
+// Example Usage:
+//	var pc, err = iabconsent.Parse("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
 func Parse(s string) (*ParsedConsent, error) {
 	var b []byte
 	var err error
@@ -229,7 +231,7 @@ func Parse(s string) (*ParsedConsent, error) {
 	if err != nil {
 		return nil, err
 	}
-	isRangeEntries, err = bs.parseBit(EncodingTypeOffset)
+	isRangeEntries, err = bs.parseBool(EncodingTypeOffset)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +239,7 @@ func Parse(s string) (*ParsedConsent, error) {
 	var rangeEntries []*rangeEntry
 
 	if isRangeEntries {
-		defaultConsent, err = bs.parseBit(DefaultConsentOffset)
+		defaultConsent, err = bs.parseBool(DefaultConsentOffset)
 		if err != nil {
 			return nil, err
 		}
@@ -252,22 +254,22 @@ func Parse(s string) (*ParsedConsent, error) {
 		for i := 0; i < numEntries; i++ {
 			var startVendorID, endVendorID int
 
-			isIDRange, err = bs.parseBit(RangeEntryOffset + parsedBits)
+			isIDRange, err = bs.parseBool(RangeEntryOffset + parsedBits)
 			parsedBits++
 
 			if isIDRange {
-				startVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
+				startVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
 				parsedBits += VendorIdSize
-				endVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
+				endVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}
 				parsedBits += VendorIdSize
 			} else {
-				startVendorID, err = bs.parseInt(RangeEntryOffset + parsedBits, VendorIdSize)
+				startVendorID, err = bs.parseInt(RangeEntryOffset+parsedBits, VendorIdSize)
 				if err != nil {
 					return nil, err
 				}

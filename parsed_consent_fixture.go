@@ -13,7 +13,7 @@ const (
 	MultipleRangesMixed
 )
 
-var testTime = time.Unix(1525378200, 8)
+var testTime = time.Unix(1525378200, 8*nsPerDs)
 
 var consentFixtures = map[consentType]*ParsedConsent{
 	// BONMj34ONMj34ABACDENALqAAAAAplY

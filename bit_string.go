@@ -5,10 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
-// Common error messages for bitString methods.
+// Constants used to help do time conversions.
+const (
+	dsPerS  = 10
+	nsPerDs = int64(time.Millisecond * 100)
+)
+
+// Common errors for bitString methods.
 var (
 	errOutOfRange  = errors.New("index out of range")
 	errWrongLength = errors.New("bit string length must be multiple of 6")
@@ -41,7 +48,7 @@ func parseBytes(b []byte) bitString {
 // parseInt64 takes a bit offset and size and converts the binary
 // number produced from that substring slice into an int64.
 func (b bitString) parseInt64(offset, size int) (int64, error) {
-	if len(b.value) - 1 < offset+size {
+	if len(b.value)-1 < offset+size {
 		return 0, errOutOfRange
 	}
 	return strconv.ParseInt(b.value[offset:(offset+size)], 2, 64)
@@ -64,7 +71,7 @@ func (b bitString) parseTime(offset, size int) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	return time.Unix(s/10, s%10), nil
+	return time.Unix(s/dsPerS, s%dsPerS*nsPerDs), nil
 }
 
 // parseBitList takes a bit offset and size which specify a range
@@ -73,7 +80,7 @@ func (b bitString) parseTime(offset, size int) (time.Time, error) {
 // More on the purposes here: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#purposes-features.
 // The resulting map's keys represent the purposes allowed for this user.
 func (b bitString) parseBitList(offset, size int) (map[int]bool, error) {
-	if len(b.value) - 1 < offset + size {
+	if len(b.value)-1 < offset+size {
 		return nil, errOutOfRange
 	}
 	var purposes = make(map[int]bool)
@@ -85,10 +92,10 @@ func (b bitString) parseBitList(offset, size int) (map[int]bool, error) {
 	return purposes, nil
 }
 
-// parseBit returns a bool representing the bit at the
+// parseBool returns a bool representing the bit at the
 // passed offset.
-func (b bitString) parseBit(offset int) (bool, error) {
-	if len(b.value) - 1 < offset {
+func (b bitString) parseBool(offset int) (bool, error) {
+	if len(b.value)-1 < offset {
 		return false, errOutOfRange
 	}
 	return b.value[offset] == '1', nil
@@ -99,19 +106,19 @@ func (b bitString) parseBit(offset int) (bool, error) {
 // a letter and returned in a final string. parseString will error
 // if size is not divisible by 6.
 func (b bitString) parseString(offset, size int) (string, error) {
-	if len(b.value) - 1 < offset + size {
+	if len(b.value)-1 < offset+size {
 		return "", errOutOfRange
 	}
 
 	var numChars = size / 6
-	var retString = ""
+	var retString []string
 
 	if size%6 != 0 {
 		return "", errWrongLength
 	}
 	for i := 0; i < numChars; i++ {
 		str, _ := b.parseInt64(offset+6*i, 6)
-		retString = retString + string(str+65)
+		retString = append(retString, string(str+65))
 	}
-	return retString, nil
+	return strings.Join(retString, ""), nil
 }
