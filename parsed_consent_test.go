@@ -1,7 +1,9 @@
 package iabconsent
 
 import (
+	"fmt"
 	"sort"
+	"testing"
 
 	"github.com/go-check/check"
 )
@@ -126,3 +128,53 @@ func normalizeParsedConsent(p *ParsedConsent) {
 }
 
 var _ = check.Suite(&ParsedConsentSuite{})
+
+func BenchmarkParse(b *testing.B) {
+	b.ReportAllocs()
+
+	var cases = []struct {
+		Type          consentType
+		EncodedString string
+	}{
+		{
+			Type:          BitField,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAplY",
+		},
+		{
+			Type:          SingleRangeWithSingleID,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqABAD2AAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+		{
+			Type:          SingleRangeWithRange,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqABgD2AdQAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+		{
+			Type:          MultipleRangesWithSingleID,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACAD2AOoAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+		{
+			Type:          MultipleRangesWithRange,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACgD2AdUBWQHIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+		{
+			Type:          MultipleRangesMixed,
+			EncodedString: "BONMj34ONMj34ABACDENALqAAAAAqACAD3AVkByAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+	}
+
+	for _, c := range cases {
+		b.Run(fmt.Sprintf("%d", c.Type), func(b *testing.B) {
+			b.ReportAllocs()
+
+			for i := 0; i < b.N; i++ {
+				parsedString, err := Parse(c.EncodedString)
+				if err != nil {
+					b.Fatal(err)
+				}
+				if parsedString == nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}

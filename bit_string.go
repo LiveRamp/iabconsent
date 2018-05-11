@@ -3,7 +3,6 @@ package iabconsent
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -37,9 +36,11 @@ type BitString struct {
 // a multiple of 8 bits, we pad the end of the string with 0s.
 func ParseBytes(b []byte) BitString {
 	var buffer bytes.Buffer
+	buffer.Grow(len(b) * 8)
 
 	for _, s := range b {
-		buffer.WriteString(fmt.Sprintf("%08b", s))
+		x := byteToBinary(s)
+		buffer.Write(x[:])
 	}
 
 	return BitString{value: buffer.String()}
@@ -121,4 +122,19 @@ func (b BitString) ParseString(offset, size int) (string, error) {
 		retString = append(retString, string(str+65))
 	}
 	return strings.Join(retString, ""), nil
+}
+
+func byteToBinary(num byte) [8]byte {
+	var b [8]byte
+
+	for i := 7; i >= 0; i-- {
+		if num&1 == 1 {
+			b[i] = '1'
+		} else {
+			b[i] = '0'
+		}
+		num >>= 1
+	}
+
+	return b
 }
