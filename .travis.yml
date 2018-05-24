@@ -6,7 +6,8 @@ go:
   - 1.10.x
 
 before_install:
-  - go get -v github.com/go-check/check
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - dep ensure
 
 script:
   - go test -v ./...
