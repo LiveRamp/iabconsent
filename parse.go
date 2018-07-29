@@ -2,9 +2,9 @@ package iabconsent
 
 import (
 	"encoding/base64"
-	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/rupertchen/go-bits"
 )
 
@@ -27,51 +27,75 @@ func NewConsentReader(src []byte) *ConsentReader {
 }
 
 // ReadInt reads the next n bits and converts them to an int.
-func (r *ConsentReader) ReadInt(n uint) int {
-	return int(r.ReadBits(n))
+func (r *ConsentReader) ReadInt(n uint) (int, error) {
+	if b, err := r.ReadBits(n); err != nil {
+		return 0, errors.WithMessage(err, "read int")
+	} else {
+		return int(b), nil
+	}
 }
 
 // ReadTime reads the next 36 bits representing the epoch time in deciseconds
 // and converts it to a time.Time.
-func (r *ConsentReader) ReadTime() time.Time {
-	var ds = int64(r.ReadBits(36))
-	return time.Unix(ds/dsPerS, (ds%dsPerS)*nsPerDs).UTC()
+func (r *ConsentReader) ReadTime() (time.Time, error) {
+	if b, err := r.ReadBits(36); err != nil {
+		return time.Time{}, errors.WithMessage(err, "read time")
+	} else {
+		var ds = int64(b)
+		return time.Unix(ds/dsPerS, (ds%dsPerS)*nsPerDs).UTC(), nil
+	}
 }
 
 // ReadString returns a string of length n by reading the next 6 * n bits.
-func (r *ConsentReader) ReadString(n uint) string {
+func (r *ConsentReader) ReadString(n uint) (string, error) {
 	var buf = make([]byte, 0, n)
 	for i := uint(0); i < n; i++ {
-		buf = append(buf, byte(r.ReadBits(6))+'A')
+		if b, err := r.ReadBits(6); err != nil {
+			return "", errors.WithMessage(err, "read string")
+		} else {
+			buf = append(buf, byte(b)+'A')
+		}
 	}
-	return string(buf)
+	return string(buf), nil
 }
 
 // ReadBitField reads the next n bits and converts them to a map[int]bool.
-func (r *ConsentReader) ReadBitField(n uint) map[int]bool {
+func (r *ConsentReader) ReadBitField(n uint) (map[int]bool, error) {
 	var m = make(map[int]bool)
 	for i := uint(0); i < n; i++ {
-		if r.ReadBool() {
-			m[int(i)+1] = true
+		if b, err := r.ReadBool(); err != nil {
+			return nil, errors.WithMessage(err, "read bit field")
+		} else {
+			if b {
+				m[int(i)+1] = true
+			}
 		}
 	}
-	return m
+	return m, nil
 }
 
-func (r *ConsentReader) ReadRangeEntries(n uint) []*RangeEntry {
+func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	var ret = make([]*RangeEntry, 0, n)
+	var err error
 	for i := uint(0); i < n; i++ {
-		var isRange = r.ReadBool()
+		var isRange bool
+		if isRange, err = r.ReadBool(); err != nil {
+			return nil, errors.WithMessage(err, "is-range check")
+		}
 		var start, end int
-		start = r.ReadInt(16)
+		if start, err = r.ReadInt(16); err != nil {
+			return nil, errors.WithMessage(err, "range start")
+		}
 		if isRange {
-			end = r.ReadInt(16)
+			if end, err = r.ReadInt(16); err != nil {
+				return nil, errors.WithMessage(err, "range end")
+			}
 		} else {
 			end = start
 		}
 		ret = append(ret, &RangeEntry{StartVendorID: start, EndVendorID: end})
 	}
-	return ret
+	return ret, nil
 }
 
 // Parse takes a base64 Raw URL Encoded string which represents a Vendor
@@ -81,16 +105,8 @@ func (r *ConsentReader) ReadRangeEntries(n uint) []*RangeEntry {
 // Example Usage:
 //
 //   var pc, err = iabconsent.Parse("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
-func Parse(s string) (p *ParsedConsent, err error) {
-	// This func leverages named returns to return partially parsed content when there is an error
-
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("%v", r)
-		}
-	}()
-
-	b, err := base64.RawURLEncoding.DecodeString(s)
+func Parse(s string) (*ParsedConsent, error) {
+	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
 		return nil, err
 	}
@@ -98,26 +114,26 @@ func Parse(s string) (p *ParsedConsent, err error) {
 	var r = NewConsentReader(b)
 
 	// This block of code directly describes the format of the payload.
-	p = &ParsedConsent{}
-	p.Version = r.ReadInt(6)
-	p.Created = r.ReadTime()
-	p.LastUpdated = r.ReadTime()
-	p.CMPID = r.ReadInt(12)
-	p.CMPVersion = r.ReadInt(12)
-	p.ConsentScreen = r.ReadInt(6)
-	p.ConsentLanguage = r.ReadString(2)
-	p.VendorListVersion = r.ReadInt(12)
-	p.PurposesAllowed = r.ReadBitField(24)
-	p.MaxVendorID = r.ReadInt(16)
+	var p = &ParsedConsent{}
+	p.Version, _ = r.ReadInt(6)
+	p.Created, _ = r.ReadTime()
+	p.LastUpdated, _ = r.ReadTime()
+	p.CMPID, _ = r.ReadInt(12)
+	p.CMPVersion, _ = r.ReadInt(12)
+	p.ConsentScreen, _ = r.ReadInt(6)
+	p.ConsentLanguage, _ = r.ReadString(2)
+	p.VendorListVersion, _ = r.ReadInt(12)
+	p.PurposesAllowed, _ = r.ReadBitField(24)
+	p.MaxVendorID, _ = r.ReadInt(16)
 
-	p.IsRangeEncoding = r.ReadBool()
+	p.IsRangeEncoding, _ = r.ReadBool()
 	if p.IsRangeEncoding {
-		p.DefaultConsent = r.ReadBool()
-		p.NumEntries = r.ReadInt(12)
-		p.RangeEntries = r.ReadRangeEntries(uint(p.NumEntries))
+		p.DefaultConsent, _ = r.ReadBool()
+		p.NumEntries, _ = r.ReadInt(12)
+		p.RangeEntries, _ = r.ReadRangeEntries(uint(p.NumEntries))
 	} else {
-		p.ConsentedVendors = r.ReadBitField(uint(p.MaxVendorID))
+		p.ConsentedVendors, _ = r.ReadBitField(uint(p.MaxVendorID))
 	}
 
-	return p, nil
+	return p, r.Err
 }
