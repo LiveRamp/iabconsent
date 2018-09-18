@@ -95,7 +95,7 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 	}{
 		{
 			EncodedString: "//BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
-			Error:         "illegal base64 data at input byte 0",
+			Error:         "parse consent string: illegal base64 data at input byte 0",
 		},
 		{
 			// base64.RawURLEncoding.EncodeToString([]byte("10011010110110101"))

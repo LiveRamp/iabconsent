@@ -108,7 +108,7 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 func Parse(s string) (*ParsedConsent, error) {
 	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "parse consent string")
 	}
 
 	var r = NewConsentReader(b)
