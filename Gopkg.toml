@@ -2,6 +2,10 @@
   branch = "v1"
   name = "github.com/go-check/check"
 
+[[override]]
+  name = "github.com/rupertchen/go-bits"
+  revision = "a7374b2dae8c8e3610d76b8f348136c134a43cbc" # uses panic()
+
 [prune]
   go-tests = true
   unused-packages = true
