@@ -26,7 +26,9 @@ func (s *ParseSuite) TestConsentReader_ReadInt(c *check.C) {
 
 	var r = iabconsent.NewConsentReader([]byte{0xaa})
 	for _, t := range tests {
-		c.Check(r.ReadInt(t.n), check.Equals, t.expected)
+		var v, err = r.ReadInt(t.n)
+		c.Check(err, check.IsNil)
+		c.Check(v, check.Equals, t.expected)
 	}
 	c.Check(r.HasUnread(), check.Equals, false)
 }
@@ -37,7 +39,9 @@ func (s *ParseSuite) TestConsentReader_ReadTime(c *check.C) {
 	// 15266657115 deci-seconds
 	// 0x38df6b35b deci-seconds (hex)
 	var r = iabconsent.NewConsentReader([]byte{0x38, 0xdf, 0x6b, 0x35, 0xB0})
-	c.Check(r.ReadTime(), check.DeepEquals, time.Unix(1526665711, int64(500*time.Millisecond)).UTC())
+	var v, err = r.ReadTime()
+	c.Check(err, check.IsNil)
+	c.Check(v, check.DeepEquals, time.Unix(1526665711, int64(500*time.Millisecond)).UTC())
 	c.Check(r.NumUnread(), check.Equals, 4)
 }
 
@@ -49,9 +53,14 @@ func (s *ParseSuite) TestConsentReader_ReadString(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	var r = iabconsent.NewConsentReader(b)
-	c.Check(r.ReadString(1), check.Equals, "A")
-	c.Check(r.ReadString(2), check.Equals, "BC")
-	c.Check(r.ReadString(1), check.Equals, "D")
+	var checkString = func(n uint, expected string) {
+		var v, err = r.ReadString(n)
+		c.Check(err, check.IsNil)
+		c.Check(v, check.Equals, expected)
+	}
+	checkString(1, "A")
+	checkString(2, "BC")
+	checkString(1, "D")
 	c.Check(r.HasUnread(), check.Equals, false)
 }
 
@@ -72,7 +81,9 @@ func (s *ParseSuite) TestConsentReader_ReadBitField(c *check.C) {
 
 	var r = iabconsent.NewConsentReader([]byte{0x5a})
 	for _, t := range tests {
-		c.Check(r.ReadBitField(t.n), check.DeepEquals, t.expected)
+		var v, err = r.ReadBitField(t.n)
+		c.Check(err, check.IsNil)
+		c.Check(v, check.DeepEquals, t.expected)
 	}
 	c.Check(r.HasUnread(), check.Equals, false)
 }
@@ -84,17 +95,17 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 	}{
 		{
 			EncodedString: "//BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
-			Error:         "illegal base64 data at input byte 0",
+			Error:         "parse consent string: illegal base64 data at input byte 0",
 		},
 		{
 			// base64.RawURLEncoding.EncodeToString([]byte("10011010110110101"))
 			EncodedString: "MTAwMTEwMTAxMTAxMTAxMDE",
-			Error:         "index out of range",
+			Error:         ".*index out of range",
 		},
 	}
 
 	for _, t := range tests {
 		_, err := iabconsent.Parse(t.EncodedString)
-		c.Check(err.Error(), check.Equals, t.Error)
+		c.Check(err, check.ErrorMatches, t.Error)
 	}
 }

@@ -2,6 +2,14 @@
   branch = "v1"
   name = "github.com/go-check/check"
 
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "v0.8.0"
+
+[[constraint]]
+  name = "github.com/rupertchen/go-bits"
+  version = "v0.2.0"
+
 [prune]
   go-tests = true
   unused-packages = true

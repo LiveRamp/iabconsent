@@ -8,14 +8,20 @@
   revision = "20d25e2804050c1cd24a7eea1e7a6447dd0e74ec"
 
 [[projects]]
-  branch = "master"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/rupertchen/go-bits"
   packages = ["."]
-  revision = "3b2888c1d57c32dabf11d4394bca1084dc4c18f7"
+  revision = "e6e22cd48e4f78d8fb537a2aa7b63f3debb231cc"
+  version = "v0.2.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "183d07f32ad4d369c583794316cf311baec8c66147b7b5d1ab7f006ff3759636"
+  inputs-digest = "03d067f9290a2ed1e45c957b0437e7503c0c48e67be3aa79429ad3f033a088b1"
   solver-name = "gps-cdcl"
   solver-version = 1
