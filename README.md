@@ -1,5 +1,5 @@
 # iabconsent
-[![Build Status](https://travis-ci.org/LiveRamp/iabconsent.svg?branch=master)](https://travis-ci.org/LiveRamp/iabconsent)
+[![Build Status](https://travis-ci.com/LiveRamp/iabconsent.svg?branch=master)](https://travis-ci.com/LiveRamp/iabconsent)
 
 A Golang implementation of the IAB Consent String 1.1 Spec
 
