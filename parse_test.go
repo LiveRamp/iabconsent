@@ -105,7 +105,82 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 	}
 
 	for _, t := range tests {
-		_, err := iabconsent.Parse(t.EncodedString)
+		_, err := iabconsent.ParseV1(t.EncodedString)
 		c.Check(err, check.ErrorMatches, t.Error)
+	}
+}
+
+func (s *ParseSuite) TestConsentReader_RestrictionType(c *check.C) {
+	// Enums: 0, 1, 2, 3.
+	// Bits: 00, 01, 10, 11.
+	// Hex: 0x1B.
+	var r = iabconsent.NewConsentReader([]byte{0x1B})
+
+	var rts = []iabconsent.RestrictionType{
+		iabconsent.PurposeFlatlyNotAllowed, // 0.
+		iabconsent.RequireConsent, // 1.
+		iabconsent.RequireLegitimateInterest, // 2.
+		iabconsent.Undefined, // 3.
+	}
+
+	for _, i := range rts {
+		var rt, err = r.ReadRestrictionType()
+		c.Check(err, check.IsNil)
+		c.Check(rt, check.Equals, i)
+	}
+}
+
+func (s *ParseSuite) TestConsentReader_SegmentType(c *check.C) {
+	// Enums: 0, 1, 2, 3.
+	// Bits: 000, 001, 010, 011 (, 0000 extra bits).
+	// Hex: 0x05, 0x20.
+	var r = iabconsent.NewConsentReader([]byte{0x05, 0x30})
+
+	var rts = []iabconsent.OOBSegmentType{
+		iabconsent.Default, // 0.
+		iabconsent.DisclosedVendors, // 1.
+		iabconsent.AllowedVendors, // 2.
+		iabconsent.PublisherTC, // 3.
+	}
+
+	for _, i := range rts {
+		var rt, err = r.ReadSegmentType()
+		c.Check(err, check.IsNil)
+		c.Check(rt, check.Equals, i)
+	}
+}
+
+func (s *ParseSuite) TestParseVersion(c *check.C) {
+	var tcs = []struct{
+		s string
+		err string
+		exp iabconsent.StringVersion
+	}{
+		{
+			s: "Nonsense",
+			err: "not valid version",
+			exp: iabconsent.Invalid,
+		},
+		{
+			s: "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			exp: iabconsent.V1,
+		},
+		{
+			s: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			exp: iabconsent.V2,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		var p, err = iabconsent.ParseVersion(tc.s)
+		if tc.err != "" {
+			c.Check(err, check.ErrorMatches, tc.err)
+		} else {
+			c.Check(err, check.IsNil)
+		}
+
+		c.Check(p, check.Equals, tc.exp)
 	}
 }

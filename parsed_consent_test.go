@@ -43,13 +43,13 @@ func (p *ParsedConsentSuite) TestParseConsentStrings(c *check.C) {
 
 	for _, tc := range cases {
 		c.Log(tc)
-		pc, err := iabconsent.Parse(tc.EncodedString)
+		pc, err := iabconsent.ParseV1(tc.EncodedString)
 		c.Check(err, check.IsNil)
 
 		normalizeParsedConsent(pc)
-		normalizeParsedConsent(consentFixtures[tc.Type])
+		normalizeParsedConsent(v1ConsentFixtures[tc.Type])
 
-		c.Assert(pc, check.DeepEquals, consentFixtures[tc.Type])
+		c.Assert(pc, check.DeepEquals, v1ConsentFixtures[tc.Type])
 	}
 }
 
