@@ -1,6 +1,11 @@
 # iabconsent
-[![Build Status](https://travis-ci.com/LiveRamp/iabconsent.svg?branch=master)](https://travis-ci.com/LiveRamp/iabconsent)
-[![Go Report Card](https://goreportcard.com/badge/github.com/LiveRamp/iabconsent)](https://goreportcard.com/report/github.com/LiveRamp/iabconsent)
+[![Build Status][ci]](https://travis-ci.com/LiveRamp/iabconsent)
+
+[ci]: https://travis-ci.com/LiveRamp/iabconsent.svg?branch=master "Build Status"
+
+[![Go Report Card][report]](https://goreportcard.com/report/github.com/LiveRamp/iabconsent)
+
+[report]: https://goreportcard.com/badge/github.com/LiveRamp/iabconsent "Go Report Card"
 
 A Golang implementation of the IAB Consent String 1.1 Spec as well as the IAB Transparency and Consent String v2.0.
 

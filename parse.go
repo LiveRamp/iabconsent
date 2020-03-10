@@ -125,7 +125,7 @@ func Parse(s string) (*ParsedConsent, error) {
 	return ParseV1(s)
 }
 
-// Parse takes a base64 Raw URL Encoded string which represents a TCF v1.1
+// ParseV1 takes a base64 Raw URL Encoded string which represents a TCF v1.1
 // string and returns a ParsedConsent with its fields populated with
 // the values stored in the string.
 //
@@ -165,7 +165,7 @@ func ParseV1(s string) (*ParsedConsent, error) {
 	return p, r.Err
 }
 
-// Parse takes a base64 Raw URL Encoded string which represents a TCF v2
+// ParseV2 takes a base64 Raw URL Encoded string which represents a TCF v2
 // string and returns a ParsedConsent with its fields populated with
 // the values stored in the string.
 //
@@ -274,6 +274,8 @@ func parseVendors(r *ConsentReader, t OOBSegmentType) *OOBVendorList {
 	return v
 }
 
+// StringVersion is an enum type used for easily identifying which version
+// a consent string is.
 type StringVersion int
 
 const (
@@ -285,11 +287,11 @@ const (
 	V2
 )
 
-// ParseWithoutVersion allows the caller to pass any valid consent string
-// and get back a Consent, which will allow them to determine if required
-// purposes are allowed and whether a given vendor is allowed. This can be
-// useful as currently both specs use the same query parameter to pass the
-// strings.
+// ParseVersion allows the caller to pass any valid consent string to
+// determine which parse method is appropriate to call. The function returns
+// a StringVersion, which is simply an enum type for the known TCF versions
+// (and Invalid). It will return an error if the first 6 bits of the
+// base64-decoded string do not represent 1 or 2.
 func ParseVersion(s string) (StringVersion, error) {
 	var ss = strings.Split(s, ".")
 
