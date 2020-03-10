@@ -24,31 +24,26 @@ Example use:
 ```go
 package main
 
-import (
-  "fmt"
-
-  "github.com/LiveRamp/iabconsent"
-)
+import "github.com/LiveRamp/iabconsent"
 
 func main() {
-    var v1, err = iabconsent.ParseV1("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    if err != nil {
-        panic(err)
-    }
-    fmt.Printf("%+v\n", v1)
+    var consent = "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA"
 
-    var v2 *iabconsent.V2ParsedConsent
-    v2, err = iabconsent.ParseV2("real-value-goes-here")
+    var c, err = iabconsent.ParseVersion(consent)
     if err != nil {
         panic(err)
     }
-    fmt.Printf("%+v\n", v2)
-
-    c, err = iabconsent.ParseVersion("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    if err != nil {
-        panic(err)
+    
+    switch c {
+    case iabconsent.V1:
+        var v1, err = iabconsent.ParseV1(consent)
+        // Use v1 consent.
+    case iabconsent.V2:
+        var v2, err = iabconsent.ParseV2(consent)
+        // Use v2 consent.
+    default:
+        panic("unknown version")
     }
-    fmt.Printf("%+v\n", c)
 }
 ```
 
