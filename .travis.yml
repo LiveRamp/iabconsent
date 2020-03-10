@@ -11,9 +11,10 @@ go:
   - 1.13.x
   - master
 
-before_install:
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  - go mod download
+env:
+  - GO111MODULE=on
+
+install: true
 
 script:
   - go test -v ./...
