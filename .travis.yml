@@ -17,8 +17,6 @@ env:
 before_install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep ensure
-  on:
-    condition: $TRAVIS_GO_VERSION ~= ^1\.(7|8|9|10)
 
 install: true
 
