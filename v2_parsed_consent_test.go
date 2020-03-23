@@ -19,4 +19,9 @@ func (v *V2ParsedConsentSuite) TestParseV2(c *check.C) {
 	}
 }
 
+func (v *V2ParsedConsentSuite) TestNonV2Input(c *check.C) {
+	var _, err = iabconsent.ParseV2("BONMj34ONMj34ABACDENALqAAAAAplY") // V1 string.
+	c.Check(err, check.ErrorMatches, "non-v2 string passed to v2 parse method")
+}
+
 var _ = check.Suite(&V2ParsedConsentSuite{})

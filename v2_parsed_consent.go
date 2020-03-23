@@ -154,7 +154,7 @@ type PubRestrictionEntry struct {
 // PublisherTCEntry represents Publisher Purposes Transparency and Consent.
 type PublisherTCEntry struct {
 	// Enum type
-	SegmentType OOBSegmentType
+	SegmentType SegmentType
 	// The user's consent value for each Purpose established on the legal basis of consent, for the publisher.
 	// The Purposes are numerically identified and published in the Global Vendor List.
 	PubPurposesConsent map[int]bool
@@ -170,12 +170,12 @@ type PublisherTCEntry struct {
 	CustomPurposesLITransparency map[int]bool
 }
 
-// OOBSegmentType is an enum type of possible Out-of-Band (OOB) legal bases.
-type OOBSegmentType int
+// SegmentType is an enum type of possible Out-of-Band (OOB) legal bases.
+type SegmentType int
 
 const (
-	// Core.
-	Default OOBSegmentType = iota
+	// The core string.
+	CoreString SegmentType = iota
 	// The DisclosedVendors is a TC String segment that signals which vendors have been disclosed to a given user
 	// by a CMP. This segment is required when saving a global-context TC String. When a CMP updates a globally-scoped
 	// TC String, the CMP MUST retain the existing values and only add new disclosed Vendor IDs that had not been added
@@ -198,7 +198,7 @@ const (
 // OOBVendorList is represents either a DisclosedVendors or AllowedVendors list.
 type OOBVendorList struct {
 	// Enum type.
-	SegmentType OOBSegmentType
+	SegmentType SegmentType
 	// The maximum Vendor ID that is included.
 	MaxVendorID int
 	// The encoding scheme used to encode the IDs in the section – Either a BitField Section or Range Section follows.
@@ -223,11 +223,12 @@ type OOBVendorList struct {
 type SpecialFeature int
 
 const (
+	InvalidSpecialFeature SpecialFeature = iota
 	// Vendors can:
 	// - Collect and process precise geolocation data in support of one or more purposes.
 	// - N.B. Precise geolocation means that there are no restrictions on the precision of a user’s location;
 	//   this can be accurate to within several meters.
-	UsePreciseGeolocation SpecialFeature = iota + 1
+	UsePreciseGeolocation
 	// Vendors can:
 	// - Create an identifier using data collected via actively scanning a device for specific characteristics, e.g.
 	//   installed fonts or screen resolution.
@@ -235,10 +236,11 @@ const (
 	ActivelyScanDevice
 )
 
-// SpecialFeature is an enum type for special purposes.
+// SpecialPurpose is an enum type for special purposes.
 type SpecialPurpose int
 
 const (
+	InvalidSpecialPurpose SpecialPurpose = iota
 	// To ensure security, prevent fraud and debug vendors can:
 	// - Ensure data are securely transmitted
 	// - Detect and prevent malicious, fraudulent, invalid, or illegal activity.
@@ -246,7 +248,7 @@ const (
 	//    performance of systems and processes engaged in permitted purposes.
 	// Vendors cannot:
 	// - Conduct any other data processing operation allowed under a different purpose under this purpose
-	EnsureSecurity SpecialPurpose = iota + 1
+	EnsureSecurity
 	// To deliver information and respond to technical requests vendors can:
 	// - Use a user’s IP address to deliver an ad over the internet
 	// - Respond to a user’s interaction with an ad by sending the user to a landing page

@@ -95,7 +95,7 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 	}{
 		{
 			EncodedString: "//BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
-			Error:         "parse consent string: illegal base64 data at input byte 0",
+			Error:         "parse v1 consent string: illegal base64 data at input byte 0",
 		},
 		{
 			// base64.RawURLEncoding.EncodeToString([]byte("10011010110110101"))
@@ -136,11 +136,11 @@ func (s *ParseSuite) TestConsentReader_SegmentType(c *check.C) {
 	// Hex: 0x05, 0x20.
 	var r = iabconsent.NewConsentReader([]byte{0x05, 0x30})
 
-	var rts = []iabconsent.OOBSegmentType{
-		iabconsent.Default, // 0.
+	var rts = []iabconsent.SegmentType{
+		iabconsent.CoreString,       // 0.
 		iabconsent.DisclosedVendors, // 1.
-		iabconsent.AllowedVendors, // 2.
-		iabconsent.PublisherTC, // 3.
+		iabconsent.AllowedVendors,   // 2.
+		iabconsent.PublisherTC,      // 3.
 	}
 
 	for _, i := range rts {
@@ -154,12 +154,11 @@ func (s *ParseSuite) TestParseVersion(c *check.C) {
 	var tcs = []struct{
 		s string
 		err string
-		exp iabconsent.StringVersion
+		exp iabconsent.TCFVersion
 	}{
 		{
 			s: "Nonsense",
-			err: "not valid version",
-			exp: iabconsent.Invalid,
+			exp: iabconsent.InvalidTCFVersion,
 		},
 		{
 			s: "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -174,13 +173,6 @@ func (s *ParseSuite) TestParseVersion(c *check.C) {
 	for _, tc := range tcs {
 		c.Log(tc)
 
-		var p, err = iabconsent.ParseVersion(tc.s)
-		if tc.err != "" {
-			c.Check(err, check.ErrorMatches, tc.err)
-		} else {
-			c.Check(err, check.IsNil)
-		}
-
-		c.Check(p, check.Equals, tc.exp)
+		c.Check(iabconsent.TCFVersionFromTCString(tc.s), check.Equals, tc.exp)
 	}
 }

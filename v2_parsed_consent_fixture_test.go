@@ -65,7 +65,7 @@ var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 
 		},
 		NumPubRestrictions:       0,
-		PubRestrictionEntries:    nil,
+		PubRestrictionEntries:    make([]*iabconsent.PubRestrictionEntry, 0),
 		OOBDisclosedVendors:      &iabconsent.OOBVendorList{
 			SegmentType:1,
 			MaxVendorID:720,
@@ -166,7 +166,8 @@ var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 		PublisherTCEntry:         nil,
 	},
 	// COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA
-	"COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA": {
+	// COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFADBQAQA9hAAAcAA
+	"COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFADBQAQA9hAAAcAA": {
 		Version:                2,
 		Created: v2TestTime,
 		LastUpdated: v2TestTime,
@@ -197,6 +198,30 @@ var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 			2:true,
 			6:true,
 			8:true,
+		},
+		NumPubRestrictions:       3,
+		PubRestrictionEntries:    []*iabconsent.PubRestrictionEntry{
+			{
+				PurposeID: 1,
+				RestrictionType: iabconsent.RequireConsent,
+				NumEntries: 1,
+				RestrictionsRange: []*iabconsent.RangeEntry{
+					{
+						StartVendorID: 123,
+						EndVendorID: 123,
+					},
+				},
+			},
+			{
+				PurposeID: 2,
+				RestrictionType: iabconsent.PurposeFlatlyNotAllowed,
+				RestrictionsRange: []*iabconsent.RangeEntry{},
+			},
+			{
+				PurposeID: 3,
+				RestrictionType: iabconsent.RequireLegitimateInterest,
+				RestrictionsRange: []*iabconsent.RangeEntry{},
+			},
 		},
 	},
 	// COvzTO5OvzTO5BZAFMENAPCgAAAAAAAAAAwIFoEUQQgAIQwgIwQABAEAAAAOIAACAIAAAAQAIAgEAACEAAAAAgAQBAAAAAAAGBAAgAAAAAAAFAAECAAAgAAQARAEQAAAAAJAAIAAgAAAYQEAAAQmAgBC3ZAYzUwLQIoghAAQhhARggACAIAAAAcQAAEAQAAAAgAQBAIAAEIAAAABAAgCAAAAAAAMCABAAAAAAAAKAAIEAABAAAgAiAIgAAAAASAAQABAAAAwgIAAAhMBACFuyAxmpgAA
@@ -383,5 +408,7 @@ var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 			719:true,
 			720:true,
 		},
+		NumPubRestrictions:       0,
+		PubRestrictionEntries:    make([]*iabconsent.PubRestrictionEntry, 0),
 	},
 }
