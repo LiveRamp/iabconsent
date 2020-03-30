@@ -95,17 +95,88 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 	}{
 		{
 			EncodedString: "//BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
-			Error:         "parse consent string: illegal base64 data at input byte 0",
+			Error:         "parse v1 consent string: illegal base64 data at input byte 0",
 		},
 		{
 			// base64.RawURLEncoding.EncodeToString([]byte("10011010110110101"))
-			EncodedString: "MTAwMTEwMTAxMTAxMTAxMDE",
+			EncodedString: "BTAwMTEwMTAxMTAxMTAxMDE",
 			Error:         ".*index out of range",
+		},
+		{
+			EncodedString: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			Error: "non-v1 string passed to v1 parse method",
 		},
 	}
 
 	for _, t := range tests {
-		_, err := iabconsent.Parse(t.EncodedString)
+		_, err := iabconsent.ParseV1(t.EncodedString)
 		c.Check(err, check.ErrorMatches, t.Error)
+	}
+}
+
+func (s *ParseSuite) TestConsentReader_RestrictionType(c *check.C) {
+	// Enums: 0, 1, 2, 3.
+	// Bits: 00, 01, 10, 11.
+	// Hex: 0x1B.
+	var r = iabconsent.NewConsentReader([]byte{0x1B})
+
+	var rts = []iabconsent.RestrictionType{
+		iabconsent.PurposeFlatlyNotAllowed, // 0.
+		iabconsent.RequireConsent, // 1.
+		iabconsent.RequireLegitimateInterest, // 2.
+		iabconsent.Undefined, // 3.
+	}
+
+	for _, i := range rts {
+		var rt, err = r.ReadRestrictionType()
+		c.Check(err, check.IsNil)
+		c.Check(rt, check.Equals, i)
+	}
+}
+
+func (s *ParseSuite) TestConsentReader_SegmentType(c *check.C) {
+	// Enums: 0, 1, 2, 3.
+	// Bits: 000, 001, 010, 011 (, 0000 extra bits).
+	// Hex: 0x05, 0x20.
+	var r = iabconsent.NewConsentReader([]byte{0x05, 0x30})
+
+	var rts = []iabconsent.SegmentType{
+		iabconsent.CoreString,       // 0.
+		iabconsent.DisclosedVendors, // 1.
+		iabconsent.AllowedVendors,   // 2.
+		iabconsent.PublisherTC,      // 3.
+	}
+
+	for _, i := range rts {
+		var rt, err = r.ReadSegmentType()
+		c.Check(err, check.IsNil)
+		c.Check(rt, check.Equals, i)
+	}
+}
+
+func (s *ParseSuite) TestParseVersion(c *check.C) {
+	var tcs = []struct{
+		s string
+		err string
+		exp iabconsent.TCFVersion
+	}{
+		{
+			s: "Nonsense",
+			exp: iabconsent.InvalidTCFVersion,
+		},
+		{
+			s: "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			exp: iabconsent.V1,
+		},
+		{
+			s: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			exp: iabconsent.V2,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		c.Check(iabconsent.TCFVersionFromTCString(tc.s), check.Equals, tc.exp)
 	}
 }

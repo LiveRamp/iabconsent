@@ -21,7 +21,7 @@ const nsPerDs = int64(time.Millisecond * 100)
 
 var testTime = time.Unix(1525378200, 8*nsPerDs).UTC()
 
-var consentFixtures = map[consentType]*iabconsent.ParsedConsent{
+var v1ConsentFixtures = map[consentType]*iabconsent.ParsedConsent{
 	// BONMj34ONMj34ABACDENALqAAAAAplY
 	BitField: {
 		Version:           1,

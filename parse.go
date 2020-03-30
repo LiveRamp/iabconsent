@@ -2,6 +2,8 @@ package iabconsent
 
 import (
 	"encoding/base64"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -74,6 +76,7 @@ func (r *ConsentReader) ReadBitField(n uint) (map[int]bool, error) {
 	return m, nil
 }
 
+// ReadRangeEntries reads n range entries of 1 + 16 or 32 bits.
 func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	var ret = make([]*RangeEntry, 0, n)
 	var err error
@@ -98,6 +101,106 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	return ret, nil
 }
 
+// ReadPubRestrictionEntries reads n publisher restriction entries.
+func (r * ConsentReader) ReadPubRestrictionEntries(n uint) ([]*PubRestrictionEntry, error) {
+	var ret = make([]*PubRestrictionEntry, 0, n)
+	var err error
+
+	for i := uint(0); i < n; i++ {
+		var purpose int
+		if purpose, err = r.ReadInt(6); err != nil {
+			return nil, errors.WithMessage(err, "purpose")
+		}
+		var rt RestrictionType
+		if rt, err = r.ReadRestrictionType(); err != nil {
+			return nil, errors.WithMessage(err, "restriction type")
+		}
+		var num int
+		if num, err = r.ReadInt(12); err != nil {
+			return nil, errors.WithMessage(err, "num entries")
+		}
+		var rr []*RangeEntry
+		if rr, err = r.ReadRangeEntries(uint(num)); err != nil {
+			return nil, errors.WithMessage(err, "range entries")
+		}
+		ret = append(ret, &PubRestrictionEntry{
+			PurposeID:         purpose,
+			RestrictionType:   rt,
+			NumEntries:        num,
+			RestrictionsRange: rr,
+		})
+	}
+	return ret, nil
+}
+
+// ReadRestrictionType reads two bits and returns an enum |RestrictionType|.
+func (r *ConsentReader) ReadRestrictionType() (RestrictionType, error) {
+	var rt, err = r.ReadInt(2)
+	return RestrictionType(rt), err
+}
+
+// ReadSegmentType reads three bits and returns an enum |SegmentType|.
+func (r *ConsentReader) ReadSegmentType() (SegmentType, error) {
+	var rt, err = r.ReadInt(3)
+	return SegmentType(rt), err
+}
+
+// ReadVendors reads in a vendor list representing either disclosed or allowed vendor lists.
+// It's assumed that the segment type bit has already been read, despite those bits being
+// grouped together in the spec. This is done because the logic for the remaining bits differs
+// based on the segment type.
+func (r *ConsentReader) ReadVendors(t SegmentType) (*OOBVendorList, error) {
+	var v = &OOBVendorList{
+		SegmentType: t,
+	}
+	var err error
+	if v.MaxVendorID, err = r.ReadInt(16); err != nil {
+		return nil, errors.WithMessage(err, "reading vendor ID")
+	}
+	if v.IsRangeEncoding, err = r.ReadBool(); err != nil {
+		return nil, errors.WithMessage(err, "reading is range flag")
+	}
+	if v.IsRangeEncoding {
+		if v.NumEntries, err = r.ReadInt(12); err != nil {
+			return nil, errors.WithMessage(err, "reading num entries")
+		}
+		if v.VendorEntries, err = r.ReadRangeEntries(uint(v.NumEntries)); err != nil {
+			return nil, errors.WithMessage(err, "reading vendor range entries")
+		}
+	} else {
+		if v.Vendors, err = r.ReadBitField(uint(v.MaxVendorID)); err != nil {
+			return nil, errors.WithMessage(err, "reading vendor bit field")
+		}
+	}
+	return v, nil
+}
+
+// ReadPublisherTCEntry reads in a publisher TC entry. It's assumed that the segment type bit
+// has already been read, despite those bits being grouped together in the spec. This is done
+// because the logic for the remaining bits differs based on the segment type.
+func (r *ConsentReader) ReadPublisherTCEntry() (*PublisherTCEntry, error) {
+	var ptc = &PublisherTCEntry{
+		SegmentType: PublisherTC,
+	}
+	var err error
+	if ptc.PubPurposesConsent, err = r.ReadBitField(24); err != nil {
+		return nil, errors.WithMessage(err, "reading purposes bit field")
+	}
+	if ptc.PubPurposesLITransparency, err = r.ReadBitField(24); err != nil {
+		return nil, errors.WithMessage(err, "reading lit transparency bit field")
+	}
+	if ptc.NumCustomPurposes, err = r.ReadInt(6); err != nil {
+		return nil, errors.WithMessage(err, "reading num custom purposes")
+	}
+	if ptc.CustomPurposesConsent, err = r.ReadBitField(uint(ptc.NumCustomPurposes)); err != nil {
+		return nil, errors.WithMessage(err, "reading custom purposes bitfield")
+	}
+	if ptc.CustomPurposesLITransparency, err = r.ReadBitField(uint(ptc.NumCustomPurposes)); err != nil {
+		return nil, errors.WithMessage(err, "reading lit transparency bitfield")
+	}
+	return ptc, nil
+}
+
 // Parse takes a base64 Raw URL Encoded string which represents a Vendor
 // Consent String and returns a ParsedConsent with its fields populated with
 // the values stored in the string.
@@ -105,10 +208,23 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 // Example Usage:
 //
 //   var pc, err = iabconsent.Parse("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
+//
+// Deprecated: Use ParseV1 to parse V1 consent strings.
 func Parse(s string) (*ParsedConsent, error) {
+	return ParseV1(s)
+}
+
+// ParseV1 takes a base64 Raw URL Encoded string which represents a TCF v1.1
+// string and returns a ParsedConsent with its fields populated with
+// the values stored in the string.
+//
+// Example Usage:
+//
+//   var pc, err = iabconsent.ParseV1("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
+func ParseV1(s string) (*ParsedConsent, error) {
 	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse consent string")
+		return nil, errors.Wrap(err, "parse v1 consent string")
 	}
 
 	var r = NewConsentReader(b)
@@ -116,6 +232,9 @@ func Parse(s string) (*ParsedConsent, error) {
 	// This block of code directly describes the format of the payload.
 	var p = &ParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
+	if p.Version != int(V1) {
+		return nil, errors.New("non-v1 string passed to v1 parse method")
+	}
 	p.Created, _ = r.ReadTime()
 	p.LastUpdated, _ = r.ReadTime()
 	p.CMPID, _ = r.ReadInt(12)
@@ -136,4 +255,140 @@ func Parse(s string) (*ParsedConsent, error) {
 	}
 
 	return p, r.Err
+}
+
+// ParseV2 takes a base64 Raw URL Encoded string which represents a TCF v2
+// string and returns a ParsedConsent with its fields populated with
+// the values stored in the string.
+//
+// Example Usage:
+//
+//   var pc, err = iabconsent.ParseV2("COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA")
+func ParseV2(s string) (*V2ParsedConsent, error) {
+	var segments = strings.Split(s, ".")
+
+	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "parse v2 consent string")
+	}
+
+	var r = NewConsentReader(b)
+
+	// This block of code directly describes the format of the payload.
+	// The spec for the consent string can be found here:
+	// https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/47b45ab362515310183bb3572a367b8391ef4613/TCFv2/IAB%20Tech%20Lab%20-%20Consent%20string%20and%20vendor%20list%20formats%20v2.md#about-the-transparency--consent-string-tc-string
+	var p = &V2ParsedConsent{}
+	p.Version, _ = r.ReadInt(6)
+	if p.Version != int(V2) {
+		return nil, errors.New("non-v2 string passed to v2 parse method")
+	}
+	p.Created, _ = r.ReadTime()
+	p.LastUpdated, _ = r.ReadTime()
+	p.CMPID, _ = r.ReadInt(12)
+	p.CMPVersion, _ = r.ReadInt(12)
+	p.ConsentScreen, _ = r.ReadInt(6)
+	p.ConsentLanguage, _ = r.ReadString(2)
+	p.VendorListVersion, _ = r.ReadInt(12)
+	p.TCFPolicyVersion, _ = r.ReadInt(6)
+	p.IsServiceSpecific, _ = r.ReadBool()
+	p.UseNonStandardStacks, _ = r.ReadBool()
+	p.SpecialFeaturesOptIn, _ = r.ReadBitField(12)
+	p.PurposesConsent, _ = r.ReadBitField(24)
+	p.PurposesLITransparency, _ = r.ReadBitField(24)
+	p.PurposeOneTreatment, _ = r.ReadBool()
+	p.PublisherCC, _ = r.ReadString(2)
+
+	p.MaxConsentVendorID, _ = r.ReadInt(16)
+	p.IsConsentRangeEncoding, _ = r.ReadBool()
+	if p.IsConsentRangeEncoding {
+		p.NumConsentEntries, _ = r.ReadInt(12)
+		p.ConsentedVendorsRange, _ = r.ReadRangeEntries(uint(p.NumConsentEntries))
+	} else {
+		p.ConsentedVendors, _ = r.ReadBitField(uint(p.MaxConsentVendorID))
+	}
+
+	p.MaxInterestsVendorID, _ = r.ReadInt(16)
+	p.IsInterestsRangeEncoding, _ = r.ReadBool()
+	if p.IsInterestsRangeEncoding {
+		p.NumInterestsEntries, _ = r.ReadInt(12)
+		p.InterestsVendorsRange, _ = r.ReadRangeEntries(uint(p.NumInterestsEntries))
+	} else {
+		p.InterestsVendors, _ = r.ReadBitField(uint(p.MaxInterestsVendorID))
+	}
+
+	p.NumPubRestrictions, _ = r.ReadInt(12)
+	p.PubRestrictionEntries, _ = r.ReadPubRestrictionEntries(uint(p.NumPubRestrictions))
+
+	// Parse remaining non-core string segments if they exist.
+	for i, segment := range segments[1:] {
+		b, err = base64.RawURLEncoding.DecodeString(segment)
+		if err != nil {
+			return p, errors.Wrap(err, "parsing segment " + strconv.Itoa(i + 1))
+		}
+
+		r = NewConsentReader(b)
+		var st, _ = r.ReadSegmentType()
+		switch st {
+		case DisclosedVendors:
+			if p.OOBDisclosedVendors != nil {
+				return p, errors.New("multiple disclosed vendors segments passedg")
+			}
+			p.OOBDisclosedVendors, _ = r.ReadVendors(st)
+		case AllowedVendors:
+			if p.OOBAllowedVendors != nil {
+				return p, errors.New("multiple allowed vendors segments passed")
+			}
+			p.OOBAllowedVendors, _ = r.ReadVendors(st)
+		case PublisherTC:
+			if p.PublisherTCEntry != nil {
+				return p, errors.New("multiple publisher TC segments passed")
+			}
+			p.PublisherTCEntry, _ = r.ReadPublisherTCEntry()
+		default:
+			return p, errors.New("unrecognized segment type")
+		}
+	}
+
+	return p, r.Err
+}
+
+// TCFVersion is an enum type used for easily identifying which version
+// a consent string is.
+type TCFVersion int
+
+const (
+	// InvalidTCFVersion represents an invalid version.
+	InvalidTCFVersion TCFVersion = iota
+	// V1 represents a TCF v1.1 string.
+	V1
+	// V2 represents a TCF v2 string.
+	V2
+)
+
+// TCFVersionFromTCString allows the caller to pass any valid consent string to
+// determine which parse method is appropriate to call or otherwise
+// return InvalidTCFVersion (0).
+func TCFVersionFromTCString(s string) (TCFVersion) {
+	var ss = strings.SplitN(s, ".", 2)
+
+	var b, err = base64.RawURLEncoding.DecodeString(ss[0])
+	if err != nil {
+		return InvalidTCFVersion
+	}
+
+	var r = NewConsentReader(b)
+	var v int
+	v, err = r.ReadInt(6)
+	if err != nil {
+		return InvalidTCFVersion
+	}
+
+	switch v {
+	case 1:
+		return V1
+	case 2:
+		return V2
+	default:
+		return InvalidTCFVersion
+	}
 }
