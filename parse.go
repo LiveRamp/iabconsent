@@ -146,6 +146,9 @@ func (r *ConsentReader) ReadSegmentType() (SegmentType, error) {
 }
 
 // ReadVendors reads in a vendor list representing either disclosed or allowed vendor lists.
+// It's assumed that the segment type bit has already been read, despite those bits being
+// grouped together in the spec. This is done because the logic for the remaining bits differs
+// based on the segment type.
 func (r *ConsentReader) ReadVendors(t SegmentType) (*OOBVendorList, error) {
 	var v = &OOBVendorList{
 		SegmentType: t,
@@ -172,7 +175,9 @@ func (r *ConsentReader) ReadVendors(t SegmentType) (*OOBVendorList, error) {
 	return v, nil
 }
 
-// ReadPublisherTCEntry reads in a publisher TC entry.
+// ReadPublisherTCEntry reads in a publisher TC entry. It's assumed that the segment type bit
+// has already been read, despite those bits being grouped together in the spec. This is done
+// because the logic for the remaining bits differs based on the segment type.
 func (r *ConsentReader) ReadPublisherTCEntry() (*PublisherTCEntry, error) {
 	var ptc = &PublisherTCEntry{
 		SegmentType: PublisherTC,
