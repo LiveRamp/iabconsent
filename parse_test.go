@@ -99,8 +99,12 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 		},
 		{
 			// base64.RawURLEncoding.EncodeToString([]byte("10011010110110101"))
-			EncodedString: "MTAwMTEwMTAxMTAxMTAxMDE",
+			EncodedString: "BTAwMTEwMTAxMTAxMTAxMDE",
 			Error:         ".*index out of range",
+		},
+		{
+			EncodedString: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			Error: "non-v1 string passed to v1 parse method",
 		},
 	}
 

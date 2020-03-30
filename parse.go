@@ -227,6 +227,9 @@ func ParseV1(s string) (*ParsedConsent, error) {
 	// This block of code directly describes the format of the payload.
 	var p = &ParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
+	if p.Version != 1 {
+		return nil, errors.New("non-v1 string passed to v1 parse method")
+	}
 	p.Created, _ = r.ReadTime()
 	p.LastUpdated, _ = r.ReadTime()
 	p.CMPID, _ = r.ReadInt(12)
@@ -322,10 +325,19 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 		var st, _ = r.ReadSegmentType()
 		switch st {
 		case DisclosedVendors:
+			if p.OOBDisclosedVendors != nil {
+				return p, errors.New("multiple disclosed vendors segments passed ")
+			}
 			p.OOBDisclosedVendors, _ = r.ReadVendors(st)
 		case AllowedVendors:
+			if p.OOBAllowedVendors != nil {
+				return p, errors.New("multiple allowed vendors segments passed ")
+			}
 			p.OOBAllowedVendors, _ = r.ReadVendors(st)
 		case PublisherTC:
+			if p.PublisherTCEntry != nil {
+				return p, errors.New("multiple publisher TC segments passed ")
+			}
 			p.PublisherTCEntry, _ = r.ReadPublisherTCEntry()
 		default:
 			return p, errors.New("unrecognized segment type")
