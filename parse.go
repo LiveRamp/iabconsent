@@ -232,7 +232,7 @@ func ParseV1(s string) (*ParsedConsent, error) {
 	// This block of code directly describes the format of the payload.
 	var p = &ParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
-	if p.Version != 1 {
+	if p.Version != int(V1) {
 		return nil, errors.New("non-v1 string passed to v1 parse method")
 	}
 	p.Created, _ = r.ReadTime()
@@ -279,7 +279,7 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 	// https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/47b45ab362515310183bb3572a367b8391ef4613/TCFv2/IAB%20Tech%20Lab%20-%20Consent%20string%20and%20vendor%20list%20formats%20v2.md#about-the-transparency--consent-string-tc-string
 	var p = &V2ParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
-	if p.Version != 2 {
+	if p.Version != int(V2) {
 		return nil, errors.New("non-v2 string passed to v2 parse method")
 	}
 	p.Created, _ = r.ReadTime()
@@ -331,17 +331,17 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 		switch st {
 		case DisclosedVendors:
 			if p.OOBDisclosedVendors != nil {
-				return p, errors.New("multiple disclosed vendors segments passed ")
+				return p, errors.New("multiple disclosed vendors segments passedg")
 			}
 			p.OOBDisclosedVendors, _ = r.ReadVendors(st)
 		case AllowedVendors:
 			if p.OOBAllowedVendors != nil {
-				return p, errors.New("multiple allowed vendors segments passed ")
+				return p, errors.New("multiple allowed vendors segments passed")
 			}
 			p.OOBAllowedVendors, _ = r.ReadVendors(st)
 		case PublisherTC:
 			if p.PublisherTCEntry != nil {
-				return p, errors.New("multiple publisher TC segments passed ")
+				return p, errors.New("multiple publisher TC segments passed")
 			}
 			p.PublisherTCEntry, _ = r.ReadPublisherTCEntry()
 		default:
