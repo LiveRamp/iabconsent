@@ -260,3 +260,29 @@ const (
 	// - Conduct any other data processing operation allowed under a different purpose under this purpose
 	TechnicallyDeliverAds
 )
+
+// EveryPurposeAllowed returns true iff every purpose number in ps exists in
+// the ParsedConsent, otherwise false.
+func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
+	for _, rp := range ps {
+		if !p.PurposesConsent[rp] {
+			return false
+		}
+	}
+	return true
+}
+
+// VendorAllowed returns true if the ParsedConsent contains affirmative consent
+// for VendorID v.
+func (p *V2ParsedConsent) VendorAllowed(v int) bool {
+	if p.IsConsentRangeEncoding {
+		for _, re := range p.ConsentedVendorsRange {
+			if re.StartVendorID <= v && v <= re.EndVendorID {
+				return true
+			}
+		}
+		return false
+	}
+
+	return p.ConsentedVendors[v]
+}
