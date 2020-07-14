@@ -262,7 +262,7 @@ const (
 )
 
 // EveryPurposeAllowed returns true iff every purpose number in ps exists in
-// the ParsedConsent, otherwise false.
+// the V2ParsedConsent, otherwise false.
 func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 	for _, rp := range ps {
 		if !p.PurposesConsent[rp] {
