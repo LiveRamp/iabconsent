@@ -275,8 +275,8 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 	var r = NewConsentReader(b)
 
 	// This block of code directly describes the format of the payload.
-	// The spec for the consent string can be found here:
 	// https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/47b45ab362515310183bb3572a367b8391ef4613/TCFv2/IAB%20Tech%20Lab%20-%20Consent%20string%20and%20vendor%20list%20formats%20v2.md#about-the-transparency--consent-string-tc-string
+	// The spec for the consent string can be found here:
 	var p = &V2ParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
 	if p.Version != int(V2) {

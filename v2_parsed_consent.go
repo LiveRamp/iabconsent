@@ -262,7 +262,11 @@ const (
 )
 
 // EveryPurposeAllowed returns true iff every purpose number in ps exists in
-// the V2ParsedConsent, otherwise false.
+// the V2ParsedConsent, otherwise false. This explicitly checks that
+// the vendor has opted in, and does not cover legitimate interest.
+// This is vendor agnostic, and should not be used without checking if
+// there are any Publisher Restrictions for a given vendor or vendors
+// (which can be done with a call of p.PublisherRestricted).
 func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 	for _, rp := range ps {
 		if !p.PurposesConsent[rp] {
@@ -273,16 +277,51 @@ func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 }
 
 // VendorAllowed returns true if the ParsedConsent contains affirmative consent
-// for VendorID v.
+// for VendorID |v|.
 func (p *V2ParsedConsent) VendorAllowed(v int) bool {
 	if p.IsConsentRangeEncoding {
-		for _, re := range p.ConsentedVendorsRange {
-			if re.StartVendorID <= v && v <= re.EndVendorID {
-				return true
-			}
-		}
-		return false
+		return inRangeEntries(v, p.ConsentedVendorsRange)
 	}
 
 	return p.ConsentedVendors[v]
+}
+
+// PublisherRestricted returns true if any purpose in |pm| is
+// Flatly Not Allowed and |v| is covered by that restriction.
+func (p *V2ParsedConsent) PublisherRestricted(ps []int, v int) bool {
+	// Map-ify ps for use in checking pub restrictions.
+	var pm = make(map[int]bool)
+	for _, p := range ps {
+		pm[p] = true
+	}
+
+	if p.NumPubRestrictions > 0 {
+		for _, re := range p.PubRestrictionEntries {
+			if pm[re.PurposeID] &&
+				re.RestrictionType == PurposeFlatlyNotAllowed &&
+				inRangeEntries(v, re.RestrictionsRange) {
+
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// inRangeEntries returns whether |v| is found within |entries|.
+func inRangeEntries(v int, entries []*RangeEntry) bool {
+	for _, re := range entries {
+		if re.StartVendorID <= v && v <= re.EndVendorID {
+			return true
+		}
+	}
+	return false
+}
+
+// SuitableToProcess evaluates if its suitable for a vendor (with a set of
+// required purposes) to process a given request.
+func (p *V2ParsedConsent) SuitableToProcess(ps []int, v int) bool {
+	return p.VendorAllowed(v) &&
+		p.EveryPurposeAllowed(ps) &&
+		!p.PublisherRestricted(ps, v)
 }
