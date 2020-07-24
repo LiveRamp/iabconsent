@@ -288,6 +288,31 @@ func (v  *V2ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 					NumEntries: 1,
 					RestrictionsRange: []*iabconsent.RangeEntry{
 						{
+							StartVendorID: 100,
+							EndVendorID: 110,
+						},
+						{
+							StartVendorID: 130,
+							EndVendorID: 140,
+						},
+					},
+				},
+			},
+			exp: true,
+		},
+		{
+			vendor: 123,
+			purposes: []int{1, 2, 3},
+			consentedPurposes: map[int]bool{1: true, 2: true, 3: true},
+			consentedVendors: map[int]bool{123: true},
+			numRestrictions: 1,
+			restrictions: []*iabconsent.PubRestrictionEntry{
+				{
+					PurposeID: 3,
+					RestrictionType: iabconsent.PurposeFlatlyNotAllowed,
+					NumEntries: 1,
+					RestrictionsRange: []*iabconsent.RangeEntry{
+						{
 							StartVendorID: 123,
 							EndVendorID: 123,
 						},
