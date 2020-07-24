@@ -319,7 +319,7 @@ func inRangeEntries(v int, entries []*RangeEntry) bool {
 }
 
 // SuitableToProcess evaluates if its suitable for a vendor (with a set of
-// required purposes) to process a given request.
+// required purposes allowed on the basis of consent) to process a given request.
 func (p *V2ParsedConsent) SuitableToProcess(ps []int, v int) bool {
 	return p.VendorAllowed(v) &&
 		p.EveryPurposeAllowed(ps) &&
