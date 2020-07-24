@@ -286,7 +286,7 @@ func (p *V2ParsedConsent) VendorAllowed(v int) bool {
 	return p.ConsentedVendors[v]
 }
 
-// PublisherRestricted returns true if any purpose in |pm| is
+// PublisherRestricted returns true if any purpose in |ps| is
 // Flatly Not Allowed and |v| is covered by that restriction.
 func (p *V2ParsedConsent) PublisherRestricted(ps []int, v int) bool {
 	// Map-ify ps for use in checking pub restrictions.

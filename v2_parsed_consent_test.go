@@ -315,7 +315,7 @@ func (v  *V2ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 		{
 			vendor: 123,
 			purposes: []int{1, 2, 3},
-			consentedPurposes: map[int]bool{1: true, 2: true, 3: false},
+			consentedPurposes: map[int]bool{1: true, 2: true, 3: true},
 			consentedVendors: map[int]bool{123: false},
 			numRestrictions: 1,
 			restrictions: []*iabconsent.PubRestrictionEntry{
