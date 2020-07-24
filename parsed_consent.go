@@ -49,6 +49,13 @@ func (p *ParsedConsent) VendorAllowed(v int) bool {
 	return p.ConsentedVendors[v]
 }
 
+// SuitableToProcess is the union of EveryPurposeAllowed(ps) and
+// VendorAllowed(v). It's used to make possible an interface that
+// can be used to check whether its legal to process v1 & v2 strings.
+func (p *ParsedConsent) SuitableToProcess(ps []int, v int) bool {
+	return p.EveryPurposeAllowed(ps) && p.VendorAllowed(v)
+}
+
 // RangeEntry defines an inclusive range of vendor IDs from StartVendorID to
 // EndVendorID.
 type RangeEntry struct {
