@@ -1,7 +1,6 @@
 package iabconsent
 
 import (
-	"strconv"
 	"time"
 )
 
@@ -277,17 +276,13 @@ func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 	return true
 }
 
-// GetDeniedPurposes returns an array of all the purposes
-// which this request did not receive consent.
-func (p *V2ParsedConsent) GetDeniedPurposes(ps []int) []string {
-	var deniedPurposes []string
-	for _, rp := range ps {
-		if !p.PurposesConsent[rp] {
-			deniedPurposes = append(deniedPurposes, strconv.Itoa(rp))
+func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
+		if !p.PurposesConsent[ps] {
+			return false
 		}
-	}
-	return deniedPurposes
+	return true
 }
+
 
 // VendorAllowed returns true if the ParsedConsent contains affirmative consent
 // for VendorID |v|.
