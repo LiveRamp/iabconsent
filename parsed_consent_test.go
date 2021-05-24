@@ -98,6 +98,43 @@ func (p  *ParsedConsentSuite) TestEveryPurposeAllowed(c *check.C) {
 	}
 }
 
+func (p  *ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
+	var tcs = []struct{
+		purposes []int
+		consent map[int]bool
+	}{
+		{
+			purposes: []int{1, 2, 3},
+			consent: map[int]bool{1: true, 2: true, 3: true},
+		},
+		{
+			purposes: []int{1, 2, 3},
+			consent: map[int]bool{1: true, 2: true, 3: false},
+		},
+		{
+			purposes: []int{1, 2, 3},
+			consent: map[int]bool{1: true, 2: true},
+		},
+		{
+			purposes: []int{1, 2},
+			consent: map[int]bool{1: true, 2: true, 3: true},
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		var pc = &iabconsent.ParsedConsent{
+			PurposesAllowed: tc.consent,
+		}
+
+		for i, p := range tc.purposes{
+			c.Check(pc.PurposeAllowed(p), check.Equals, tc.consent[i+1])
+		}
+
+	}
+}
+
 func (p  *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
 	var tcs = []struct{
 		vendor int
