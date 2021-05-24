@@ -35,7 +35,7 @@ func (p *ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 }
 
 // PurposeAllowed returns true if the passed purpose number exists in
-// the ParsedConsent, otherwise false
+// the ParsedConsent, otherwise false.
 func (p *ParsedConsent) PurposeAllowed(ps int) bool {
 	if !p.PurposesAllowed[ps] {
 		return false
