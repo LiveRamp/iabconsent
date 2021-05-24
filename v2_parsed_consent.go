@@ -276,6 +276,8 @@ func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 	return true
 }
 
+// PurposeAllowed returns true if the passed purpose number exists in
+// the V2ParsedConsent, otherwise false
 func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
 		if !p.PurposesConsent[ps] {
 			return false
