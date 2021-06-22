@@ -100,6 +100,45 @@ func (p  *V2ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
 	}
 }
 
+func (v  *V2ParsedConsentSuite) TestEverySpecialFeatureOptInGiven(c *check.C) {
+	var tcs = []struct{
+		specialFeatures []int
+		specialFeatureOptIn map[int]bool
+		exp bool
+	}{
+		{
+			specialFeatures: []int{1, 2, 3},
+			specialFeatureOptIn: map[int]bool{1: true, 2: true, 3: true},
+			exp: true,
+		},
+		{
+			specialFeatures: []int{1, 2, 3},
+			specialFeatureOptIn: map[int]bool{1: true, 2: true, 3: false},
+			exp: false,
+		},
+		{
+			specialFeatures: []int{1, 2, 3},
+			specialFeatureOptIn: map[int]bool{1: true, 2: true},
+			exp: false,
+		},
+		{
+			specialFeatures: []int{1, 2},
+			specialFeatureOptIn: map[int]bool{1: true, 2: true, 3: true},
+			exp: true,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		var pc = &iabconsent.V2ParsedConsent{
+			SpecialFeaturesOptIn: tc.specialFeatureOptIn,
+		}
+
+		c.Check(pc.EverySpecialFeaturesOptInGiven(tc.specialFeatures), check.Equals, tc.exp)
+	}
+}
+
 func (v  *V2ParsedConsentSuite) TestVendorAllowed(c *check.C) {
 	var tcs = []struct{
 		vendor int

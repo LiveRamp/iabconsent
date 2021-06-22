@@ -285,6 +285,17 @@ func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
 	return true
 }
 
+// EverySpecialFeaturesOptInGiven returns true iff every feature number in specialFeatures exists in
+// the V2ParsedConsent, otherwise false.
+func (p *V2ParsedConsent) EverySpecialFeaturesOptInGiven(specialFeatures []int) bool {
+	for _, specialFeature := range specialFeatures {
+		if !p.SpecialFeaturesOptIn[specialFeature] {
+			return false
+		}
+	}
+	return true
+}
+
 
 // VendorAllowed returns true if the ParsedConsent contains affirmative consent
 // for VendorID |v|.
