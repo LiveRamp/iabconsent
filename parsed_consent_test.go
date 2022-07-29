@@ -59,31 +59,31 @@ func normalizeParsedConsent(p *iabconsent.ParsedConsent) {
 	})
 }
 
-func (p  *ParsedConsentSuite) TestEveryPurposeAllowed(c *check.C) {
-	var tcs = []struct{
+func (p *ParsedConsentSuite) TestEveryPurposeAllowed(c *check.C) {
+	var tcs = []struct {
 		purposes []int
-		consent map[int]bool
-		exp bool
+		consent  map[int]bool
+		exp      bool
 	}{
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true, 3: true},
-			exp: true,
+			consent:  map[int]bool{1: true, 2: true, 3: true},
+			exp:      true,
 		},
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true, 3: false},
-			exp: false,
+			consent:  map[int]bool{1: true, 2: true, 3: false},
+			exp:      false,
 		},
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true},
-			exp: false,
+			consent:  map[int]bool{1: true, 2: true},
+			exp:      false,
 		},
 		{
 			purposes: []int{1, 2},
-			consent: map[int]bool{1: true, 2: true, 3: true},
-			exp: true,
+			consent:  map[int]bool{1: true, 2: true, 3: true},
+			exp:      true,
 		},
 	}
 
@@ -98,26 +98,26 @@ func (p  *ParsedConsentSuite) TestEveryPurposeAllowed(c *check.C) {
 	}
 }
 
-func (p  *ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
-	var tcs = []struct{
+func (p *ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
+	var tcs = []struct {
 		purposes []int
-		consent map[int]bool
+		consent  map[int]bool
 	}{
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true, 3: true},
+			consent:  map[int]bool{1: true, 2: true, 3: true},
 		},
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true, 3: false},
+			consent:  map[int]bool{1: true, 2: true, 3: false},
 		},
 		{
 			purposes: []int{1, 2, 3},
-			consent: map[int]bool{1: true, 2: true},
+			consent:  map[int]bool{1: true, 2: true},
 		},
 		{
 			purposes: []int{1, 2},
-			consent: map[int]bool{1: true, 2: true, 3: true},
+			consent:  map[int]bool{1: true, 2: true, 3: true},
 		},
 	}
 
@@ -128,106 +128,106 @@ func (p  *ParsedConsentSuite) TestPurposeAllowed(c *check.C) {
 			PurposesAllowed: tc.consent,
 		}
 
-		for i, p := range tc.purposes{
+		for i, p := range tc.purposes {
 			c.Check(pc.PurposeAllowed(p), check.Equals, tc.consent[i+1])
 		}
 
 	}
 }
 
-func (p  *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
-	var tcs = []struct{
-		vendor int
+func (p *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
+	var tcs = []struct {
+		vendor  int
 		isRange bool
 		entries []*iabconsent.RangeEntry
 		vendors map[int]bool
-		exp bool
+		exp     bool
 	}{
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: true,
 			entries: []*iabconsent.RangeEntry{
 				{
 					StartVendorID: 100,
-					EndVendorID: 200,
+					EndVendorID:   200,
 				},
 			},
 			exp: true,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: true,
 			entries: []*iabconsent.RangeEntry{
 				{
 					StartVendorID: 50,
-					EndVendorID: 60,
+					EndVendorID:   60,
 				},
 				{
 					StartVendorID: 100,
-					EndVendorID: 200,
+					EndVendorID:   200,
 				},
 				{
 					StartVendorID: 250,
-					EndVendorID: 260,
+					EndVendorID:   260,
 				},
 			},
 			exp: true,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: true,
 			entries: []*iabconsent.RangeEntry{
 				{
 					StartVendorID: 123,
-					EndVendorID: 123,
+					EndVendorID:   123,
 				},
 			},
 			exp: true,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: true,
 			entries: []*iabconsent.RangeEntry{
 				{
 					StartVendorID: 50,
-					EndVendorID: 60,
+					EndVendorID:   60,
 				},
 				{
 					StartVendorID: 250,
-					EndVendorID: 260,
+					EndVendorID:   260,
 				},
 			},
 			exp: false,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: true,
 			entries: []*iabconsent.RangeEntry{},
-			exp: false,
+			exp:     false,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: false,
 			vendors: map[int]bool{123: true},
-			exp: true,
+			exp:     true,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: false,
 			vendors: map[int]bool{123: true, 124: true},
-			exp: true,
+			exp:     true,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: false,
 			vendors: map[int]bool{122: true, 124: true},
-			exp: false,
+			exp:     false,
 		},
 		{
-			vendor: 123,
+			vendor:  123,
 			isRange: false,
 			vendors: map[int]bool{123: false, 124: true},
-			exp: false,
+			exp:     false,
 		},
 	}
 
@@ -235,8 +235,8 @@ func (p  *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
 		c.Log(tc)
 
 		var pc = &iabconsent.ParsedConsent{
-			IsRangeEncoding: tc.isRange,
-			RangeEntries: tc.entries,
+			IsRangeEncoding:  tc.isRange,
+			RangeEntries:     tc.entries,
 			ConsentedVendors: tc.vendors,
 		}
 
@@ -244,41 +244,41 @@ func (p  *ParsedConsentSuite) TestVendorAllowed(c *check.C) {
 	}
 }
 
-func (v  *ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
-	var tcs = []struct{
-		vendor int
-		purposes []int
+func (v *ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
+	var tcs = []struct {
+		vendor            int
+		purposes          []int
 		consentedPurposes map[int]bool
-		consentedVendors map[int]bool
-		exp bool
+		consentedVendors  map[int]bool
+		exp               bool
 	}{
 		{
-			vendor: 123,
-			purposes: []int{1, 2, 3},
+			vendor:            123,
+			purposes:          []int{1, 2, 3},
 			consentedPurposes: map[int]bool{1: true, 2: true, 3: true},
-			consentedVendors: map[int]bool{123: true},
-			exp: true,
+			consentedVendors:  map[int]bool{123: true},
+			exp:               true,
 		},
 		{
-			vendor: 123,
-			purposes: []int{1, 2, 3},
+			vendor:            123,
+			purposes:          []int{1, 2, 3},
 			consentedPurposes: map[int]bool{1: true, 2: true, 3: true},
-			consentedVendors: map[int]bool{123: false},
-			exp: false,
+			consentedVendors:  map[int]bool{123: false},
+			exp:               false,
 		},
 		{
-			vendor: 123,
-			purposes: []int{1, 2, 3},
+			vendor:            123,
+			purposes:          []int{1, 2, 3},
 			consentedPurposes: map[int]bool{1: true, 2: true, 3: false},
-			consentedVendors: map[int]bool{123: true},
-			exp: false,
+			consentedVendors:  map[int]bool{123: true},
+			exp:               false,
 		},
 		{
-			vendor: 123,
-			purposes: []int{1, 2, 3},
+			vendor:            123,
+			purposes:          []int{1, 2, 3},
 			consentedPurposes: map[int]bool{1: true, 2: true, 3: false},
-			consentedVendors: map[int]bool{123: false},
-			exp: false,
+			consentedVendors:  map[int]bool{123: false},
+			exp:               false,
 		},
 	}
 
@@ -286,7 +286,7 @@ func (v  *ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 		c.Log(tc)
 
 		var pc = &iabconsent.ParsedConsent{
-			PurposesAllowed: tc.consentedPurposes,
+			PurposesAllowed:  tc.consentedPurposes,
 			ConsentedVendors: tc.consentedVendors,
 		}
 

@@ -104,7 +104,7 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 		},
 		{
 			EncodedString: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
-			Error: "non-v1 string passed to v1 parse method",
+			Error:         "non-v1 string passed to v1 parse method",
 		},
 	}
 
@@ -121,10 +121,10 @@ func (s *ParseSuite) TestConsentReader_RestrictionType(c *check.C) {
 	var r = iabconsent.NewConsentReader([]byte{0x1B})
 
 	var rts = []iabconsent.RestrictionType{
-		iabconsent.PurposeFlatlyNotAllowed, // 0.
-		iabconsent.RequireConsent, // 1.
+		iabconsent.PurposeFlatlyNotAllowed,   // 0.
+		iabconsent.RequireConsent,            // 1.
 		iabconsent.RequireLegitimateInterest, // 2.
-		iabconsent.Undefined, // 3.
+		iabconsent.Undefined,                 // 3.
 	}
 
 	for _, i := range rts {
@@ -155,21 +155,21 @@ func (s *ParseSuite) TestConsentReader_SegmentType(c *check.C) {
 }
 
 func (s *ParseSuite) TestParseVersion(c *check.C) {
-	var tcs = []struct{
-		s string
+	var tcs = []struct {
+		s   string
 		err string
 		exp iabconsent.TCFVersion
 	}{
 		{
-			s: "Nonsense",
+			s:   "Nonsense",
 			exp: iabconsent.InvalidTCFVersion,
 		},
 		{
-			s: "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			s:   "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
 			exp: iabconsent.V1,
 		},
 		{
-			s: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			s:   "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
 			exp: iabconsent.V2,
 		},
 	}
