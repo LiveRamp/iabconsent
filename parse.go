@@ -77,6 +77,7 @@ func (r *ConsentReader) ReadBitField(n uint) (map[int]bool, error) {
 }
 
 // ReadNBitField reads n bits, l number of times and converts them to a map[int]int.
+// This allows a variable number of bits to be read for more possible number values.
 func (r *ConsentReader) ReadNBitField(n, l uint) (map[int]int, error) {
 	var m = make(map[int]int)
 	for f := uint(0); f < l; f++ {
