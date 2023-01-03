@@ -76,6 +76,20 @@ func (r *ConsentReader) ReadBitField(n uint) (map[int]bool, error) {
 	return m, nil
 }
 
+// ReadNBitField reads n bits, l number of times and converts them to a map[int]int.
+func (r *ConsentReader) ReadNBitField(n, l uint) (map[int]int, error) {
+	var m = make(map[int]int)
+	for f := uint(0); f < l; f++ {
+		if readInt, err := r.ReadInt(n); err != nil {
+			return nil, errors.WithMessage(err, "read n-bitfield")
+		} else {
+			// Zero-based index, as no reason for one-based.
+			m[int(f)] = readInt
+		}
+	}
+	return m, nil
+}
+
 // ReadRangeEntries reads n range entries of 1 + 16 or 32 bits.
 func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	var ret = make([]*RangeEntry, 0, n)
@@ -102,7 +116,7 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 }
 
 // ReadPubRestrictionEntries reads n publisher restriction entries.
-func (r * ConsentReader) ReadPubRestrictionEntries(n uint) ([]*PubRestrictionEntry, error) {
+func (r *ConsentReader) ReadPubRestrictionEntries(n uint) ([]*PubRestrictionEntry, error) {
 	var ret = make([]*PubRestrictionEntry, 0, n)
 	var err error
 
@@ -323,7 +337,7 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 	for i, segment := range segments[1:] {
 		b, err = base64.RawURLEncoding.DecodeString(segment)
 		if err != nil {
-			return p, errors.Wrap(err, "parsing segment " + strconv.Itoa(i + 1))
+			return p, errors.Wrap(err, "parsing segment "+strconv.Itoa(i+1))
 		}
 
 		r = NewConsentReader(b)
@@ -368,7 +382,7 @@ const (
 // TCFVersionFromTCString allows the caller to pass any valid consent string to
 // determine which parse method is appropriate to call or otherwise
 // return InvalidTCFVersion (0).
-func TCFVersionFromTCString(s string) (TCFVersion) {
+func TCFVersionFromTCString(s string) TCFVersion {
 	var ss = strings.SplitN(s, ".", 2)
 
 	var b, err = base64.RawURLEncoding.DecodeString(ss[0])
