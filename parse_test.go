@@ -88,6 +88,88 @@ func (s *ParseSuite) TestConsentReader_ReadBitField(c *check.C) {
 	c.Check(r.HasUnread(), check.Equals, false)
 }
 
+func (s *ParseSuite) TestConsentReader_ReadNBitField(c *check.C) {
+	var tests = []struct {
+		testBytes []byte
+		expected  map[int]int
+		nBitsPer  uint
+		length    uint
+		unread    bool
+	}{
+		{testBytes: []byte{0x5a},
+			expected: map[int]int{
+				0: 1,
+				1: 1,
+				2: 2,
+				3: 2,
+			},
+			nBitsPer: 2,
+			length:   4,
+			unread:   false},
+		{testBytes: []byte{0x5a},
+			expected: map[int]int{
+				0: 0,
+				1: 1,
+				2: 0,
+				3: 1,
+				4: 1,
+				5: 0,
+				6: 1,
+				7: 0,
+			},
+			nBitsPer: 1,
+			length:   8,
+			unread:   false},
+		// Expected Fields: 00 01 10 10 01 00
+		// Bytes: 00011010 01000000
+		// Hex: 1a 40
+		{testBytes: []byte{0x1a, 0x40},
+			expected: map[int]int{
+				0: 0,
+				1: 1,
+				2: 2,
+				3: 2,
+				4: 1,
+				5: 0,
+			},
+			nBitsPer: 2,
+			length:   6,
+			unread:   true},
+		// Expected Fields: 0000 0001 0010 0011	0110 0111 1000 1001 1010 1011 1100 1101 1110 1111
+		// Bytes: 00000001 00100011 01000101 01100111 10001001 10101011 11001101 11101111
+		{testBytes: []byte{0b00000001, 0b00100011, 0b01000101, 0b01100111, 0b10001001, 0b10101011, 0b11001101, 0b11101111},
+			expected: map[int]int{
+				0:  0,
+				1:  1,
+				2:  2,
+				3:  3,
+				4:  4,
+				5:  5,
+				6:  6,
+				7:  7,
+				8:  8,
+				9:  9,
+				10: 10,
+				11: 11,
+				12: 12,
+				13: 13,
+				14: 14,
+				15: 15,
+			},
+			nBitsPer: 4,
+			length:   16,
+			unread:   false},
+	}
+
+	for _, t := range tests {
+		var r = iabconsent.NewConsentReader(t.testBytes)
+		var v, err = r.ReadNBitField(t.nBitsPer, t.length)
+		c.Check(err, check.IsNil)
+		c.Check(v, check.DeepEquals, t.expected)
+		c.Check(r.HasUnread(), check.Equals, t.unread)
+	}
+}
+
 func (s *ParseSuite) TestParse2_error(c *check.C) {
 	var tests = []struct {
 		EncodedString string
@@ -104,7 +186,7 @@ func (s *ParseSuite) TestParse2_error(c *check.C) {
 		},
 		{
 			EncodedString: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
-			Error: "non-v1 string passed to v1 parse method",
+			Error:         "non-v1 string passed to v1 parse method",
 		},
 	}
 
@@ -121,10 +203,10 @@ func (s *ParseSuite) TestConsentReader_RestrictionType(c *check.C) {
 	var r = iabconsent.NewConsentReader([]byte{0x1B})
 
 	var rts = []iabconsent.RestrictionType{
-		iabconsent.PurposeFlatlyNotAllowed, // 0.
-		iabconsent.RequireConsent, // 1.
+		iabconsent.PurposeFlatlyNotAllowed,   // 0.
+		iabconsent.RequireConsent,            // 1.
 		iabconsent.RequireLegitimateInterest, // 2.
-		iabconsent.Undefined, // 3.
+		iabconsent.Undefined,                 // 3.
 	}
 
 	for _, i := range rts {
@@ -155,21 +237,21 @@ func (s *ParseSuite) TestConsentReader_SegmentType(c *check.C) {
 }
 
 func (s *ParseSuite) TestParseVersion(c *check.C) {
-	var tcs = []struct{
-		s string
+	var tcs = []struct {
+		s   string
 		err string
 		exp iabconsent.TCFVersion
 	}{
 		{
-			s: "Nonsense",
+			s:   "Nonsense",
 			exp: iabconsent.InvalidTCFVersion,
 		},
 		{
-			s: "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			s:   "BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA",
 			exp: iabconsent.V1,
 		},
 		{
-			s: "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
+			s:   "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA",
 			exp: iabconsent.V2,
 		},
 	}
