@@ -33,6 +33,53 @@ func (s *ParseSuite) TestConsentReader_ReadInt(c *check.C) {
 	c.Check(r.HasUnread(), check.Equals, false)
 }
 
+func (s *ParseSuite) TestConsentReader_ReadFibonacciInt(c *check.C) {
+	var tests = []struct {
+		testBytes []byte
+		expected  int
+	}{
+		{testBytes: []byte{0b11000000},
+			expected: 1},
+		{testBytes: []byte{0b01100000},
+			expected: 2},
+		{testBytes: []byte{0b00110000},
+			expected: 3},
+		{testBytes: []byte{0b10110000},
+			expected: 4},
+		{testBytes: []byte{0b00011000},
+			expected: 5},
+		{testBytes: []byte{0b10011000},
+			expected: 6},
+		{testBytes: []byte{0b01011000},
+			expected: 7},
+	}
+
+	for _, t := range tests {
+
+		var r = iabconsent.NewConsentReader(t.testBytes)
+		var v, err = r.ReadFibonacciInt()
+		c.Check(err, check.IsNil)
+		c.Check(v, check.Equals, t.expected)
+	}
+}
+
+func (s *ParseSuite) TestConsentReader_ReadFibonacciIntError(c *check.C) {
+	var tests = []struct {
+		testBytes []byte
+	}{
+		{testBytes: []byte{0b00000000}},
+		{testBytes: []byte{0b0100000, 0b00000000, 0b01010101, 0b00000000}},
+	}
+
+	for _, t := range tests {
+
+		var r = iabconsent.NewConsentReader(t.testBytes)
+		var v, err = r.ReadFibonacciInt()
+		c.Check(err, check.NotNil)
+		c.Check(v, check.Equals, 0)
+	}
+}
+
 func (s *ParseSuite) TestConsentReader_ReadTime(c *check.C) {
 	// 2018-05-18 17:48:31.5 +0000 UTC
 	// 1526665711.5 s
@@ -170,6 +217,38 @@ func (s *ParseSuite) TestConsentReader_ReadNBitField(c *check.C) {
 	}
 }
 
+func (s *ParseSuite) TestConsentReader_ReadFibonacciRange(c *check.C) {
+	var tests = []struct {
+		testBytes []byte
+		expected  []int
+	}{
+		// Samples pulled from: https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/259d5d4d05c23b2a5d49abf936a2f732be128e1a/Core/Consent%20String%20Specification.md#section-encoding
+		{testBytes: []byte{0b00000000, 0b00100001, 0b11011001, 0b10000000},
+			expected: []int{3, 5, 6, 7, 8},
+		},
+		{testBytes: []byte{0b00000000, 0b00010011},
+			expected: []int{2}},
+		{testBytes: []byte{0b00000000, 0b00100011, 0b01011000},
+			expected: []int{2, 6}},
+		{testBytes: []byte{0b00000000, 0b00011000, 0b11110000},
+			expected: []int{5, 6}},
+		// Start with group to ensure it starts with 1.
+		// Cannot start with 0 because there is no way to Fibonacci-encode 0.
+		// TestBytes: # of items: 3, 1st item: Range, offset 1, length of 3, 2nd item: Range offset 2, length of 3, 3rd item: Single Item, Add 100 to last value.
+		{testBytes: []byte{0b00000000, 0b00111110, 0b01110110, 0b01100010, 0b10000110},
+			expected: []int{1, 2, 3, 4, 6, 7, 8, 9, 109},
+		},
+	}
+
+	for _, t := range tests {
+
+		var r = iabconsent.NewConsentReader(t.testBytes)
+		var v, err = r.ReadFibonacciRange()
+		c.Check(err, check.IsNil)
+		c.Check(v, check.DeepEquals, t.expected)
+	}
+}
+
 func (s *ParseSuite) TestParse2_error(c *check.C) {
 	var tests = []struct {
 		EncodedString string
@@ -260,5 +339,56 @@ func (s *ParseSuite) TestParseVersion(c *check.C) {
 		c.Log(tc)
 
 		c.Check(iabconsent.TCFVersionFromTCString(tc.s), check.Equals, tc.exp)
+	}
+}
+
+func (s *ParseSuite) TestFibonacciIndexValue(c *check.C) {
+	var tcs = []struct {
+		index    int
+		expected int
+	}{
+		// Test in pre-compiled
+		{index: 0,
+			expected: 0},
+		{index: 2,
+			expected: 1},
+		// Test last value in pre-compiled.
+		{index: 13,
+			expected: 233},
+		{index: 52,
+			expected: 32951280099},
+		{index: 62,
+			expected: 4052739537881},
+		{index: 75,
+			expected: 2111485077978050},
+		{index: 92,
+			expected: 7540113804746346429},
+	}
+	for _, tc := range tcs {
+		var fibonacciValue, err = iabconsent.FibonacciIndexValue(tc.index)
+		c.Check(fibonacciValue, check.Equals, tc.expected)
+		c.Check(err, check.IsNil)
+	}
+}
+
+func (s *ParseSuite) TestFibonacciIndexValueFail(c *check.C) {
+	var tcs = []struct {
+		index int
+	}{
+		{index: 93},
+		{index: 1000000000},
+	}
+
+	for _, tc := range tcs {
+		var _, err = iabconsent.FibonacciIndexValue(tc.index)
+		c.Check(err, check.NotNil)
+	}
+}
+
+func (s *ParseSuite) TestFibonacciPrecompiled(c *check.C) {
+	for i, v := range iabconsent.PrecompiledFibonacci {
+		var fibValue, err = iabconsent.FibonacciIndexValue(i)
+		c.Check(err, check.IsNil)
+		c.Check(v, check.Equals, fibValue)
 	}
 }
