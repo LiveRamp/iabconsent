@@ -14,13 +14,13 @@ var _ = check.Suite(&GppParseSuite{})
 func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 	var tcs = []struct {
 		description string
-		header   string
-		expected *iabconsent.GppHeader
+		header      string
+		expected    *iabconsent.GppHeader
 	}{
 		{
 			// Examples pulled from: https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md#gpp-string-examples
 			description: "EU TCF v2 Section",
-			header: "DBABMA",
+			header:      "DBABMA",
 			expected: &iabconsent.GppHeader{
 				Type:     3,
 				Version:  1,
@@ -28,7 +28,7 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 		},
 		{
 			description: "EU TCF v2 + USPrivacy String Sections",
-			header: "DBACNYA",
+			header:      "DBACNYA",
 			expected: &iabconsent.GppHeader{
 				Type:     3,
 				Version:  1,
@@ -36,7 +36,7 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 		},
 		{
 			description: "Canadian TCF + USPrivacy String Sections",
-			header: "DBABjw",
+			header:      "DBABjw",
 			expected: &iabconsent.GppHeader{
 				Type:     3,
 				Version:  1,
@@ -55,21 +55,21 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 func (s *GppParseSuite) TestParseGppHeaderFail(c *check.C) {
 	var tcs = []struct {
 		description string
-		header   string
-		expected error
+		header      string
+		expected    error
 	}{
 		{
-			description: "GPP Header must be 3 for now.",
+			description: "GPP Header must be 3, as of Jan. 2023.",
 			// []byte{0b00000100, 0b00010000, 0b00000010, 0b00110101, 0b10000000}
-			header: "BBACNYA",
+			header:   "BBACNYA",
 			expected: errors.New("wrong gpp header type 1"),
 		},
 		{
-			description: "Only support GPP Version 1",
+			description: "Only support GPP Version 1, as of Jan. 2023",
 			// []byte{0b00001100, 0b00100000, 0b00000010, 0b00110101, 0b10000000}
-			header: "DCACNYA",
+			header:   "DCACNYA",
 			expected: errors.New("unsupported gpp version 2"),
-	}}
+		}}
 
 	for _, tc := range tcs {
 		c.Log(tc)

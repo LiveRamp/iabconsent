@@ -17,7 +17,7 @@ type GppHeader struct {
 // It is used to read the Type, Version, and which sections are contained in the following string(s).
 // Format is:
 // Type	    Int(6)	Fixed to 3 as “GPP Header field”
-// Version	Int(6)	Version of the GPP spec (currently 1)
+// Version	Int(6)	Version of the GPP spec (version 1, as of Jan. 2023)
 // Sections	Range(Fibonacci)	List of Section IDs that are contained in the GPP string.
 func ParseGppHeader(s string) (*GppHeader, error) {
 	var b, err = base64.RawURLEncoding.DecodeString(s)
