@@ -524,3 +524,58 @@ func TCFVersionFromTCString(s string) TCFVersion {
 		return InvalidTCFVersion
 	}
 }
+
+// ReadMspaNoticeType reads two bits and returns an enum |RestrictionType|.
+func (r *ConsentReader) ReadMspaNoticeType() (MspaNotice, error) {
+	var rt, err = r.ReadInt(2)
+	return MspaNotice(rt), err
+}
+
+// ParseUsNational takes a base64 Raw URL Encoded string which represents a US National
+// consent string according to the IAB's Multi-state Privacy Agreement and returns a
+// MspaParsedConsent with its fields populated with the values stored in the string.
+//
+// Example Usage:
+//
+//   var pc, err = iabconsent.ParseUsNational("")
+func ParseUsNational(s string) (*MspaParsedConsent, error) {
+	var segments = strings.Split(s, ".")
+	// TODO(PX-2204): Re-usable subsections separated by '.', support for GPC will be added in.
+
+	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "parse usnat consent string")
+	}
+
+	var r = NewConsentReader(b)
+
+	// This block of code directly describes the format of the payload.
+	// The spec for the consent string can be found here:
+	// https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/tree/main/Sections/US-National#core-segment
+	var p = &MspaParsedConsent{}
+	p.Version, _ = r.ReadInt(6)
+	// TODO: Do we need to check for a specific version?
+	if p.Version != 1 {
+		return nil, errors.New("non-v1 string passed.")
+	}
+	// TODO: What to do if value >2 for any with max of two?
+	p.SharingNotice, _ = r.ReadInt(2)
+	p.SaleOptOutNotice, _ = r.ReadInt(2)
+	p.SharingOptOutNotice, _ = r.ReadInt(2)
+	p.TargetedAdvertisingOptOutNotice, _ = r.ReadInt(2)
+	p.SensitiveDataProcessingOptOutNotice, _ = r.ReadInt(2)
+	p.SensitiveDataLimitUseNotice, _ = r.ReadInt(2)
+	p.SaleOptOut, _ = r.ReadInt(2)
+	p.SharingNotice, _ = r.ReadInt(2)
+	p.TargetedAdvertisingOptOut, _ = r.ReadInt(2)
+	p.SensitiveDataProcessing, _ = r.ReadNBitField(2, 12)
+	p.KnownChildSensitiveDataConsents, _ = r.ReadNBitField(2, 2)
+	p.PersonalDataConsents, _ = r.ReadInt(2)
+	p.MspaCoveredTransaction, _ = r.ReadInt(2)
+	p.MspaOptOutOptionMode, _ = r.ReadInt(2)
+	p.MspaServiceProviderMode, _ = r.ReadInt(2)
+
+	// TODO(PX-2204): Parse remaining non-core reusable sections if they exist.
+
+	return p, r.Err
+}
