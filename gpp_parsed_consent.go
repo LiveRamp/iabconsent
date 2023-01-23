@@ -20,7 +20,10 @@ type GppHeader struct {
 // Version	Int(6)	Version of the GPP spec (version 1, as of Jan. 2023)
 // Sections	Range(Fibonacci)	List of Section IDs that are contained in the GPP string.
 func ParseGppHeader(s string) (*GppHeader, error) {
-	var b, err = base64.RawURLEncoding.DecodeString(s)
+	// IAB's base64 conversion means a 6 bit grouped value can be converted to 8 bit bytes.
+	// Any leftover bits <8 would be skipped in normal base64 decoding.
+	// Therefore, pad with 6 '0's w/ `A` to ensure that all bits are decoded into bytes.
+	var b, err = base64.RawURLEncoding.DecodeString(s + "A")
 	if err != nil {
 		return nil, errors.Wrap(err, "parse gpp header consent string")
 	}

@@ -20,7 +20,7 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 		{
 			// Examples pulled from: https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md#gpp-string-examples
 			description: "EU TCF v2 Section",
-			header:      "DBABMA",
+			header:      "DBABM",
 			expected: &iabconsent.GppHeader{
 				Type:     3,
 				Version:  1,
@@ -28,7 +28,7 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 		},
 		{
 			description: "EU TCF v2 + USPrivacy String Sections",
-			header:      "DBACNYA",
+			header:      "DBACNY",
 			expected: &iabconsent.GppHeader{
 				Type:     3,
 				Version:  1,
@@ -41,6 +41,14 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 				Type:     3,
 				Version:  1,
 				Sections: []int{5, 6}},
+		},
+		{
+			description: "US National MSPA (Multi-State Privacy Agreement)",
+			header:      "DBABL",
+			expected: &iabconsent.GppHeader{
+				Type:     3,
+				Version:  1,
+				Sections: []int{7}},
 		},
 	}
 
