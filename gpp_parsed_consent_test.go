@@ -73,9 +73,21 @@ func (s *GppParseSuite) TestParseGppHeaderFail(c *check.C) {
 			expected: errors.New("wrong gpp header type 1"),
 		},
 		{
+			description: "GPP Header must be 3, as of Jan. 2023, without trailing zero-padding.",
+			// Six bit groupings: 000001 000001 000000 000010 001101 011000
+			header:   "BBACNY",
+			expected: errors.New("wrong gpp header type 1"),
+		},
+		{
 			description: "Only support GPP Version 1, as of Jan. 2023",
 			// []byte{0b00001100, 0b00100000, 0b00000010, 0b00110101, 0b10000000}
 			header:   "DCACNYA",
+			expected: errors.New("unsupported gpp version 2"),
+		},
+		{
+			description: "Only support GPP Version 1, as of Jan. 2023, without trailing zero-padding.",
+			// Six bit groupings: 000011 000010 000000 000010 001101 011000
+			header:   "DCACNY",
 			expected: errors.New("unsupported gpp version 2"),
 		}}
 
