@@ -559,21 +559,25 @@ func ParseUsNational(s string) (*MspaParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 	// TODO: What to do if value >2 for any with max of two?
-	p.SharingNotice, _ = r.ReadInt(2)
-	p.SaleOptOutNotice, _ = r.ReadInt(2)
-	p.SharingOptOutNotice, _ = r.ReadInt(2)
-	p.TargetedAdvertisingOptOutNotice, _ = r.ReadInt(2)
-	p.SensitiveDataProcessingOptOutNotice, _ = r.ReadInt(2)
-	p.SensitiveDataLimitUseNotice, _ = r.ReadInt(2)
-	p.SaleOptOut, _ = r.ReadInt(2)
-	p.SharingNotice, _ = r.ReadInt(2)
-	p.TargetedAdvertisingOptOut, _ = r.ReadInt(2)
-	p.SensitiveDataProcessing, _ = r.ReadNBitField(2, 12)
-	p.KnownChildSensitiveDataConsents, _ = r.ReadNBitField(2, 2)
-	p.PersonalDataConsents, _ = r.ReadInt(2)
-	p.MspaCoveredTransaction, _ = r.ReadInt(2)
-	p.MspaOptOutOptionMode, _ = r.ReadInt(2)
-	p.MspaServiceProviderMode, _ = r.ReadInt(2)
+	p.SharingNotice, _ = r.ReadMspaNotice()
+	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
+	p.SharingOptOutNotice, _ = r.ReadMspaNotice()
+	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
+	p.SensitiveDataProcessingOptOutNotice, _ = r.ReadMspaNotice()
+	p.SensitiveDataLimitUseNotice, _ = r.ReadMspaNotice()
+	p.SaleOptOut, _ = r.ReadMspaOptOut()
+	p.SharingOptOut, _ = r.ReadMspaOptOut()
+	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
+	p.SensitiveDataProcessing, _ = r.ReadMspaBitfieldConsent(12)
+	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(2)
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
+	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
+	if p.MspaCoveredTransaction == MspaNotApplicable {
+		// Value cannot be N/A, so just set to no to be conservative.
+		p.MspaCoveredTransaction = MspaNo
+	}
+	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
+	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
 
 	// TODO(PX-2204): Parse remaining non-core reusable sections if they exist.
 

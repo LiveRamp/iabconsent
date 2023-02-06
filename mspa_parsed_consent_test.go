@@ -1,0 +1,104 @@
+package iabconsent_test
+
+import (
+	"github.com/go-check/check"
+
+	"github.com/LiveRamp/iabconsent"
+)
+
+type MspaSuite struct{}
+
+var _ = check.Suite(&MspaSuite{})
+
+func (s *MspaSuite) TestReadMspaNotice(c *check.C) {
+	var r = iabconsent.NewConsentReader([]byte{0b00011011})
+	var mns = []iabconsent.MspaNotice{
+		iabconsent.NoticeNotApplicable,
+		iabconsent.NoticeProvided,
+		iabconsent.NoticeNotProvided,
+		iabconsent.InvalidNoticeValue,
+	}
+	for _, i := range mns {
+		var mn, err = r.ReadMspaNotice()
+		c.Check(err, check.IsNil)
+		c.Check(mn, check.Equals, i)
+	}
+}
+
+func (s *MspaSuite) TestReadMspaOptOut(c *check.C) {
+	var r = iabconsent.NewConsentReader([]byte{0b00011011})
+	var mos = []iabconsent.MspaOptout{
+		iabconsent.OptOutNotApplicable,
+		iabconsent.OptedOut,
+		iabconsent.NotOptedOut,
+		iabconsent.InvalidOptOutValue,
+	}
+	for _, i := range mos {
+		var mo, err = r.ReadMspaOptOut()
+		c.Check(err, check.IsNil)
+		c.Check(mo, check.Equals, i)
+	}
+}
+
+func (s *MspaSuite) TestReadMspaConsent(c *check.C) {
+	var r = iabconsent.NewConsentReader([]byte{0b00011011})
+	var mcs = []iabconsent.MspaConsent{
+		iabconsent.ConsentNotApplicable,
+		iabconsent.NoConsent,
+		iabconsent.Consent,
+		iabconsent.InvalidConsentValue,
+	}
+	for _, i := range mcs {
+		var mc, err = r.ReadMspaConsent()
+		c.Check(err, check.IsNil)
+		c.Check(mc, check.Equals, i)
+	}
+}
+
+func (s *MspaSuite) TestReadMspaBitfieldConsent(c *check.C) {
+	var tcs = []struct {
+		testBytes      []byte
+		bitfieldLength uint
+		expected       map[int]iabconsent.MspaConsent
+	}{
+		{testBytes: []byte{0b00000000},
+			bitfieldLength: 1,
+			expected:       map[int]iabconsent.MspaConsent{0: iabconsent.ConsentNotApplicable}},
+		{testBytes: []byte{0b00000000},
+			bitfieldLength: 4,
+			expected: map[int]iabconsent.MspaConsent{
+				0: iabconsent.ConsentNotApplicable,
+				1: iabconsent.ConsentNotApplicable,
+				2: iabconsent.ConsentNotApplicable,
+				3: iabconsent.ConsentNotApplicable}},
+		{testBytes: []byte{0b00011011},
+			bitfieldLength: 4,
+			expected: map[int]iabconsent.MspaConsent{
+				0: iabconsent.ConsentNotApplicable,
+				1: iabconsent.NoConsent,
+				2: iabconsent.Consent,
+				3: iabconsent.InvalidConsentValue}},
+	}
+
+	for _, t := range tcs {
+		var r = iabconsent.NewConsentReader(t.testBytes)
+		var bc, err = r.ReadMspaBitfieldConsent(t.bitfieldLength)
+		c.Check(err, check.IsNil)
+		c.Check(bc, check.DeepEquals, t.expected)
+	}
+}
+
+func (s *MspaSuite) TestReadMspaNaYesNo(c *check.C) {
+	var r = iabconsent.NewConsentReader([]byte{0b00011011})
+	var mcs = []iabconsent.MspaNaYesNo{
+		iabconsent.MspaNotApplicable,
+		iabconsent.MspaYes,
+		iabconsent.MspaNo,
+		iabconsent.InvalidMspaValue,
+	}
+	for _, i := range mcs {
+		var mc, err = r.ReadMspaNaYesNo()
+		c.Check(err, check.IsNil)
+		c.Check(mc, check.Equals, i)
+	}
+}
