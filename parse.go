@@ -182,7 +182,7 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	return ret, nil
 }
 
-// ReadFibonacciRangeEntries reads a range entries of Fibonacci encoded integers.
+// ReadFibonacciRange reads a range entries of Fibonacci encoded integers.
 // Returns an array of numbers. The format of the range field always consists of:
 // - int(12) - representing the amount of items to follow
 // - (per item) Boolean - representing whether the item is a single ID (0/false) or a group of IDs (1/true)
