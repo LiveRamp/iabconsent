@@ -525,12 +525,6 @@ func TCFVersionFromTCString(s string) TCFVersion {
 	}
 }
 
-// ReadMspaNoticeType reads two bits and returns an enum |RestrictionType|.
-func (r *ConsentReader) ReadMspaNoticeType() (MspaNotice, error) {
-	var rt, err = r.ReadInt(2)
-	return MspaNotice(rt), err
-}
-
 // ParseUsNational takes a base64 Raw URL Encoded string which represents a US National
 // consent string according to the IAB's Multi-state Privacy Agreement and returns a
 // MspaParsedConsent with its fields populated with the values stored in the string.
@@ -554,11 +548,11 @@ func ParseUsNational(s string) (*MspaParsedConsent, error) {
 	// https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/tree/main/Sections/US-National#core-segment
 	var p = &MspaParsedConsent{}
 	p.Version, _ = r.ReadInt(6)
-	// TODO: Do we need to check for a specific version?
+
 	if p.Version != 1 {
 		return nil, errors.New("non-v1 string passed.")
 	}
-	// TODO: What to do if value >2 for any with max of two?
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.SharingOptOutNotice, _ = r.ReadMspaNotice()
@@ -572,10 +566,12 @@ func ParseUsNational(s string) (*MspaParsedConsent, error) {
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(2)
 	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
-	if p.MspaCoveredTransaction == MspaNotApplicable {
-		// Value cannot be N/A, so just set to no to be conservative.
-		p.MspaCoveredTransaction = MspaNo
-	}
+	// TODO: Figure out if 0 is a valid value for MspaCoveredTransaction
+	// Current documentation does not allow CoveredTx to be 0 value, but examples contradict this.
+	//if p.MspaCoveredTransaction == MspaNotApplicable {
+	//	// Value cannot be N/A, so just set to no to be conservative.
+	//	p.MspaCoveredTransaction = MspaNo
+	//}
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
 

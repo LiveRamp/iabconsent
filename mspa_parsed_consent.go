@@ -171,7 +171,7 @@ func (r *ConsentReader) ReadMspaBitfieldConsent(l uint) (map[int]MspaConsent, er
 }
 
 // ReadMspaNaYesNo is a helper function to handle the responses to standard MSPA
-// values that are in the same format of 0: Not Applicable, 1: Yes, 3: No.
+// values that are in the same format of 0: Not Applicable, 1: Yes, 2: No.
 func (r *ConsentReader) ReadMspaNaYesNo() (MspaNaYesNo, error) {
 	var nyn, err = r.ReadInt(2)
 	return MspaNaYesNo(nyn), err

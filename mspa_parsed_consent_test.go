@@ -102,3 +102,14 @@ func (s *MspaSuite) TestReadMspaNaYesNo(c *check.C) {
 		c.Check(mc, check.Equals, i)
 	}
 }
+
+func (s *MspaSuite) TestParseUsNational(c *check.C) {
+	for k, v := range usNationalConsentFixtures {
+		c.Log(k)
+
+		var p, err = iabconsent.ParseUsNational(k)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
