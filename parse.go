@@ -531,8 +531,8 @@ func TCFVersionFromTCString(s string) TCFVersion {
 //
 // Example Usage:
 //
-//   var pc, err = iabconsent.ParseUsNational("")
-func ParseUsNational(s string) (*MspaParsedConsent, error) {
+//   var pc, err = iabconsent.ParseUsNational("BVVqAAEABAA.QA")
+func ParseUsNational(s string) (GppParsedConsent, error) {
 	var segments = strings.Split(s, ".")
 	// TODO(PX-2204): Re-usable subsections separated by '.', support for GPC will be added in.
 

@@ -2,6 +2,7 @@ package iabconsent_test
 
 import (
 	"github.com/go-check/check"
+	"github.com/pkg/errors"
 
 	"github.com/LiveRamp/iabconsent"
 )
@@ -111,5 +112,32 @@ func (s *MspaSuite) TestParseUsNational(c *check.C) {
 
 		c.Check(err, check.IsNil)
 		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsNationalError(c *check.C) {
+	var tcs = []struct {
+		desc        string
+		usNatString string
+		expected    error
+	}{
+		{
+			desc:        "Wrong Version.",
+			usNatString: "DVVqAAEABA",
+			expected:    errors.New("non-v1 string passed."),
+		},
+		{
+			desc:        "Bad Decoding.",
+			usNatString: "$%&*(",
+			expected:    errors.New("parse usnat consent string: illegal base64 data at input byte 0"),
+		},
+	}
+	for _, t := range tcs {
+		c.Log(t.desc)
+
+		var p, err = iabconsent.ParseUsNational(t.usNatString)
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, t.expected.Error())
 	}
 }

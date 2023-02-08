@@ -50,6 +50,14 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 				Version:  1,
 				Sections: []int{7}},
 		},
+		{
+			description: "US Privacy and US National MSPA (Multi-State Privacy Agreement)",
+			header:      "DBABzw",
+			expected: &iabconsent.GppHeader{
+				Type:     3,
+				Version:  1,
+				Sections: []int{6, 7}},
+		},
 	}
 
 	for _, tc := range tcs {
@@ -60,7 +68,7 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 	}
 }
 
-func (s *GppParseSuite) TestParseGppHeaderFail(c *check.C) {
+func (s *GppParseSuite) TestParseGppHeaderError(c *check.C) {
 	var tcs = []struct {
 		description string
 		header      string
@@ -97,5 +105,70 @@ func (s *GppParseSuite) TestParseGppHeaderFail(c *check.C) {
 		c.Check(g, check.IsNil)
 		c.Check(err, check.NotNil)
 		c.Check(err.Error(), check.Equals, tc.expected.Error())
+	}
+}
+
+func (s *MspaSuite) TestParseGpp(c *check.C) {
+	for gppString, expectedValues := range gppParsedConsentFixtures {
+		c.Log(gppString)
+
+		var parseFuncs, err = iabconsent.ParseGpp(gppString)
+
+		c.Check(err, check.IsNil)
+		// Instead of checking the parsing functions, run each of them to ensure the final values match.
+		c.Check(parseFuncs, check.HasLen, len(expectedValues))
+		for sectionId, pFunc := range parseFuncs {
+			consent, err := pFunc()
+			c.Check(err, check.IsNil)
+			c.Check(consent, check.DeepEquals, expectedValues[sectionId])
+		}
+	}
+}
+
+func (s *MspaSuite) TestParseGppConsent(c *check.C) {
+	for g, e := range gppParsedConsentFixtures {
+		c.Log(g)
+
+		var p, err = iabconsent.ParseGppConsent(g)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.HasLen, len(e))
+		for i, expected := range e {
+			parsed, found := p[i]
+			c.Check(found, check.Equals, true)
+			c.Check(parsed, check.DeepEquals, expected)
+		}
+	}
+}
+
+func (s *MspaSuite) TestParseGppErrors(c *check.C) {
+	tcs := []struct {
+		desc     string
+		gpp      string
+		expected error
+	}{
+		{
+			desc:     "No sections.",
+			gpp:      "DBABL",
+			expected: errors.New("not enough gpp segments"),
+		},
+		{
+			desc:     "Mismatched # of sections, header expects 1.",
+			gpp:      "DBABL~section1~section2",
+			expected: errors.New("mismatch number of sections"),
+		},
+		{
+			desc:     "Bad header.",
+			gpp:      "badheader~BVVqAAEABAA.QA",
+			expected: errors.New("read gpp header: wrong gpp header type 27"),
+		},
+	}
+	for _, t := range tcs {
+		c.Log(t.desc)
+
+		var p, err = iabconsent.ParseGpp(t.gpp)
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, t.expected.Error())
 	}
 }
