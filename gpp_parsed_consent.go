@@ -19,6 +19,17 @@ type GppHeader struct {
 type GppParsedConsent interface {
 }
 
+type GppSubSection struct {
+	Gpc bool
+}
+
+type GppSubSectionTypes int
+
+const (
+	SubSectCore GppSubSectionTypes = iota
+	SubSectGpc
+)
+
 // Each supported Section ID must have a Parsing Function and be added here to support a given section.
 var parsingFunctions = map[int]func(string) (GppParsedConsent, error){
 	7: ParseUsNational,
@@ -118,4 +129,30 @@ func ParseGppConsent(s string) (map[int]GppParsedConsent, error) {
 		}
 	}
 	return gppConsents, nil
+}
+
+// ParseGppSubSection parses the subsections that may be appended to GPP sections after a `.`
+// Currently, GPC is the only subsection, so we only have a single Subsection parsing function.
+// In the future, Section IDs may need their own SubSection parser.
+func ParseGppSubSection(s string) (*GppSubSection, error) {
+	var b, err = base64.RawURLEncoding.DecodeString(s + "A")
+	if err != nil {
+		return nil, errors.Wrap(err, "parse gpp subsection string")
+	}
+	var r = NewConsentReader(b)
+	var gppSub = new(GppSubSection)
+	var subType int
+	subType, err = r.ReadInt(2)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse gpp subsection type")
+	}
+	var gppValue bool
+	if GppSubSectionTypes(subType) == SubSectGpc {
+		gppValue, err = r.ReadBool()
+		if err != nil {
+			return nil, errors.Wrap(err, "parse gpp subsection gpc bool")
+		}
+		gppSub.Gpc = gppValue
+	}
+	return gppSub, nil
 }

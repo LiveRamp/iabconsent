@@ -172,3 +172,43 @@ func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 		c.Check(err, check.ErrorMatches, t.expected.Error())
 	}
 }
+
+func (s *GppParseSuite) TestParseGppSubSection(c *check.C) {
+	var tcs = []struct {
+		description string
+		subsection  string
+		expected    *iabconsent.GppSubSection
+	}{
+		{
+			description: "GPC Type, false value",
+			// 01000000
+			subsection: "QA",
+			expected: &iabconsent.GppSubSection{
+				Gpc: false,
+			},
+		},
+		{
+			description: "GPC Type, true value.",
+			// 01100000
+			subsection: "YA",
+			expected: &iabconsent.GppSubSection{
+				Gpc: true,
+			},
+		},
+		{
+			description: "No GPC Type.",
+			// 00000000
+			subsection: "AA",
+			expected: &iabconsent.GppSubSection{
+				Gpc: false,
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+		var g, err = iabconsent.ParseGppSubSection(tc.subsection)
+		c.Check(err, check.IsNil)
+		c.Check(g, check.DeepEquals, tc.expected)
+	}
+}
