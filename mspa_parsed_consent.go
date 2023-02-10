@@ -95,6 +95,11 @@ type MspaParsedConsent struct {
 	// 1 Yes
 	// 2 No
 	MspaServiceProviderMode MspaNaYesNo
+	// Subsections added below:
+	// GPC is signaled and set.
+	// 0 False
+	// 1 True
+	Gpc bool
 }
 
 type MspaNotice int

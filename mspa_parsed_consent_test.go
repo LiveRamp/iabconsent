@@ -108,7 +108,8 @@ func (s *MspaSuite) TestParseUsNational(c *check.C) {
 	for k, v := range usNationalConsentFixtures {
 		c.Log(k)
 
-		var p, err = iabconsent.ParseUsNational(k)
+		var gppSection = iabconsent.NewMspaNationl(k)
+		var p, err = gppSection.ParseConsent()
 
 		c.Check(err, check.IsNil)
 		c.Check(p, check.DeepEquals, v)
@@ -135,7 +136,8 @@ func (s *MspaSuite) TestParseUsNationalError(c *check.C) {
 	for _, t := range tcs {
 		c.Log(t.desc)
 
-		var p, err = iabconsent.ParseUsNational(t.usNatString)
+		var gppSection = iabconsent.NewMspaNationl(t.usNatString)
+		var p, err = gppSection.ParseConsent()
 
 		c.Check(p, check.IsNil)
 		c.Check(err, check.ErrorMatches, t.expected.Error())

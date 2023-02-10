@@ -1,6 +1,9 @@
 package iabconsent_test
 
 import (
+	"encoding/base64"
+	"strings"
+
 	"github.com/go-check/check"
 	"github.com/pkg/errors"
 
@@ -112,15 +115,15 @@ func (s *MspaSuite) TestParseGpp(c *check.C) {
 	for gppString, expectedValues := range gppParsedConsentFixtures {
 		c.Log(gppString)
 
-		var parseFuncs, err = iabconsent.ParseGpp(gppString)
+		var gppSections, err = iabconsent.ParseGpp(gppString)
 
 		c.Check(err, check.IsNil)
 		// Instead of checking the parsing functions, run each of them to ensure the final values match.
-		c.Check(parseFuncs, check.HasLen, len(expectedValues))
-		for sectionId, pFunc := range parseFuncs {
-			consent, err := pFunc()
+		c.Check(gppSections, check.HasLen, len(expectedValues))
+		for _, sect := range gppSections {
+			consent, err := sect.ParseConsent()
 			c.Check(err, check.IsNil)
-			c.Check(consent, check.DeepEquals, expectedValues[sectionId])
+			c.Check(consent, check.DeepEquals, expectedValues[sect.GetSectionId()])
 		}
 	}
 }
@@ -173,16 +176,16 @@ func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 	}
 }
 
-func (s *GppParseSuite) TestParseGppSubSection(c *check.C) {
+func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 	var tcs = []struct {
 		description string
-		subsection  string
+		subsections string
 		expected    *iabconsent.GppSubSection
 	}{
 		{
 			description: "GPC Type, false value",
 			// 01000000
-			subsection: "QA",
+			subsections: "QA",
 			expected: &iabconsent.GppSubSection{
 				Gpc: false,
 			},
@@ -190,7 +193,7 @@ func (s *GppParseSuite) TestParseGppSubSection(c *check.C) {
 		{
 			description: "GPC Type, true value.",
 			// 01100000
-			subsection: "YA",
+			subsections: "YA",
 			expected: &iabconsent.GppSubSection{
 				Gpc: true,
 			},
@@ -198,16 +201,71 @@ func (s *GppParseSuite) TestParseGppSubSection(c *check.C) {
 		{
 			description: "No GPC Type.",
 			// 00000000
-			subsection: "AA",
+			subsections: "AA",
 			expected: &iabconsent.GppSubSection{
 				Gpc: false,
+			},
+		},
+		{
+			description: "GPC True, then GPC False, should remain True.",
+			// 01100000.01000000
+			subsections: "YA.QA",
+			expected: &iabconsent.GppSubSection{
+				Gpc: true,
+			},
+		},
+		{
+			description: "GPC False, then GPC True, should remain True.",
+			// 01000000.01100000
+			subsections: "QA.YA",
+			expected: &iabconsent.GppSubSection{
+				Gpc: true,
 			},
 		},
 	}
 
 	for _, tc := range tcs {
 		c.Log(tc)
-		var g, err = iabconsent.ParseGppSubSection(tc.subsection)
+		// There may be >1 subsections, and func expects them as an array, so split.
+		subsect := strings.Split(tc.subsections, ".")
+		var g, err = iabconsent.ParseGppSubSections(subsect)
+		c.Check(err, check.IsNil)
+		c.Check(g, check.DeepEquals, tc.expected)
+	}
+}
+
+func (s *GppParseSuite) TestParseGpcSubSections(c *check.C) {
+	var tcs = []struct {
+		description string
+		subsection  string
+		expected    bool
+	}{
+		{
+			description: "All 0 bits.",
+			// 0000000
+			subsection: "AA",
+			expected:   false,
+		},
+		{
+			description: "Second bit 1.",
+			// 01000000
+			subsection: "QA",
+			expected:   false,
+		},
+		{
+			description: "First bit 1.",
+			// 1000000
+			subsection: "gA",
+			expected:   true,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+		b, err := base64.RawURLEncoding.DecodeString(tc.subsection)
+		c.Check(err, check.IsNil)
+		var cr = iabconsent.NewConsentReader(b)
+		g, err := iabconsent.ParseGpcSubsection(cr)
 		c.Check(err, check.IsNil)
 		c.Check(g, check.DeepEquals, tc.expected)
 	}
