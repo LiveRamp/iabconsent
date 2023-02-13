@@ -96,9 +96,7 @@ type MspaParsedConsent struct {
 	// 2 No
 	MspaServiceProviderMode MspaNaYesNo
 	// Subsections added below:
-	// GPC is signaled and set.
-	// 0 False
-	// 1 True
+	// Global Privacy Control (GPC) is signaled and set.
 	Gpc bool
 }
 

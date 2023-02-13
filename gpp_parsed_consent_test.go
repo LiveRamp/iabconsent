@@ -111,11 +111,11 @@ func (s *GppParseSuite) TestParseGppHeaderError(c *check.C) {
 	}
 }
 
-func (s *MspaSuite) TestParseGpp(c *check.C) {
+func (s *MspaSuite) TestMapGppSectionToParser(c *check.C) {
 	for gppString, expectedValues := range gppParsedConsentFixtures {
 		c.Log(gppString)
 
-		var gppSections, err = iabconsent.ParseGpp(gppString)
+		var gppSections, err = iabconsent.MapGppSectionToParser(gppString)
 
 		c.Check(err, check.IsNil)
 		// Instead of checking the parsing functions, run each of them to ensure the final values match.
@@ -169,7 +169,7 @@ func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 	for _, t := range tcs {
 		c.Log(t.desc)
 
-		var p, err = iabconsent.ParseGpp(t.gpp)
+		var p, err = iabconsent.MapGppSectionToParser(t.gpp)
 
 		c.Check(p, check.IsNil)
 		c.Check(err, check.ErrorMatches, t.expected.Error())

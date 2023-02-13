@@ -39,6 +39,7 @@ func (g *GppSection) GetSectionId() int {
 }
 
 type GppSubSection struct {
+	// Global Privacy Control (GPC) is signaled and set.
 	Gpc bool
 }
 
@@ -79,11 +80,11 @@ func ParseGppHeader(s string) (*GppHeader, error) {
 	return g, r.Err
 }
 
-// ParseGpp takes a base64 Raw URL Encoded string which represents a GPP v1 string
+// MapGppSectionToParser takes a base64 Raw URL Encoded string which represents a GPP v1 string
 // of the format {gpp header}~{section 1}[.{sub-section}][~{section n}]
 // and returns each pair of section value and parsing function that should be used.
 // The pairs are returned to allow more control over how parsing functions are applied.
-func ParseGpp(s string) ([]GppSectionParser, error) {
+func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	var gppHeader *GppHeader
 	var err error
 	// ~ separated fields. with the format {gpp header}~{section 1}[.{sub-section}][~{section n}]
@@ -122,7 +123,7 @@ func ParseGpp(s string) ([]GppSectionParser, error) {
 func ParseGppConsent(s string) (map[int]GppParsedConsent, error) {
 	var gppSections []GppSectionParser
 	var err error
-	gppSections, err = ParseGpp(s)
+	gppSections, err = MapGppSectionToParser(s)
 	if err != nil {
 		return nil, err
 	}
