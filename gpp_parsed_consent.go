@@ -102,16 +102,17 @@ func ParseGpp(s string) ([]GppSectionParser, error) {
 	// Go through each section and add parsing function and section value to returned value.
 	var gppSections = make([]GppSectionParser, 0)
 	for i := 1; i < len(segments); i++ {
-		var gppParser GppSectionParser
+		var gppSection GppSectionParser
 		switch sid := gppHeader.Sections[i-1]; sid {
 		case 7:
-			gppParser = NewMspaNationl(segments[i])
-			gppSections = append(gppSections, gppParser)
+			gppSection = NewMspaNationl(segments[i])
 		default:
 			// Skip if no matching struct, as Section ID is not supported yet.
 			// Any newly supported Section IDs should be added as cases here.
 		}
-
+		if gppSection != nil {
+			gppSections = append(gppSections, gppSection)
+		}
 	}
 	return gppSections, nil
 }
