@@ -1,6 +1,6 @@
 package iabconsent
 
-// mspaParsedConsent represents data extract from a Multi-State Privacy Agreement (mspa) consent string.
+// MspaParsedConsent represents data extract from a Multi-State Privacy Agreement (mspa) consent string.
 // Format can be found here: https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Sections/US-National/IAB%20Privacy%E2%80%99s%20National%20Privacy%20Technical%20Specification.md#core-segment
 type MspaParsedConsent struct {
 	// The version of this section specification used to encode the string.
