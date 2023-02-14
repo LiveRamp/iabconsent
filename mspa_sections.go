@@ -17,7 +17,6 @@ func NewMspaNationl(section string) *MspaUsNational {
 
 func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
-	// TODO(PX-2204): Re-usable subsections separated by '.', support for GPC will be added in.
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -49,17 +48,11 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(2)
 	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
-	// TODO: Figure out if 0 is a valid value for MspaCoveredTransaction
-	// If not, should we change to another value and continue?
-	// Current documentation does not allow CoveredTx to be 0 value, but examples contradict this.
-	//if p.MspaCoveredTransaction == MspaNotApplicable {
-	//	// Value cannot be N/A, so just set to no to be conservative.
-	//	p.MspaCoveredTransaction = MspaNo
-	//}
+	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
+	// return the value of the string, and let downstream processing handle if the value is 0.
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
 
-	// TODO(PX-2204): Parse remaining non-core reusable sections if they exist.
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
