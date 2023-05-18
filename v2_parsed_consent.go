@@ -279,9 +279,9 @@ func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 // PurposeAllowed returns true if the passed purpose number exists in
 // the V2ParsedConsent, otherwise false.
 func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
-		if !p.PurposesConsent[ps] {
-			return false
-		}
+	if !p.PurposesConsent[ps] {
+		return false
+	}
 	return true
 }
 
@@ -295,6 +295,7 @@ func (p *V2ParsedConsent) EverySpecialFeaturesOptInGiven(specialFeatures []int) 
 	}
 	return true
 }
+
 
 
 // VendorAllowed returns true if the ParsedConsent contains affirmative consent

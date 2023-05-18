@@ -17,6 +17,8 @@ const (
 	nsPerDs = int64(time.Millisecond * 100)
 )
 
+var PrecompiledFibonacci = map[int]int{0: 0, 1: 1, 2: 1, 3: 2, 4: 3, 5: 5, 6: 8, 7: 13, 8: 21, 9: 34, 10: 55, 11: 89, 12: 144, 13: 233}
+
 // ConsentReader provides additional Consent String-specific bit-reading
 // functionality on top of bits.Reader.
 type ConsentReader struct {
@@ -35,6 +37,70 @@ func (r *ConsentReader) ReadInt(n uint) (int, error) {
 	} else {
 		return int(b), nil
 	}
+}
+
+// FibonacciIndexValue is a helper function to get the Fibonacci value of an index for Fibonacci encoding.
+// These are currently only used for the various consent types, which there are not many, so
+// we should only expect to use the smaller indexes. Therefore, create a map, but still allow for
+// new indexes to be calculated.
+func FibonacciIndexValue(index int) (int, error) {
+	// Due to int limitations, we cannot calculate indexes >92 with ints.
+	if index > 92 {
+		return 0, errors.New("fibonacci: index greater than max of 92")
+	}
+	if index <= len(PrecompiledFibonacci) {
+		return PrecompiledFibonacci[index], nil
+	} else {
+		return newFib(index), nil
+	}
+}
+
+// newFib calculates a new Fibonacci value for a given index.
+func newFib(n int) int {
+	if n <= 1 {
+		return n
+	} else {
+		var n2, n1 = 0, 1
+		for i := 2; i < n; i++ {
+			n2, n1 = n1, n1+n2
+		}
+
+		return n2 + n1
+	}
+}
+
+// ReadFibonacciInt reads all the bits until two consecutive `1`s, and converts the bits to an int
+// using Fibonacci Encoding. More info: https://en.wikipedia.org/wiki/Fibonacci_coding
+func (r *ConsentReader) ReadFibonacciInt() (int, error) {
+	var previous = 0
+	var total = 0
+	// If there is an invalid FibonacciEncoding (no `11`), the Consent Reader will eventually
+	// fail with a `bits: index out of range` error.
+	for i := 0; ; i++ {
+		b, err := r.ReadBits(1)
+		if err != nil {
+			return 0, errors.WithMessage(err, "read fibonacci int")
+		} else {
+			// Two bits set to 1 indicates the end of the Fibonacci encoding.
+			if previous == 1 && b == 1 {
+				break
+			}
+			// Only add the value if bit is set to 1.
+			if b == 1 {
+				var fibonacciValue int
+				// Since FibonacciEncoding skips 0 + 1, offset index by 2.
+				fibonacciValue, err = FibonacciIndexValue(i + 2)
+				if err != nil {
+					return 0, errors.WithMessage(err, "read fibonacci value")
+				}
+				total += fibonacciValue
+				previous = 1
+			} else {
+				previous = 0
+			}
+		}
+	}
+	return total, nil
 }
 
 // ReadTime reads the next 36 bits representing the epoch time in deciseconds
@@ -76,6 +142,21 @@ func (r *ConsentReader) ReadBitField(n uint) (map[int]bool, error) {
 	return m, nil
 }
 
+// ReadNBitField reads n bits, l number of times and converts them to a map[int]int.
+// This allows a variable number of bits to be read for more possible number values.
+func (r *ConsentReader) ReadNBitField(n, l uint) (map[int]int, error) {
+	var m = make(map[int]int)
+	for f := uint(0); f < l; f++ {
+		if readInt, err := r.ReadInt(n); err != nil {
+			return nil, errors.WithMessage(err, "read n-bitfield")
+		} else {
+			// Zero-based index, as no reason for one-based.
+			m[int(f)] = readInt
+		}
+	}
+	return m, nil
+}
+
 // ReadRangeEntries reads n range entries of 1 + 16 or 32 bits.
 func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	var ret = make([]*RangeEntry, 0, n)
@@ -101,8 +182,59 @@ func (r *ConsentReader) ReadRangeEntries(n uint) ([]*RangeEntry, error) {
 	return ret, nil
 }
 
+// ReadFibonacciRange reads a range entries of Fibonacci encoded integers.
+// Returns an array of numbers. The format of the range field always consists of:
+// - int(12) - representing the amount of items to follow
+// - (per item) Boolean - representing whether the item is a single ID (0/false) or a group of IDs (1/true)
+// - (per item) int(Fibonacci) - representing a) the offset to a single ID or b) the offset to the start ID in case of a group (the offset is from the last seen number, or 0 for the first entry)
+// - (per item + only if group) int(Fibonacci) - length of the group
+func (r *ConsentReader) ReadFibonacciRange() ([]int, error) {
+	var length int
+	var err error
+	// Get the amount of items to follow
+	if length, err = r.ReadInt(12); err != nil {
+		return nil, errors.WithMessage(err, "fibonacci length check")
+	}
+	var ret []int
+	for i := uint(0); i < uint(length); i++ {
+		var isRange bool
+		// Check if item is a single ID (false) or group of IDs (true).
+		if isRange, err = r.ReadBool(); err != nil {
+			return nil, errors.WithMessage(err, "is-fibonacci-range check")
+		}
+		var lastSeen, offset int
+		// if no values, start at 0. Otherwise, get last value in slice.
+		if len(ret) == 0 {
+			lastSeen = 0
+		} else {
+			lastSeen = ret[len(ret)-1]
+		}
+		if offset, err = r.ReadFibonacciInt(); err != nil {
+			return nil, errors.WithMessage(err, "fibonacci range offset")
+		}
+		if isRange {
+			// If a range, we need to get group length to add multiple values to the range.
+			var groupLength int
+			if groupLength, err = r.ReadFibonacciInt(); err != nil {
+				return nil, errors.WithMessage(err, "fibonacci range length")
+			}
+			// Add offset to last seen value as starting point of range.
+			lastSeen += offset
+			// Keep appending integers until we reach the group length.
+			for o := 0; o <= groupLength; o++ {
+				ret = append(ret, lastSeen)
+				lastSeen++
+			}
+		} else {
+			// If a single ID, add value to last seen value.
+			ret = append(ret, lastSeen+offset)
+		}
+	}
+	return ret, nil
+}
+
 // ReadPubRestrictionEntries reads n publisher restriction entries.
-func (r * ConsentReader) ReadPubRestrictionEntries(n uint) ([]*PubRestrictionEntry, error) {
+func (r *ConsentReader) ReadPubRestrictionEntries(n uint) ([]*PubRestrictionEntry, error) {
 	var ret = make([]*PubRestrictionEntry, 0, n)
 	var err error
 
@@ -323,7 +455,7 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 	for i, segment := range segments[1:] {
 		b, err = base64.RawURLEncoding.DecodeString(segment)
 		if err != nil {
-			return p, errors.Wrap(err, "parsing segment " + strconv.Itoa(i + 1))
+			return p, errors.Wrap(err, "parsing segment "+strconv.Itoa(i+1))
 		}
 
 		r = NewConsentReader(b)
@@ -368,7 +500,7 @@ const (
 // TCFVersionFromTCString allows the caller to pass any valid consent string to
 // determine which parse method is appropriate to call or otherwise
 // return InvalidTCFVersion (0).
-func TCFVersionFromTCString(s string) (TCFVersion) {
+func TCFVersionFromTCString(s string) TCFVersion {
 	var ss = strings.SplitN(s, ".", 2)
 
 	var b, err = base64.RawURLEncoding.DecodeString(ss[0])

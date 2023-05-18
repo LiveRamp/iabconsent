@@ -1,6 +1,6 @@
 module github.com/LiveRamp/iabconsent
 
-go 1.12
+go 1.16
 
 require (
 	github.com/go-check/check v0.0.0-20161208181325-20d25e280405
