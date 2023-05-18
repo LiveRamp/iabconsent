@@ -18,7 +18,7 @@ This package defines a two structs (`ParsedConsent` and `V2ParsedConsent`) which
 v1.1 Consent String and the IAB Transparency and Consent String v2.0 respectively.
 
 Each spec has their own parsing function (`ParseV1` and `ParseV2`). If the caller is unsure of which version a consent
-string is, they can use `ParseVersion` to receive a `StringVersion` to determine which parsing function is appropriate.
+string is, they can use `TCFVersionFromTCString` to receive a `TCFVersion` enum type to determine which parsing function is appropriate.
 
 Example use:
 ```go
@@ -29,7 +29,7 @@ import "github.com/LiveRamp/iabconsent"
 func main() {
     var consent = "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA"
 
-    var c, err = iabconsent.ParseVersion(consent)
+    var c, err = iabconsent.TCFVersionFromTCString(consent)
     if err != nil {
         panic(err)
     }
