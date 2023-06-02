@@ -106,7 +106,9 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 		var gppSection GppSectionParser
 		switch sid := gppHeader.Sections[i-1]; sid {
 		case 7:
-			gppSection = NewMspaNationl(segments[i])
+			gppSection = NewMspaNational(segments[i])
+		case 9:
+			gppSection = NewMspaVA(segments[i])
 		default:
 			// Skip if no matching struct, as Section ID is not supported yet.
 			// Any newly supported Section IDs should be added as cases here.
@@ -134,7 +136,7 @@ func ParseGppConsent(s string) (map[int]GppParsedConsent, error) {
 		var consentErr error
 		consent, consentErr = gpp.ParseConsent()
 		if consentErr != nil {
-			// If an error, quietly do not add teh consent value to map.
+			// If an error, quietly do not add the consent value to map.
 		} else {
 			gppConsents[gpp.GetSectionId()] = consent
 		}
