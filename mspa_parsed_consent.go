@@ -54,20 +54,12 @@ type MspaParsedConsent struct {
 	// 0 Not Applicable. The Business does not Process the specific category of Sensitive Data.
 	// 1 No Consent
 	// 2 Consent
-	// Data Activities:
-	// (1) Consent to Process the Consumer’s Sensitive Data Consisting of Personal Data Revealing Racial or Ethnic Origin.
-	// (2) Consent to Process the Consumer’s Sensitive Data Consisting of Personal Data Revealing Religious or Philosophical Beliefs.
-	// (3) Consent to Process the Consumer’s Sensitive Data Consisting of Personal Data Concerning a Consumer’s Health (including a Mental or Physical Health Condition or Diagnosis; Medical History; or Medical Treatment or Diagnosis by a Health Care Professional).
-	// (4) Consent to Process the Consumer’s Sensitive Data Consisting of Personal Data Revealing Sex Life or Sexual Orientation.
-	// (5) Consent to Process the Consumer’s Sensitive Data Consisting of Personal Data Revealing Citizenship or Immigration Status.
-	// (6) Consent to Process the Consumer’s Sensitive Data Consisting of Genetic Data for the Purpose of Uniquely Identifying an Individual / Natural Person.
-	// (7) Consent to Process the Consumer’s Sensitive Data Consisting of Biometric Data for the Purpose of Uniquely Identifying an Individual / Natural Person.
-	// (8) Consent to Process the Consumer’s Sensitive Data Consisting of Precise Geolocation Data.
-	// (9) Consent to Process the Consumer’s Sensitive Data Consisting of a Consumer’s Social Security, Driver’s License, State Identification Card, or Passport Number.
-	// (10) Consent to Process the Consumer’s Sensitive Data Consisting of a Consumer’s Account Log-In, Financial Account, Debit Card, or Credit Card Number in Combination with Any Required Security or Access Code, Password, or Credentials Allowing Access to an Account.
-	// (11) Consent to Process the Consumer’s Sensitive Data Consisting of Union Membership.
-	// (12) Consent to Process the Consumer’s Sensitive Data Consisting of the contents of a Consumer’s Mail, Email, and Text Messages unless You Are the Intended Recipient of the Communication.
-	SensitiveDataProcessing map[int]MspaConsent
+	SensitiveDataProcessingConsents map[int]MspaConsent
+	// Two bits for each Data Activity:
+	// 0 Not Applicable. SensitiveDataLimitUseNotice value was not applicable or no notice was provided.
+	// 1 Opted Out
+	// 2 Did Not Opt Out
+	SensitiveDataProcessingOptOuts map[int]MspaOptout
 	// Two bits for each Data Activity:
 	// 0 Not Applicable. The Business does not have actual knowledge that it Processes Personal Data or Sensitive Data of a Consumer who is a known child.
 	// 1 No Consent
@@ -169,6 +161,20 @@ func (r *ConsentReader) ReadMspaBitfieldConsent(l uint) (map[int]MspaConsent, er
 	}
 	for i, b := range bc {
 		consentBitfield[i] = MspaConsent(b)
+	}
+	return consentBitfield, err
+}
+
+// ReadMspaBitfieldOptOut reads n-bitfield values, and converts the values into
+// MSPA OptOut values.
+func (r *ConsentReader) ReadMspaBitfieldOptOut(l uint) (map[int]MspaOptout, error) {
+	var bc, err = r.ReadNBitField(2, l)
+	var consentBitfield = make(map[int]MspaOptout, len(bc))
+	if err != nil {
+		return nil, err
+	}
+	for i, b := range bc {
+		consentBitfield[i] = MspaOptout(b)
 	}
 	return consentBitfield, err
 }

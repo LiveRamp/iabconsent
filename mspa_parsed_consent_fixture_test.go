@@ -7,7 +7,7 @@ import (
 // Test fixtures can be created here: https://iabgpp.com/
 
 var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
-	// With subsection of GPC False.
+	// usnat with subsection of GPC False.
 	"BVVqAAEABAA.QA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
@@ -19,7 +19,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		SaleOptOut:                          iabconsent.NotOptedOut,
 		SharingOptOut:                       iabconsent.NotOptedOut,
 		TargetedAdvertisingOptOut:           iabconsent.NotOptedOut,
-		SensitiveDataProcessing: map[int]iabconsent.MspaConsent{
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
 			0:  iabconsent.ConsentNotApplicable,
 			1:  iabconsent.ConsentNotApplicable,
 			2:  iabconsent.ConsentNotApplicable,
@@ -42,7 +42,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
 		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
 	},
-	// With subsection of GPC True.
+	// usnat With subsection of GPC True.
 	"BVVqAAEABAA.YA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
@@ -54,7 +54,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		SaleOptOut:                          iabconsent.NotOptedOut,
 		SharingOptOut:                       iabconsent.NotOptedOut,
 		TargetedAdvertisingOptOut:           iabconsent.NotOptedOut,
-		SensitiveDataProcessing: map[int]iabconsent.MspaConsent{
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
 			0:  iabconsent.ConsentNotApplicable,
 			1:  iabconsent.ConsentNotApplicable,
 			2:  iabconsent.ConsentNotApplicable,
@@ -78,7 +78,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
 		Gpc:                     true,
 	},
-	// Without subsection.
+	// usnat without subsection.
 	"BqqAqqqqqqA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeNotProvided,
@@ -90,7 +90,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		SaleOptOut:                          iabconsent.OptOutNotApplicable,
 		SharingOptOut:                       iabconsent.OptOutNotApplicable,
 		TargetedAdvertisingOptOut:           iabconsent.OptOutNotApplicable,
-		SensitiveDataProcessing: map[int]iabconsent.MspaConsent{
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
 			0:  iabconsent.Consent,
 			1:  iabconsent.Consent,
 			2:  iabconsent.Consent,
@@ -116,8 +116,69 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	},
 }
 
+var usCAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
+	// usca with subsection of GPC True.
+	"BVoYYZoA.YA": {
+		Version:                     1,
+		SaleOptOutNotice:            iabconsent.NoticeProvided,
+		SharingOptOutNotice:         iabconsent.NoticeProvided,
+		SensitiveDataLimitUseNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                  iabconsent.NotOptedOut,
+		SharingOptOut:               iabconsent.NotOptedOut,
+		SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+			0: iabconsent.OptOutNotApplicable,
+			1: iabconsent.OptedOut,
+			2: iabconsent.NotOptedOut,
+			3: iabconsent.OptOutNotApplicable,
+			4: iabconsent.OptedOut,
+			5: iabconsent.NotOptedOut,
+			6: iabconsent.OptOutNotApplicable,
+			7: iabconsent.OptedOut,
+			8: iabconsent.NotOptedOut,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.NoConsent,
+			1: iabconsent.Consent,
+		},
+		PersonalDataConsents:    iabconsent.Consent,
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     true,
+	},
+	// usca without subsection.
+	"BVoYYZoA": {
+		Version:                     1,
+		SaleOptOutNotice:            iabconsent.NoticeProvided,
+		SharingOptOutNotice:         iabconsent.NoticeProvided,
+		SensitiveDataLimitUseNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                  iabconsent.NotOptedOut,
+		SharingOptOut:               iabconsent.NotOptedOut,
+		SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+			0: iabconsent.OptOutNotApplicable,
+			1: iabconsent.OptedOut,
+			2: iabconsent.NotOptedOut,
+			3: iabconsent.OptOutNotApplicable,
+			4: iabconsent.OptedOut,
+			5: iabconsent.NotOptedOut,
+			6: iabconsent.OptOutNotApplicable,
+			7: iabconsent.OptedOut,
+			8: iabconsent.NotOptedOut,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.NoConsent,
+			1: iabconsent.Consent,
+		},
+		PersonalDataConsents:    iabconsent.Consent,
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     false,
+	},
+}
+
 var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
-	// With subsection of GPC True.
+	// usva with subsection of GPC True.
 	"BVoYYYA.YA": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
@@ -125,7 +186,7 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		TargetedAdvertisingOptOutNotice: iabconsent.NoticeProvided,
 		SaleOptOut:                      iabconsent.NotOptedOut,
 		TargetedAdvertisingOptOut:       iabconsent.NotOptedOut,
-		SensitiveDataProcessing: map[int]iabconsent.MspaConsent{
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
 			0: iabconsent.ConsentNotApplicable,
 			1: iabconsent.NoConsent,
 			2: iabconsent.Consent,
@@ -143,7 +204,7 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
 		Gpc:                     true,
 	},
-	// Without subsection.
+	// usva without subsection.
 	"BVoYYYA": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
@@ -151,7 +212,7 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		TargetedAdvertisingOptOutNotice: iabconsent.NoticeProvided,
 		SaleOptOut:                      iabconsent.NotOptedOut,
 		TargetedAdvertisingOptOut:       iabconsent.NotOptedOut,
-		SensitiveDataProcessing: map[int]iabconsent.MspaConsent{
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
 			0: iabconsent.ConsentNotApplicable,
 			1: iabconsent.NoConsent,
 			2: iabconsent.Consent,

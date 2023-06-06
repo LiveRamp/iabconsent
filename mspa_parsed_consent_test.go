@@ -108,7 +108,7 @@ func (s *MspaSuite) TestParseUsNational(c *check.C) {
 	for k, v := range usNationalConsentFixtures {
 		c.Log(k)
 
-		var gppSection = iabconsent.NewMspaNational(k)
+		var gppSection = iabconsent.NewMspa(7, k)
 		var p, err = gppSection.ParseConsent()
 
 		c.Check(err, check.IsNil)
@@ -136,7 +136,47 @@ func (s *MspaSuite) TestParseUsNationalError(c *check.C) {
 	for _, t := range tcs {
 		c.Log(t.desc)
 
-		var gppSection = iabconsent.NewMspaNational(t.usNatString)
+		var gppSection = iabconsent.NewMspa(7, t.usNatString)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, t.expected.Error())
+	}
+}
+
+func (s *MspaSuite) TestParseUsCA(c *check.C) {
+	for k, v := range usCAConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspa(8, k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsCAError(c *check.C) {
+	var tcs = []struct {
+		desc       string
+		usCAString string
+		expected   error
+	}{
+		{
+			desc:       "Wrong Version.",
+			usCAString: "CVoYYZoA",
+			expected:   errors.New("non-v1 string passed."),
+		},
+		{
+			desc:       "Bad Decoding.",
+			usCAString: "$%&*(",
+			expected:   errors.New("parse usca consent string: illegal base64 data at input byte 0"),
+		},
+	}
+	for _, t := range tcs {
+		c.Log(t.desc)
+
+		var gppSection = iabconsent.NewMspa(8, t.usCAString)
 		var p, err = gppSection.ParseConsent()
 
 		c.Check(p, check.IsNil)
@@ -148,7 +188,7 @@ func (s *MspaSuite) TestParseUsVA(c *check.C) {
 	for k, v := range usVAConsentFixtures {
 		c.Log(k)
 
-		var gppSection = iabconsent.NewMspaVA(k)
+		var gppSection = iabconsent.NewMspa(9, k)
 		var p, err = gppSection.ParseConsent()
 
 		c.Check(err, check.IsNil)
@@ -176,7 +216,7 @@ func (s *MspaSuite) TestParseUsVAError(c *check.C) {
 	for _, t := range tcs {
 		c.Log(t.desc)
 
-		var gppSection = iabconsent.NewMspaVA(t.usVAString)
+		var gppSection = iabconsent.NewMspa(9, t.usVAString)
 		var p, err = gppSection.ParseConsent()
 
 		c.Check(p, check.IsNil)
