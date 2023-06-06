@@ -231,3 +231,56 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		Gpc:                     false,
 	},
 }
+
+var usCOConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
+	// usco without GPC Subsection
+	"BVoYYQA": {
+		Version:                         1,
+		SharingNotice:                   iabconsent.NoticeProvided,
+		SaleOptOutNotice:                iabconsent.NoticeProvided,
+		TargetedAdvertisingOptOutNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                      iabconsent.NotOptedOut,
+		TargetedAdvertisingOptOut:       iabconsent.NotOptedOut,
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.ConsentNotApplicable,
+			1: iabconsent.NoConsent,
+			2: iabconsent.Consent,
+			3: iabconsent.ConsentNotApplicable,
+			4: iabconsent.NoConsent,
+			5: iabconsent.Consent,
+			6: iabconsent.ConsentNotApplicable,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.NoConsent,
+		},
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     false,
+	},
+	// usco with subsection of GPC True.
+	"BVoYYQA.YA": {
+		Version:                         1,
+		SharingNotice:                   iabconsent.NoticeProvided,
+		SaleOptOutNotice:                iabconsent.NoticeProvided,
+		TargetedAdvertisingOptOutNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                      iabconsent.NotOptedOut,
+		TargetedAdvertisingOptOut:       iabconsent.NotOptedOut,
+		SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.ConsentNotApplicable,
+			1: iabconsent.NoConsent,
+			2: iabconsent.Consent,
+			3: iabconsent.ConsentNotApplicable,
+			4: iabconsent.NoConsent,
+			5: iabconsent.Consent,
+			6: iabconsent.ConsentNotApplicable,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.NoConsent,
+		},
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     true,
+	},
+}
