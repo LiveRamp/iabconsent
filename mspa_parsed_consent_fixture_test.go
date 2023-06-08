@@ -284,3 +284,60 @@ var usCOConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		Gpc:                     true,
 	},
 }
+
+var usUTConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
+	// usut with subsection of GPC False.
+	"BVaGGGAA.QA": {
+		Version:                             1,
+		SharingNotice:                       iabconsent.NoticeProvided,
+		SaleOptOutNotice:                    iabconsent.NoticeProvided,
+		TargetedAdvertisingOptOutNotice:     iabconsent.NoticeProvided,
+		SensitiveDataProcessingOptOutNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                          iabconsent.NotOptedOut,
+		TargetedAdvertisingOptOut:           iabconsent.NotOptedOut,
+		SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+			0: iabconsent.OptOutNotApplicable,
+			1: iabconsent.OptedOut,
+			2: iabconsent.NotOptedOut,
+			3: iabconsent.OptOutNotApplicable,
+			4: iabconsent.OptedOut,
+			5: iabconsent.NotOptedOut,
+			6: iabconsent.OptOutNotApplicable,
+			7: iabconsent.OptedOut,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.Consent,
+		},
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     false,
+	},
+	// usut with subsection of GPC True.
+	"BVaGGGAA.YA": {
+		Version:                             1,
+		SharingNotice:                       iabconsent.NoticeProvided,
+		SaleOptOutNotice:                    iabconsent.NoticeProvided,
+		TargetedAdvertisingOptOutNotice:     iabconsent.NoticeProvided,
+		SensitiveDataProcessingOptOutNotice: iabconsent.NoticeProvided,
+		SaleOptOut:                          iabconsent.NotOptedOut,
+		TargetedAdvertisingOptOut:           iabconsent.NotOptedOut,
+		SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+			0: iabconsent.OptOutNotApplicable,
+			1: iabconsent.OptedOut,
+			2: iabconsent.NotOptedOut,
+			3: iabconsent.OptOutNotApplicable,
+			4: iabconsent.OptedOut,
+			5: iabconsent.NotOptedOut,
+			6: iabconsent.OptOutNotApplicable,
+			7: iabconsent.OptedOut,
+		},
+		KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+			0: iabconsent.Consent,
+		},
+		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
+		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		Gpc:                     true,
+	},
+}

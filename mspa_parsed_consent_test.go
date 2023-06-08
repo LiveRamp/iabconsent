@@ -263,3 +263,43 @@ func (s *MspaSuite) TestParseUsCOError(c *check.C) {
 		c.Check(err, check.ErrorMatches, t.expected.Error())
 	}
 }
+
+func (s *MspaSuite) TestParseUsUT(c *check.C) {
+	for k, v := range usUTConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspa(11, k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsUTError(c *check.C) {
+	var tcs = []struct {
+		desc       string
+		usUTString string
+		expected   error
+	}{
+		{
+			desc:       "Wrong Version.",
+			usUTString: "DVVqAAEABA",
+			expected:   errors.New("non-v1 string passed."),
+		},
+		{
+			desc:       "Bad Decoding.",
+			usUTString: "$%&*(",
+			expected:   errors.New("parse usut consent string: illegal base64 data at input byte 0"),
+		},
+	}
+	for _, t := range tcs {
+		c.Log(t.desc)
+
+		var gppSection = iabconsent.NewMspa(11, t.usUTString)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, t.expected.Error())
+	}
+}

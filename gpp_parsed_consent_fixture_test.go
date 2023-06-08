@@ -19,17 +19,20 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 	"DBABRg~BVoYYYA": {9: usVAConsentFixtures["BVoYYYA"]},
 	// Valid GPP w/ US Colorado MSPA, Subsection of GPC False.
 	"DBABJg~BVoYYQA": {10: usCOConsentFixtures["BVoYYQA"]},
+	// Valid GPP w/ US Utah MSPA, Subsection of GPC False.
+	"DBABFg~BVaGGGAA": {11: usUTConsentFixtures["BVaGGGAA.QA"]},
 	// Valid GPP w/ US US National and Virgina MSPA, Subsection of GPC False.
 	"DBACLMA~BVVqAAEABAA~BVoYYYA": {
 		7: usNationalConsentFixtures["BVVqAAEABAA.QA"],
 		9: usVAConsentFixtures["BVoYYYA"],
 	},
-	// Valid GPP w/ US US National, California MSPA, Virgina MSPA, and Colorado MSPA Subsection of GPC False.
-	"DBABrMA~BVVqAAEABAA~BVoYYZoA~BVoYYYA~BVoYYQA": {
+	// Valid GPP w/ US US National, California MSPA, Virgina MSPA, Colorado MSPA, and Utah Subsection of GPC False.
+	"DBABrsA~BVVqAAEABAA~BVoYYZoA~BVoYYYA~BVoYYQA~BVaGGGAA": {
 		7:  usNationalConsentFixtures["BVVqAAEABAA.QA"],
 		8:  usCAConsentFixtures["BVoYYZoA"],
 		9:  usVAConsentFixtures["BVoYYYA"],
 		10: usCOConsentFixtures["BVoYYQA"],
+		11: usUTConsentFixtures["BVaGGGAA.QA"],
 	},
 	// Valid GPP string w/ sections for EU TCF V2 and US Privacy
 	// Since both are not supported, Consent fixture should be blank.
