@@ -144,6 +144,39 @@ func (s *MspaSuite) TestParseGppConsent(c *check.C) {
 	}
 }
 
+func (s *MspaSuite) TestMapGppSectionToParserMix(c *check.C) {
+	for gppString, expectedValues := range gppParsedMixedConsent {
+		c.Log(gppString)
+
+		var gppSections, err = iabconsent.MapGppSectionToParser(gppString)
+
+		c.Check(err, check.IsNil)
+		// Instead of checking the parsing functions, run each of them to ensure the final values match.
+		c.Check(gppSections, check.HasLen, len(expectedValues))
+		for _, sect := range gppSections {
+			consent, err := sect.ParseConsent()
+			c.Check(err, check.IsNil)
+			c.Check(consent, check.DeepEquals, expectedValues[sect.GetSectionId()])
+		}
+	}
+}
+
+func (s *MspaSuite) TestParseGppConsentMix(c *check.C) {
+	for g, e := range gppParsedMixedConsent {
+		c.Log(g)
+
+		var p, err = iabconsent.ParseGppConsent(g)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.HasLen, len(e))
+		for i, expected := range e {
+			parsed, found := p[i]
+			c.Check(found, check.Equals, true)
+			c.Check(parsed, check.DeepEquals, expected)
+		}
+	}
+}
+
 func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 	tcs := []struct {
 		desc     string

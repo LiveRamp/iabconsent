@@ -183,3 +183,51 @@ func (s *MspaSuite) TestParseUsVAError(c *check.C) {
 		c.Check(err, check.ErrorMatches, t.expected.Error())
 	}
 }
+
+func (s *MspaSuite) TestParseUsCA(c *check.C) {
+	for k, v := range usCAConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspaCA(k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsCO(c *check.C) {
+	for k, v := range usCOConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspaCO(k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsCT(c *check.C) {
+	for k, v := range usCTConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspaCT(k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
+func (s *MspaSuite) TestParseUsUT(c *check.C) {
+	for k, v := range usUTConsentFixtures {
+		c.Log(k)
+
+		var gppSection = iabconsent.NewMspaUT(k)
+		var p, err = gppSection.ParseConsent()
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}

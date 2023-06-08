@@ -8,6 +8,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	SectionIDEUTCFv2 = 2
+	SectionIDCANTCF  = 5
+	SectionIDUSPV1   = 6
+	SectionIDUSNAT   = 7
+	SectionIDUSCA    = 8
+	SectionIDUSVA    = 9
+	SectionIDUSCO    = 10
+	SectionIDUSUT    = 11
+	SectionIDUSCT    = 12
+)
+
 // GppHeader is the first section of a GPP Consent String.
 // See ParseGppHeader for in-depth format.
 type GppHeader struct {
@@ -105,13 +117,28 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	for i := 1; i < len(segments); i++ {
 		var gppSection GppSectionParser
 		switch sid := gppHeader.Sections[i-1]; sid {
-		case 7:
+		case SectionIDEUTCFv2:
+			gppSection = NewTCFEU(segments[i])
+		case SectionIDCANTCF:
+			gppSection = NewTCFCA(segments[i])
+		case SectionIDUSPV1:
+			gppSection = NewUSPV(segments[i])
+		case SectionIDUSNAT:
 			gppSection = NewMspaNational(segments[i])
-		case 9:
+		case SectionIDUSCA:
+			gppSection = NewMspaCA(segments[i])
+		case SectionIDUSVA:
 			gppSection = NewMspaVA(segments[i])
+		case SectionIDUSCO:
+			gppSection = NewMspaCO(segments[i])
+		case SectionIDUSUT:
+			gppSection = NewMspaUT(segments[i])
+		case SectionIDUSCT:
+			gppSection = NewMspaCT(segments[i])
 		default:
 			// Skip if no matching struct, as Section ID is not supported yet.
 			// Any newly supported Section IDs should be added as cases here.
+			// TODO: GPP error handling
 		}
 		if gppSection != nil {
 			gppSections = append(gppSections, gppSection)
@@ -136,6 +163,7 @@ func ParseGppConsent(s string) (map[int]GppParsedConsent, error) {
 		var consentErr error
 		consent, consentErr = gpp.ParseConsent()
 		if consentErr != nil {
+			// TODO: GPP error handling
 			// If an error, quietly do not add the consent value to map.
 		} else {
 			gppConsents[gpp.GetSectionId()] = consent
