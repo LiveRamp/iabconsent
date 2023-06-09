@@ -169,9 +169,7 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
-	// This has a shorter length than UsNational.
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
-	// While an array in UsNational, we can just use an array of 1 for a single value.
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
