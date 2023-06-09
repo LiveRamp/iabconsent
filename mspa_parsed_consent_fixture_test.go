@@ -8,7 +8,7 @@ import (
 
 var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	// usnat with subsection of GPC False.
-	"BVVqAAEABAA.QA": {
+	"BVVqAAEABCA.QA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
 		SaleOptOutNotice:                    iabconsent.NoticeProvided,
@@ -40,10 +40,10 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		PersonalDataConsents:    iabconsent.NoConsent,
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 	},
 	// usnat With subsection of GPC True.
-	"BVVqAAEABAA.YA": {
+	"BVVqAAEABCA.YA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
 		SaleOptOutNotice:                    iabconsent.NoticeProvided,
@@ -75,7 +75,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		PersonalDataConsents:    iabconsent.NoConsent,
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     true,
 	},
 	// usnat without subsection.
@@ -118,7 +118,7 @@ var usNationalConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 
 var usCAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	// usca with subsection of GPC True.
-	"BVoYYZoA.YA": {
+	"BVoYYZoI.YA": {
 		Version:                     1,
 		SaleOptOutNotice:            iabconsent.NoticeProvided,
 		SharingOptOutNotice:         iabconsent.NoticeProvided,
@@ -143,11 +143,11 @@ var usCAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		PersonalDataConsents:    iabconsent.Consent,
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     true,
 	},
 	// usca without subsection.
-	"BVoYYZoA": {
+	"BVoYYZoI": {
 		Version:                     1,
 		SaleOptOutNotice:            iabconsent.NoticeProvided,
 		SharingOptOutNotice:         iabconsent.NoticeProvided,
@@ -172,14 +172,14 @@ var usCAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		PersonalDataConsents:    iabconsent.Consent,
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     false,
 	},
 }
 
 var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	// usva with subsection of GPC True.
-	"BVoYYYA.YA": {
+	"BVoYYYI.YA": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
 		SaleOptOutNotice:                iabconsent.NoticeProvided,
@@ -201,11 +201,11 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     true,
 	},
 	// usva without subsection.
-	"BVoYYYA": {
+	"BVoYYYI": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
 		SaleOptOutNotice:                iabconsent.NoticeProvided,
@@ -227,14 +227,14 @@ var usVAConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     false,
 	},
 }
 
 var usCOConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	// usco without GPC Subsection
-	"BVoYYQA": {
+	"BVoYYQg": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
 		SaleOptOutNotice:                iabconsent.NoticeProvided,
@@ -255,11 +255,11 @@ var usCOConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     false,
 	},
 	// usco with subsection of GPC True.
-	"BVoYYQA.YA": {
+	"BVoYYQg.YA": {
 		Version:                         1,
 		SharingNotice:                   iabconsent.NoticeProvided,
 		SaleOptOutNotice:                iabconsent.NoticeProvided,
@@ -280,14 +280,14 @@ var usCOConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     true,
 	},
 }
 
 var usUTConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 	// usut with subsection of GPC False.
-	"BVaGGGAA.QA": {
+	"BVaGGGCA.QA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
 		SaleOptOutNotice:                    iabconsent.NoticeProvided,
@@ -310,11 +310,11 @@ var usUTConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     false,
 	},
 	// usut with subsection of GPC True.
-	"BVaGGGAA.YA": {
+	"BVaGGGCA.YA": {
 		Version:                             1,
 		SharingNotice:                       iabconsent.NoticeProvided,
 		SaleOptOutNotice:                    iabconsent.NoticeProvided,
@@ -337,7 +337,7 @@ var usUTConsentFixtures = map[string]*iabconsent.MspaParsedConsent{
 		},
 		MspaCoveredTransaction:  iabconsent.MspaNotApplicable,
 		MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
-		MspaServiceProviderMode: iabconsent.MspaNotApplicable,
+		MspaServiceProviderMode: iabconsent.MspaNo,
 		Gpc:                     true,
 	},
 }
