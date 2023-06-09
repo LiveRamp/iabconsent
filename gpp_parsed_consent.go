@@ -8,6 +8,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+type GppSectionId int32
+
+const (
+	UsNationalSID = iota + 7
+	UsCaliforniaSID
+	UsVirginiaSID
+	UsColoradoSID
+	UsUtahSID
+	UsConnecticutSID
+)
+
 // GppHeader is the first section of a GPP Consent String.
 // See ParseGppHeader for in-depth format.
 type GppHeader struct {

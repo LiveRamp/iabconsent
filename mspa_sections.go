@@ -35,18 +35,18 @@ type MspaUsCT struct {
 // If the SID is not yet supported, it will be null.
 func NewMspa(sid int, section string) GppSectionParser {
 	switch sid {
-	case 7:
-		return &MspaUsNational{GppSection{sectionId: 7, sectionValue: section}}
-	case 8:
-		return &MspaUsCA{GppSection{sectionId: 8, sectionValue: section}}
-	case 9:
-		return &MspaUsVA{GppSection{sectionId: 9, sectionValue: section}}
-	case 10:
-		return &MspaUsCO{GppSection{sectionId: 10, sectionValue: section}}
-	case 11:
-		return &MspaUsUT{GppSection{sectionId: 11, sectionValue: section}}
-	case 12:
-		return &MspaUsCT{GppSection{sectionId: 12, sectionValue: section}}
+	case UsNationalSID:
+		return &MspaUsNational{GppSection{sectionId: UsNationalSID, sectionValue: section}}
+	case UsCaliforniaSID:
+		return &MspaUsCA{GppSection{sectionId: UsCaliforniaSID, sectionValue: section}}
+	case UsVirginiaSID:
+		return &MspaUsVA{GppSection{sectionId: UsVirginiaSID, sectionValue: section}}
+	case UsColoradoSID:
+		return &MspaUsCO{GppSection{sectionId: UsColoradoSID, sectionValue: section}}
+	case UsUtahSID:
+		return &MspaUsUT{GppSection{sectionId: UsUtahSID, sectionValue: section}}
+	case UsConnecticutSID:
+		return &MspaUsCT{GppSection{sectionId: UsConnecticutSID, sectionValue: section}}
 	}
 	// Skip if no matching struct, as Section ID is not supported yet.
 	// Any newly supported Section IDs should be added as cases here.
