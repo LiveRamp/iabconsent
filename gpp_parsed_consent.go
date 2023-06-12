@@ -43,11 +43,17 @@ type GppSection struct {
 type GppSectionParser interface {
 	ParseConsent() (GppParsedConsent, error)
 	GetSectionId() int
+	GetSectionValue() string
 }
 
 // GetSectionId returns the Section ID for a given GppSection.
 func (g *GppSection) GetSectionId() int {
 	return g.sectionId
+}
+
+// GetSectionValue returns the Section Value for a given GppSection.
+func (g *GppSection) GetSectionValue() string {
+	return g.sectionValue
 }
 
 type GppSubSection struct {
@@ -135,9 +141,10 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 			gppSection = NewMspaUT(segments[i])
 		case SectionIDUSCT:
 			gppSection = NewMspaCT(segments[i])
+		default:
+			gppSection = NewNotSupported(segments[i], sid)
 		}
 
-		// when the section id is not supported, append nullptr to indicate that this section is invalid
 		gppSections = append(gppSections, gppSection)
 	}
 	return gppSections, nil

@@ -2,6 +2,7 @@ package iabconsent
 
 import (
 	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -43,6 +44,14 @@ type USPV struct {
 	GppSection
 }
 
+type NotSupported struct {
+	GppSection
+}
+
+func (u NotSupported) ParseConsent() (GppParsedConsent, error) {
+	return nil, errors.New(fmt.Sprintf("Section ID %d is not supported", u.sectionId))
+}
+
 func NewTCFEU(section string) *TCFEU {
 	return &TCFEU{GppSection{sectionId: SectionIDEUTCFv2, sectionValue: section}}
 }
@@ -77,6 +86,10 @@ func NewMspaUT(section string) *MspaUsUT {
 
 func NewMspaCT(section string) *MspaUsCT {
 	return &MspaUsCT{GppSection{sectionId: SectionIDUSCT, sectionValue: section}}
+}
+
+func NewNotSupported(section string, sectionID int) *NotSupported {
+	return &NotSupported{GppSection{sectionId: sectionID, sectionValue: section}}
 }
 
 func (t TCFEU) ParseConsent() (GppParsedConsent, error) {
