@@ -8,8 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GppSectionId int32
-
 const (
 	UsNationalSID = iota + 7
 	UsCaliforniaSID
