@@ -1,6 +1,8 @@
 package iabconsent_test
 
 import (
+	"strings"
+
 	"github.com/go-check/check"
 	"github.com/pkg/errors"
 
@@ -104,82 +106,84 @@ func (s *MspaSuite) TestReadMspaNaYesNo(c *check.C) {
 	}
 }
 
-func (s *MspaSuite) TestParseUsNational(c *check.C) {
-	for k, v := range usNationalConsentFixtures {
-		c.Log(k)
+func (s *MspaSuite) TestParseMSPA(c *check.C) {
+	for sid, sections := range mspaConsentFixtures {
+		for section, result := range sections {
 
-		var gppSection = iabconsent.NewMspaNational(k)
-		var p, err = gppSection.ParseConsent()
+			c.Log(section)
 
-		c.Check(err, check.IsNil)
-		c.Check(p, check.DeepEquals, v)
+			var gppSection = iabconsent.NewMspa(sid, section)
+			var p, err = gppSection.ParseConsent()
+
+			c.Check(err, check.IsNil)
+			c.Check(p, check.DeepEquals, result)
+		}
 	}
 }
 
-func (s *MspaSuite) TestParseUsNationalError(c *check.C) {
-	var tcs = []struct {
-		desc        string
-		usNatString string
-		expected    error
+func (s *MspaSuite) TestParseMSPAError(c *check.C) {
+	var mspaTests = []struct {
+		desc string
+		key  string
+		sid  int
 	}{
 		{
-			desc:        "Wrong Version.",
-			usNatString: "DVVqAAEABA",
-			expected:    errors.New("non-v1 string passed."),
+			desc: "US National",
+			key:  "usnat",
+			sid:  iabconsent.UsNationalSID,
 		},
 		{
-			desc:        "Bad Decoding.",
-			usNatString: "$%&*(",
-			expected:    errors.New("parse usnat consent string: illegal base64 data at input byte 0"),
+			desc: "California",
+			key:  "usca",
+			sid:  iabconsent.UsCaliforniaSID,
+		},
+		{
+			desc: "Virginia",
+			key:  "usva",
+			sid:  iabconsent.UsVirginiaSID,
+		},
+		{
+			desc: "Colorado",
+			key:  "usco",
+			sid:  iabconsent.UsColoradoSID,
+		},
+		{
+			desc: "Utan",
+			key:  "usut",
+			sid:  iabconsent.UsUtahSID,
+		},
+		{
+			desc: "Connecticut",
+			key:  "usct",
+			sid:  iabconsent.UsConnecticutSID,
 		},
 	}
-	for _, t := range tcs {
-		c.Log(t.desc)
-
-		var gppSection = iabconsent.NewMspaNational(t.usNatString)
-		var p, err = gppSection.ParseConsent()
-
-		c.Check(p, check.IsNil)
-		c.Check(err, check.ErrorMatches, t.expected.Error())
-	}
-}
-
-func (s *MspaSuite) TestParseUsVA(c *check.C) {
-	for k, v := range usVAConsentFixtures {
-		c.Log(k)
-
-		var gppSection = iabconsent.NewMspaVA(k)
-		var p, err = gppSection.ParseConsent()
-
-		c.Check(err, check.IsNil)
-		c.Check(p, check.DeepEquals, v)
-	}
-}
-
-func (s *MspaSuite) TestParseUsVAError(c *check.C) {
 	var tcs = []struct {
-		desc       string
-		usVAString string
-		expected   error
+		desc          string
+		consentString string
+		expected      string
 	}{
 		{
-			desc:       "Wrong Version.",
-			usVAString: "DVoYYYA",
-			expected:   errors.New("non-v1 string passed."),
+			desc:          "Wrong Version.",
+			consentString: "DVVqAAEABA",
+			expected:      "non-v1 string passed.",
 		},
 		{
-			desc:       "Bad Decoding.",
-			usVAString: "$%&*(",
-			expected:   errors.New("parse usva consent string: illegal base64 data at input byte 0"),
+			desc:          "Bad Decoding.",
+			consentString: "$%&*(",
+			expected:      "parse %s consent string: illegal base64 data at input byte 0",
 		},
 	}
-	for _, t := range tcs {
-		c.Log(t.desc)
+	for _, s := range mspaTests {
+		for _, t := range tcs {
+			c.Log(s.desc + " - " + t.desc)
 
-		var gppSection = iabconsent.NewMspaVA(t.usVAString)
-		var p, err = gppSection.ParseConsent()
+			var gppSection = iabconsent.NewMspa(s.sid, t.consentString)
+			var p, err = gppSection.ParseConsent()
 
-		c.Check(p, check.IsNil)
-		c.Check(err, check.ErrorMatches, t.expected.Error())
+			c.Check(p, check.IsNil)
+			var expected = strings.Replace(t.expected, "%s", s.key, 1)
+			c.Check(err, check.ErrorMatches, errors.Errorf(expected).Error())
+		}
 	}
 }

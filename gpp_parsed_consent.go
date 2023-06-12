@@ -8,6 +8,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	UsNationalSID = iota + 7
+	UsCaliforniaSID
+	UsVirginiaSID
+	UsColoradoSID
+	UsUtahSID
+	UsConnecticutSID
+)
+
 // GppHeader is the first section of a GPP Consent String.
 // See ParseGppHeader for in-depth format.
 type GppHeader struct {
@@ -104,15 +113,7 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	var gppSections = make([]GppSectionParser, 0)
 	for i := 1; i < len(segments); i++ {
 		var gppSection GppSectionParser
-		switch sid := gppHeader.Sections[i-1]; sid {
-		case 7:
-			gppSection = NewMspaNational(segments[i])
-		case 9:
-			gppSection = NewMspaVA(segments[i])
-		default:
-			// Skip if no matching struct, as Section ID is not supported yet.
-			// Any newly supported Section IDs should be added as cases here.
-		}
+		gppSection = NewMspa(gppHeader.Sections[i-1], segments[i])
 		if gppSection != nil {
 			gppSections = append(gppSections, gppSection)
 		}
