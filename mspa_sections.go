@@ -48,10 +48,6 @@ type NotSupported struct {
 	GppSection
 }
 
-func (u NotSupported) ParseConsent() (GppParsedConsent, error) {
-	return nil, errors.New(fmt.Sprintf("Section ID %d is not supported", u.sectionId))
-}
-
 func NewTCFEU(section string) *TCFEU {
 	return &TCFEU{GppSection{sectionId: SectionIDEUTCFv2, sectionValue: section}}
 }
@@ -92,25 +88,20 @@ func NewNotSupported(section string, sectionID int) *NotSupported {
 	return &NotSupported{GppSection{sectionId: sectionID, sectionValue: section}}
 }
 
-func (t TCFEU) ParseConsent() (GppParsedConsent, error) {
+func (n *NotSupported) ParseConsent() (GppParsedConsent, error) {
+	return nil, errors.New(fmt.Sprintf("Section ID %d is not supported", n.sectionId))
+}
+
+func (t *TCFEU) ParseConsent() (GppParsedConsent, error) {
 	return ParseV2(t.sectionValue)
 }
 
-func (t TCFCA) ParseConsent() (GppParsedConsent, error) {
+func (t *TCFCA) ParseConsent() (GppParsedConsent, error) {
 	return ParseV2(t.sectionValue)
 }
 
-func (u USPV) ParseConsent() (GppParsedConsent, error) {
-	if valid, err := IsValidCCPAString(u.sectionValue); !valid {
-		return nil, err
-	}
-
-	return &CcpaParsedConsent{
-		int(u.sectionValue[0] - '0'),
-		u.sectionValue[1],
-		u.sectionValue[2],
-		u.sectionValue[3],
-	}, nil
+func (u *USPV) ParseConsent() (GppParsedConsent, error) {
+	return ParseCCPA(u.sectionValue)
 
 }
 
@@ -205,7 +196,7 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 	return p, r.Err
 }
 
-func (m MspaUsCO) ParseConsent() (GppParsedConsent, error) {
+func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
@@ -245,7 +236,7 @@ func (m MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 	return p, r.Err
 }
 
-func (m MspaUsUT) ParseConsent() (GppParsedConsent, error) {
+func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
@@ -285,7 +276,7 @@ func (m MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 	return p, r.Err
 }
 
-func (m MspaUsCT) ParseConsent() (GppParsedConsent, error) {
+func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
@@ -326,7 +317,7 @@ func (m MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 
 }
 
-func (m MspaUsCA) ParseConsent() (GppParsedConsent, error) {
+func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])

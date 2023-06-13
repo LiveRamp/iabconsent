@@ -61,6 +61,14 @@ func (s *GppParseSuite) TestParseGppHeader(c *check.C) {
 				Version:  1,
 				Sections: []int{6, 7}},
 		},
+		{
+			description: "US CA",
+			header:      "DBABBg",
+			expected: &iabconsent.GppHeader{
+				Type:     3,
+				Version:  1,
+				Sections: []int{8}},
+		},
 	}
 
 	for _, tc := range tcs {

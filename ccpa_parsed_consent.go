@@ -42,3 +42,16 @@ func IsValidCCPAString(ccpaString string) (bool, error) {
 
 	return true, nil
 }
+
+func ParseCCPA(s string) (*CcpaParsedConsent, error) {
+	if valid, err := IsValidCCPAString(s); !valid {
+		return nil, err
+	}
+
+	return &CcpaParsedConsent{
+		int(s[0] - '0'),
+		s[1],
+		s[2],
+		s[3],
+	}, nil
+}
