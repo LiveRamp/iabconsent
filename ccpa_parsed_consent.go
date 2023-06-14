@@ -27,16 +27,16 @@ type CcpaParsedConsent struct {
 
 func IsValidCCPAString(ccpaString string) (bool, error) {
 	if len(ccpaString) != 4 {
-		return false, errors.Wrap(nil, "invalid uspv consent string length")
+		return false, errors.New("invalid uspv consent string length")
 	}
 
 	if ccpaString[0]-'0' != CCPAVersion {
-		return false, errors.Wrap(nil, "invalid uspv consent string version")
+		return false, errors.New("invalid uspv consent string version")
 	}
 
 	for i := 1; i < 4; i++ {
 		if ccpaString[i] != CCPAYes && ccpaString[i] != CCPANo && ccpaString[i] != CCPANotApplicable {
-			return false, errors.Wrap(nil, "invalid uspv consent string")
+			return false, errors.New("invalid uspv consent string")
 		}
 	}
 
