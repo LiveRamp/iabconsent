@@ -339,7 +339,7 @@ func (r *ConsentReader) ReadPublisherTCEntry() (*PublisherTCEntry, error) {
 //
 // Example Usage:
 //
-//   var pc, err = iabconsent.Parse("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
+//	var pc, err = iabconsent.Parse("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
 //
 // Deprecated: Use ParseV1 to parse V1 consent strings.
 func Parse(s string) (*ParsedConsent, error) {
@@ -352,7 +352,7 @@ func Parse(s string) (*ParsedConsent, error) {
 //
 // Example Usage:
 //
-//   var pc, err = iabconsent.ParseV1("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
+//	var pc, err = iabconsent.ParseV1("BONJ5bvONJ5bvAMAPyFRAL7AAAAMhuqKklS-gAAAAAAAAAAAAAAAAAAAAAAAAAA")
 func ParseV1(s string) (*ParsedConsent, error) {
 	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
@@ -395,7 +395,7 @@ func ParseV1(s string) (*ParsedConsent, error) {
 //
 // Example Usage:
 //
-//   var pc, err = iabconsent.ParseV2("COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA")
+//	var pc, err = iabconsent.ParseV2("COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA")
 func ParseV2(s string) (*V2ParsedConsent, error) {
 	var segments = strings.Split(s, ".")
 
@@ -479,6 +479,58 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 		default:
 			return p, errors.New("unrecognized segment type")
 		}
+	}
+
+	return p, r.Err
+}
+
+func ParseCAV2(s string) (*V2CAParsedConsent, error) {
+	var segments = strings.Split(s, ".")
+
+	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "parse v2 consent string")
+	}
+
+	var r = NewConsentReader(b)
+
+	// This block of code directly describes the format of the payload.
+	// The spec for the consent string can be found here:
+	// https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/47b45ab362515310183bb3572a367b8391ef4613/TCFv2/IAB%20Tech%20Lab%20-%20Consent%20string%20and%20vendor%20list%20formats%20v2.md#about-the-transparency--consent-string-tc-string
+	var p = &V2CAParsedConsent{}
+	p.Version, _ = r.ReadInt(6)
+	if p.Version != int(V2) {
+		return nil, errors.New("non-v2 string passed to v2 parse method")
+	}
+	p.Created, _ = r.ReadTime()
+	p.LastUpdated, _ = r.ReadTime()
+	p.CMPID, _ = r.ReadInt(12)
+	p.CMPVersion, _ = r.ReadInt(12)
+	p.ConsentScreen, _ = r.ReadInt(6)
+	p.ConsentLanguage, _ = r.ReadString(2)
+	p.VendorListVersion, _ = r.ReadInt(12)
+	p.TCFPolicyVersion, _ = r.ReadInt(6)
+	p.UseNonStandardStacks, _ = r.ReadBool()
+	p.SpecialFeatureExpressConsent, _ = r.ReadBitField(12)
+	p.PurposesExpressConsent, _ = r.ReadBitField(24)
+	p.PurposesImpliedConsent, _ = r.ReadBitField(24)
+
+	p.MaxExpressConsentVendorID, _ = r.ReadInt(16)
+	p.IsExpressConsentRangeEncoding, _ = r.ReadBool()
+	if p.IsExpressConsentRangeEncoding {
+		p.NumExpressConsentEntries, _ = r.ReadInt(12)
+		p.VendorExpressConsent, _ = r.ReadRangeEntries(uint(p.NumExpressConsentEntries))
+	} else {
+		p.ExpressConsentedVendors, _ = r.ReadBitField(uint(p.MaxExpressConsentVendorID))
+	}
+
+	p.MaxImpliedConsentVendorID, _ = r.ReadInt(16)
+	p.IsImpliedConsentRangeEncoding, _ = r.ReadBool()
+	if p.IsImpliedConsentRangeEncoding {
+		p.NumImpliedConsentEntries, _ = r.ReadInt(12)
+		p.VendorImpliedConsent, _ = r.ReadRangeEntries(uint(p.NumImpliedConsentEntries))
+	} else {
+		p.ImpliedConsentedVendors, _ = r.ReadBitField(uint(p.MaxImpliedConsentVendorID))
 	}
 
 	return p, r.Err

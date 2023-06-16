@@ -78,7 +78,13 @@ func ParseGppHeader(s string) (*GppHeader, error) {
 	// IAB's base64 conversion means a 6 bit grouped value can be converted to 8 bit bytes.
 	// Any leftover bits <8 would be skipped in normal base64 decoding.
 	// Therefore, pad with 6 '0's w/ `A` to ensure that all bits are decoded into bytes.
-	var b, err = base64.RawURLEncoding.DecodeString(s + "A")
+
+	gap := 3 - len(s)%4
+	if gap != 0 {
+		s += strings.Repeat("A", gap)
+	}
+
+	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse gpp header consent string")
 	}

@@ -411,4 +411,15 @@ func (v *V2ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 	}
 }
 
+func (v *V2ParsedConsentSuite) TestParseCAV2(c *check.C) {
+	for k, v := range v2CAConsentFixtures {
+		c.Log(k)
+
+		var p, err = iabconsent.ParseCAV2(k)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
+	}
+}
+
 var _ = check.Suite(&V2ParsedConsentSuite{})

@@ -97,12 +97,11 @@ func (t *TCFEU) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (t *TCFCA) ParseConsent() (GppParsedConsent, error) {
-	return ParseV2(t.sectionValue)
+	return ParseCAV2(t.sectionValue)
 }
 
 func (u *USPV) ParseConsent() (GppParsedConsent, error) {
 	return ParseCCPA(u.sectionValue)
-
 }
 
 func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
@@ -201,7 +200,7 @@ func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
-		return nil, errors.Wrap(err, "parse usva consent string")
+		return nil, errors.Wrap(err, "parse usco consent string")
 	}
 
 	var r = NewConsentReader(b)
@@ -241,7 +240,7 @@ func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
-		return nil, errors.Wrap(err, "parse usva consent string")
+		return nil, errors.Wrap(err, "parse usut consent string")
 	}
 
 	var r = NewConsentReader(b)
@@ -281,7 +280,7 @@ func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
-		return nil, errors.Wrap(err, "parse usva consent string")
+		return nil, errors.Wrap(err, "parse usct consent string")
 	}
 
 	var r = NewConsentReader(b)
@@ -321,8 +320,9 @@ func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 	var segments = strings.Split(m.sectionValue, ".")
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
+
 	if err != nil {
-		return nil, errors.Wrap(err, "parse usva consent string")
+		return nil, errors.Wrap(err, "parse usca consent string")
 	}
 
 	var r = NewConsentReader(b)
