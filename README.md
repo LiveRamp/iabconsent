@@ -24,7 +24,7 @@ Example use:
 ```go
 package main
 
-import "github.com/LiveRamp/iabconsent"
+import "github.com/StackAdapt/iabconsent"
 
 func main() {
     var consent = "COvzTO5OvzTO5BRAAAENAPCoALIAADgAAAAAAewAwABAAlAB6ABBFAAA"

@@ -7,7 +7,7 @@ import (
 	"github.com/go-check/check"
 	"github.com/pkg/errors"
 
-	"github.com/LiveRamp/iabconsent"
+	"github.com/StackAdapt/iabconsent"
 )
 
 type GppParseSuite struct{}

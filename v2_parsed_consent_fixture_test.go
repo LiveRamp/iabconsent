@@ -3,7 +3,7 @@ package iabconsent_test
 import (
 	"time"
 
-	"github.com/LiveRamp/iabconsent"
+	"github.com/StackAdapt/iabconsent"
 )
 
 var v2TestTime = time.Unix(1583436280, 9*nsPerDs).UTC()
