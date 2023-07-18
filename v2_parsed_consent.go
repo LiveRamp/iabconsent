@@ -2,6 +2,8 @@ package iabconsent
 
 import (
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // V2ParsedConsent represents data extracted from an v2 TCF Consent String.
@@ -333,4 +335,26 @@ func (p *V2ParsedConsent) SuitableToProcess(ps []int, v int) bool {
 	return p.VendorAllowed(v) &&
 		p.EveryPurposeAllowed(ps) &&
 		!p.PublisherRestricted(ps, v)
+}
+
+// MinorVersion of the V2 TCF string is not explicitly set as a value, so we return the
+// minor version of the string based on specific values set. If there is a TCFPolicyVersion
+// that is higher than what is currently known, we will return an error message, and a very
+// high value. This allows callers to error on the unsupported TCFPolicyVersions, and/or use
+// their highest supported minor version when handling strings. More specifically, we will
+// apply the highest supported minor version when parsing, but the user as the ability to call
+// MinorVersion() on its own to decide what to do if TCF Policy Version is higher.
+func (p *V2ParsedConsent) MinorVersion() (int, error) {
+	switch p.TCFPolicyVersion {
+	case 0, 1, 2:
+		return 0, nil
+		// Any TCF v2 string with TCFPolicyVersion of 3 indicates v2.1.
+	case 3:
+		return 1, nil
+	// Any TCF v2 string that has TCFPolicyVersion of 4 indicates v2.2.
+	case 4:
+		return 2, nil
+	default:
+		return 100, errors.Errorf("Unsupported TCFPolicyVersion %d", p.TCFPolicyVersion)
+	}
 }
