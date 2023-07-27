@@ -19,6 +19,16 @@ func (v *V2ParsedConsentSuite) TestParseV2(c *check.C) {
 	}
 }
 
+func (v *V2ParsedConsentSuite) TestParseV2Error(c *check.C) {
+	for k, v := range v2InvalidConsentFixtures {
+		c.Log(k)
+		var p, err = iabconsent.ParseV2(k)
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, v)
+	}
+}
+
 func (v *V2ParsedConsentSuite) TestNonV2Input(c *check.C) {
 	var _, err = iabconsent.ParseV2("BONMj34ONMj34ABACDENALqAAAAAplY") // V1 string.
 	c.Check(err, check.ErrorMatches, "non-v2 string passed to v2 parse method")
