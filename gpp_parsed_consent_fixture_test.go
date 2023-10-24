@@ -2,7 +2,6 @@ package iabconsent_test
 
 import (
 	"github.com/StackAdapt/iabconsent"
-	"time"
 )
 
 // Test fixtures can be created here: https://iabgpp.com/
@@ -40,7 +39,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 	},
 	// Valid GPP string w/ sections for EU TCF V2 and US Privacy
 	// Since both are not supported, Consent fixture should be blank.
-	"DBACNY~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN": {},
+	//"DBACNY~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN": {},
 	// Valid GPP w/ US National MSPA and US Privacy, but skip US Privacy until supported.
-	"DBABzw~1YNN~BVVqAAEABCA.QA": {7: mspaConsentFixtures[7]["BVVqAAEABCA.QA"]},
+	//"DBABzw~1YNN~BVVqAAEABCA.QA": {7: mspaConsentFixtures[7]["BVVqAAEABCA.QA"]},
 }

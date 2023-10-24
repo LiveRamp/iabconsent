@@ -10,7 +10,7 @@ import (
 
 const (
 	EuropeTCFv2SID = 2
-	CanadaTCFSID = iota + 5
+	CanadaTCFSID   = iota + 4
 	UsPVSID
 	UsNationalSID
 	UsCaliforniaSID
