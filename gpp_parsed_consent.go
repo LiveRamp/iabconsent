@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	SectionIDEUTCFv2 = 2
-	SectionIDCANTCF  = 5
-	SectionIDUSPV1   = 6
-	SectionIDUSNAT   = 7
-	SectionIDUSCA    = 8
-	SectionIDUSVA    = 9
-	SectionIDUSCO    = 10
-	SectionIDUSUT    = 11
-	SectionIDUSCT    = 12
+	EuropeTCFv2SID = 2
+	CanadaTCFSID = iota + 5
+	UsPVSID
+	UsNationalSID
+	UsCaliforniaSID
+	UsVirginiaSID
+	UsColoradoSID
+	UsUtahSID
+	UsConnecticutSID
 )
 
 // GppHeader is the first section of a GPP Consent String.
@@ -129,24 +129,14 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	for i := 1; i < len(segments); i++ {
 		var gppSection GppSectionParser
 		switch sid := gppHeader.Sections[i-1]; sid {
-		case SectionIDEUTCFv2:
+		case EuropeTCFv2SID:
 			gppSection = NewTCFEU(segments[i])
-		case SectionIDCANTCF:
+		case CanadaTCFSID:
 			gppSection = NewTCFCA(segments[i])
-		case SectionIDUSPV1:
+		case UsPVSID:
 			gppSection = NewUSPV(segments[i])
-		case SectionIDUSNAT:
-			gppSection = NewMspaNational(segments[i])
-		case SectionIDUSCA:
-			gppSection = NewMspaCA(segments[i])
-		case SectionIDUSVA:
-			gppSection = NewMspaVA(segments[i])
-		case SectionIDUSCO:
-			gppSection = NewMspaCO(segments[i])
-		case SectionIDUSUT:
-			gppSection = NewMspaUT(segments[i])
-		case SectionIDUSCT:
-			gppSection = NewMspaCT(segments[i])
+		case UsNationalSID, UsCaliforniaSID, UsVirginiaSID, UsColoradoSID, UsUtahSID, UsConnecticutSID:
+			gppSection = NewMspa(sid, segments[i])
 		default:
 			gppSection = NewNotSupported(segments[i], sid)
 		}

@@ -8,8 +8,8 @@ import (
 
 var v2TestTime = time.Unix(1583436280, 9*nsPerDs).UTC()
 
-// Consent fixtures have been generated using the tool at https://iabtcf.com/encode.
-// To inspect a consent string used in the test u can enter it into: https://iabtcf.com/#/decode.
+// Consent fixtures have been generated using the tool at https://iabtcf.com/#/encode.
+// To inspect a consent string used in the test you can enter it into: https://iabtcf.com/#/decode.
 
 var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 	// COvzTO5OvzTO5B7ABCENAPCYAKdAADkAAIqIFhwBAAGAAXAFGAsMAhYAgAMAAegBYAEKAAA.IFoEUQQgAIQwgIwQABAEAAAAOIAACAIAAAAQAIAgEAACEAAAAAgAQBAAAAAAAGBAAgAAAAAAAFAAECAAAgAAQARAEQAAAAAJAAIAAgAAAYQEAAAQmAgBC3ZAYzUw.QE5QAwCvgHyATkA
@@ -409,6 +409,120 @@ var v2ConsentFixtures = map[string]*iabconsent.V2ParsedConsent{
 		NumPubRestrictions:    0,
 		PubRestrictionEntries: make([]*iabconsent.PubRestrictionEntry, 0),
 	},
+	// Valid TCF v2.2.
+	"COvzTO5OvzTO5B7ABCENAPEYAIAAAIAAAIqIAAoAAoAA.QAAo.IAAo": {
+		Version:              2,
+		Created:              v2TestTime,
+		LastUpdated:          v2TestTime,
+		CMPID:                123,
+		CMPVersion:           1,
+		ConsentScreen:        2,
+		ConsentLanguage:      "EN",
+		VendorListVersion:    15,
+		TCFPolicyVersion:     4,
+		IsServiceSpecific:    false,
+		UseNonStandardStacks: true,
+		SpecialFeaturesOptIn: map[int]bool{1: true},
+		PurposesConsent: map[int]bool{
+			1: true,
+		},
+		PurposesLITransparency: map[int]bool{
+			1: true,
+		},
+		PurposeOneTreatment:      true,
+		PublisherCC:              "FR",
+		MaxConsentVendorID:       1,
+		IsConsentRangeEncoding:   false,
+		ConsentedVendors:         map[int]bool{1: true},
+		NumConsentEntries:        0,
+		ConsentedVendorsRange:    nil,
+		MaxInterestsVendorID:     1,
+		IsInterestsRangeEncoding: false,
+		InterestsVendors:         map[int]bool{1: true},
+		NumInterestsEntries:      0,
+		InterestsVendorsRange:    nil,
+		NumPubRestrictions:       0,
+		PubRestrictionEntries:    make([]*iabconsent.PubRestrictionEntry, 0),
+		OOBDisclosedVendors: &iabconsent.OOBVendorList{
+			SegmentType:     1,
+			MaxVendorID:     1,
+			IsRangeEncoding: false,
+			Vendors:         map[int]bool{1: true},
+		},
+		OOBAllowedVendors: &iabconsent.OOBVendorList{
+			SegmentType:     2,
+			MaxVendorID:     1,
+			IsRangeEncoding: false,
+			Vendors:         map[int]bool{1: true},
+			NumEntries:      0,
+		},
+		PublisherTCEntry: nil,
+	},
+	// TCF > v2.2, with PurposesLit 2 and 7 True.
+	"COvzTO5OvzTO5B7ABCENAPFYAIAAAEIAAIqIAAoAAoAA.QAAo.IAAo": {
+		Version:              2,
+		Created:              v2TestTime,
+		LastUpdated:          v2TestTime,
+		CMPID:                123,
+		CMPVersion:           1,
+		ConsentScreen:        2,
+		ConsentLanguage:      "EN",
+		VendorListVersion:    15,
+		TCFPolicyVersion:     5,
+		IsServiceSpecific:    false,
+		UseNonStandardStacks: true,
+		SpecialFeaturesOptIn: map[int]bool{1: true},
+		PurposesConsent: map[int]bool{
+			1: true,
+		},
+		PurposesLITransparency: map[int]bool{
+			2: true,
+			7: true,
+		},
+		PurposeOneTreatment:      true,
+		PublisherCC:              "FR",
+		MaxConsentVendorID:       1,
+		IsConsentRangeEncoding:   false,
+		ConsentedVendors:         map[int]bool{1: true},
+		NumConsentEntries:        0,
+		ConsentedVendorsRange:    nil,
+		MaxInterestsVendorID:     1,
+		IsInterestsRangeEncoding: false,
+		InterestsVendors:         map[int]bool{1: true},
+		NumInterestsEntries:      0,
+		InterestsVendorsRange:    nil,
+		NumPubRestrictions:       0,
+		PubRestrictionEntries:    make([]*iabconsent.PubRestrictionEntry, 0),
+		OOBDisclosedVendors: &iabconsent.OOBVendorList{
+			SegmentType:     1,
+			MaxVendorID:     1,
+			IsRangeEncoding: false,
+			Vendors:         map[int]bool{1: true},
+		},
+		OOBAllowedVendors: &iabconsent.OOBVendorList{
+			SegmentType:     2,
+			MaxVendorID:     1,
+			IsRangeEncoding: false,
+			Vendors:         map[int]bool{1: true},
+			NumEntries:      0,
+		},
+		PublisherTCEntry: nil,
+	},
+}
+
+var v2InvalidConsentFixtures = map[string]string{
+	// Invalid TCF v2.2 (Policy Version 4) because of PurposesLitTransparency
+	"COvwooAOvwooAB7ABCENAPEYAIAAADkAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 3 not set to 0.",
+	// Policy Version 4, PurposesLit 3 True.
+	"COvwooAOvwooAB7ABCENAPEYAIAAACAAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 3 not set to 0.",
+	// Policy Version 4, PurposesLit 4 True.
+	"COvwooAOvwooAB7ABCENAPEYAIAAABAAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 4 not set to 0.",
+	// Policy Version 4, PurposesLit 5 True.
+	"COvwooAOvwooAB7ABCENAPEYAIAAAAgAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 5 not set to 0.",
+	// Policy Version 4, PurposesLit 6 True.
+	"COvwooAOvwooAB7ABCENAPEYAIAAAAQAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 6 not set to 0.",
+	// Policy Version 5, still checking for LIT 6.
+	"COvwooAOvwooAB7ABCENAPFYAIAAAAQAAIqIAAoAAoAA.QAAo.IAAo": "TCF String Version 2.2 or higher has invalid PurposesLIT 6 not set to 0.",
 }
 
 var v2CAConsentFixtures = map[string]*iabconsent.V2CAParsedConsent{

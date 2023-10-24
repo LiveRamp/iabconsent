@@ -227,7 +227,7 @@ func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 		},
 		{
 			desc:     "Bad header.",
-			gpp:      "badheader~BVVqAAEABAA.QA",
+			gpp:      "badheader~BVVqAAEABCA.QA",
 			expected: errors.New("read gpp header: wrong gpp header type 27"),
 		},
 	}

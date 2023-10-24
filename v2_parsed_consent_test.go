@@ -19,6 +19,16 @@ func (v *V2ParsedConsentSuite) TestParseV2(c *check.C) {
 	}
 }
 
+func (v *V2ParsedConsentSuite) TestParseV2Error(c *check.C) {
+	for k, v := range v2InvalidConsentFixtures {
+		c.Log(k)
+		var p, err = iabconsent.ParseV2(k)
+
+		c.Check(p, check.IsNil)
+		c.Check(err, check.ErrorMatches, v)
+	}
+}
+
 func (v *V2ParsedConsentSuite) TestNonV2Input(c *check.C) {
 	var _, err = iabconsent.ParseV2("BONMj34ONMj34ABACDENALqAAAAAplY") // V1 string.
 	c.Check(err, check.ErrorMatches, "non-v2 string passed to v2 parse method")
@@ -408,6 +418,67 @@ func (v *V2ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 		}
 
 		c.Check(pc.SuitableToProcess(tc.purposes, tc.vendor), check.Equals, tc.exp)
+	}
+}
+
+func (v *V2ParsedConsentSuite) TestMinorVersion(c *check.C) {
+	var tcs = []struct {
+		desc          string
+		consentString string
+		minorVersion  int
+		err           string
+	}{
+		{
+			desc:          "TCFPolicyVersion of 0",
+			consentString: "CPu5aAAPu5aAAPoABABGCyAAAAAAAAAAAAAAAAAAAAAA.QAAA.IAAA",
+			minorVersion:  0,
+		},
+		{
+			desc:          "TCFPolicyVersion of 1",
+			consentString: "CPu5aAAPu5aAAPoABABGCyBAAAAAAAAAAAAAAAAAAAAA.QAAA.IAAA",
+			minorVersion:  0,
+		},
+		{
+			desc:          "TCFPolicyVersion of 2",
+			consentString: "CPu1ErgPu1ErgF4AAAENCZCAAAAAAAAAACiQAAAAAAAA.II7Nd_X__bX9n-_7_6ft0eY1f9_r37uQzDhfNs-8F3L_W_LwX32E7NF36tq4KmR4ku1bBIQNtHMnUDUmxaolVrzHsak2cpyNKJ_JkknsZe2dYGF9Pn9lD-YKZ7_5_9_f52T_9_9_-39z3_9f___dv_-__-vjf_599n_v9fV_78_Kf9______-____________8A",
+			minorVersion:  0,
+		},
+		{
+			desc:          "TCFPolicyVersion of 3",
+			consentString: "CPu5aAAPu5aAAPoABABGCyDAAAAAAAAAAAAAAAAAAAAA.QAAA.IAAA",
+			minorVersion:  1,
+		},
+		{
+			desc:          "TCFPolicyVersion of 4",
+			consentString: "CPuy0IAPuy0IAPoABABGCyEAAAAAAAAAAAAAAAAAAAAA.QAAA.IAAA",
+			minorVersion:  2,
+		},
+		{
+			consentString: "CAAAACgAAAAygAfB7DDEACEgAP_gAAAAAAYgAhQAwAEAAlACEAAAAAA",
+			minorVersion:  2,
+		},
+		{
+			consentString: "CPuy0IAPuy0IAPoABABGCyFAAAAAAAAAAAAAAAAAAAAA.QAAA.IAAA",
+			minorVersion:  100,
+			err:           "Unsupported TCFPolicyVersion 5",
+		},
+	}
+
+	for _, tc := range tcs {
+		var (
+			parsed       *iabconsent.V2ParsedConsent
+			minorVersion int
+			err          error
+		)
+		parsed, err = iabconsent.ParseV2(tc.consentString)
+		c.Check(err, check.IsNil)
+		minorVersion, err = parsed.MinorVersion()
+		if tc.err == "" {
+			c.Check(err, check.IsNil)
+		} else {
+			c.Check(err, check.ErrorMatches, tc.err)
+		}
+		c.Check(minorVersion, check.Equals, tc.minorVersion)
 	}
 }
 
