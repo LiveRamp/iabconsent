@@ -33,8 +33,18 @@ type GppParsedConsent interface {
 // GppSection contains the specific Section ID (important to match up correct parsing).
 // and pre-parsed Section Value, including all subsections.
 type GppSection struct {
-	sectionId    int
-	sectionValue string
+	SectionId    int
+	SectionValue string
+}
+
+type Options struct {
+	GppSectionParser func(sid int, sectionString string) GppSectionParser
+}
+
+func defaultOptions() *Options {
+	return &Options{
+		GppSectionParser: NewMspa,
+	}
 }
 
 type GppSectionParser interface {
@@ -44,7 +54,7 @@ type GppSectionParser interface {
 
 // GetSectionId returns the Section ID for a given GppSection.
 func (g *GppSection) GetSectionId() int {
-	return g.sectionId
+	return g.SectionId
 }
 
 type GppSubSection struct {
@@ -93,7 +103,13 @@ func ParseGppHeader(s string) (*GppHeader, error) {
 // of the format {gpp header}~{section 1}[.{sub-section}][~{section n}]
 // and returns each pair of section value and parsing function that should be used.
 // The pairs are returned to allow more control over how parsing functions are applied.
-func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
+func MapGppSectionToParser(s string, options ...*Options) ([]GppSectionParser, error) {
+	var option *Options
+	if options != nil && len(options) > 0 {
+		option = options[0]
+	} else {
+		option = defaultOptions()
+	}
 	var gppHeader *GppHeader
 	var err error
 	// ~ separated fields. with the format {gpp header}~{section 1}[.{sub-section}][~{section n}]
@@ -113,7 +129,7 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	var gppSections = make([]GppSectionParser, 0)
 	for i := 1; i < len(segments); i++ {
 		var gppSection GppSectionParser
-		gppSection = NewMspa(gppHeader.Sections[i-1], segments[i])
+		gppSection = option.GppSectionParser(gppHeader.Sections[i-1], segments[i])
 		if gppSection != nil {
 			gppSections = append(gppSections, gppSection)
 		}
@@ -123,10 +139,16 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 
 // ParseGppConsent takes a base64 Raw URL Encoded string which represents a GPP v1 string and
 // returns a map of Section ID to ParsedConsents with consent parsed via a consecutive parsing.
-func ParseGppConsent(s string) (map[int]GppParsedConsent, error) {
+func ParseGppConsent(s string, options ...*Options) (map[int]GppParsedConsent, error) {
+	var option *Options
+	if options != nil && len(options) > 0 {
+		option = options[0]
+	} else {
+		option = defaultOptions()
+	}
 	var gppSections []GppSectionParser
 	var err error
-	gppSections, err = MapGppSectionToParser(s)
+	gppSections, err = MapGppSectionToParser(s, option)
 	if err != nil {
 		return nil, err
 	}
