@@ -492,7 +492,7 @@ func (m *MspaUsTX) ParseConsent() (GppParsedConsent, error) {
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
-	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
+	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
 	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
