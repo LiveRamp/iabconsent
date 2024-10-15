@@ -10,6 +10,11 @@ type MspaParsedConsent struct {
 	// 1 Yes, notice was provided
 	// 2 No, notice was not provided
 	SharingNotice MspaNotice
+	// Notice of the Processing of Personal Data.
+	// 0 = Not Applicable, The Controller does not Process Personal Data
+	// 1 = Yes, notice was provided
+	// 2 = No, notice was not provided
+	ProcessingNotice MspaNotice
 	// Notice of the Opportunity to Opt Out of the Sale of the Consumer’s Personal Data.
 	// 0 Not Applicable. The Business does not Sell Personal Data.
 	// 1 Yes, notice was provided
@@ -73,6 +78,11 @@ type MspaParsedConsent struct {
 	// 1 No Consent
 	// 2 Consent
 	PersonalDataConsents MspaConsent
+	// Consent to Processing of the Consumer’s Personal Data that Is Not Reasonably Necessary for nor Compatible with the Disclosed Purpose(s) for which the Consumer’s Personal Data Was Processed
+	// 0 = Not Applicable, the Controller does not Process Personal Data that is Not Reasonably Necessary for nor Compatible with the Disclosed Purpose(s)
+	// 1 = No Consent
+	// 2 = Consent
+	AdditionalDataProcessingConsent MspaConsent
 	// Publisher or Advertiser, as applicable, is a signatory to the IAB Multistate Service Provider Agreement (MSPA), as may be amended from time to time, and declares that the transaction is a “Covered Transaction” as defined in the MSPA.
 	// 1 Yes
 	// 2 No

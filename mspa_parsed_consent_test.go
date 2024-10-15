@@ -157,6 +157,26 @@ func (s *MspaSuite) TestParseMSPAError(c *check.C) {
 			key:  "usct",
 			sid:  iabconsent.UsConnecticutSID,
 		},
+		{
+			desc: "Florida",
+			key:  "usfl",
+			sid:  iabconsent.UsFloridaSID,
+		},
+		{
+			desc: "Montana",
+			key:  "usmt",
+			sid:  iabconsent.UsMontanaSID,
+		},
+		{
+			desc: "Oregon",
+			key:  "usor",
+			sid:  iabconsent.UsOregonSID,
+		},
+		{
+			desc: "Texas",
+			key:  "ustx",
+			sid:  iabconsent.UsTexasSID,
+		},
 	}
 	var tcs = []struct {
 		desc          string
