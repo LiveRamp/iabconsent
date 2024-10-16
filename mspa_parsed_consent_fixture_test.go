@@ -404,5 +404,5 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			Gpc:                     true,
 		},
 	},
-	// TODO: (PXS-2412) Add test cases for the new states
+	// TODO: (PXS-2412) Add Consent Fixtures for the new states
 }
