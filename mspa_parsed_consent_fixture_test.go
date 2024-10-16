@@ -404,6 +404,7 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			Gpc:                     true,
 		},
 	},
+	// TODO: (PXS-2412) Add test cases for the new states
 	// Florida
 	iabconsent.UsFloridaSID: {
 		// usfl with subsection of GPC False.
