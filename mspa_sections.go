@@ -93,7 +93,10 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
@@ -137,7 +140,10 @@ func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
@@ -179,7 +185,10 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
@@ -221,7 +230,10 @@ func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
@@ -264,7 +276,10 @@ func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
@@ -306,7 +321,10 @@ func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 
 	if len(segments) > 1 {
 		var gppSubsectionConsent *GppSubSection
-		gppSubsectionConsent, _ = ParseGppSubSections(segments[1:])
+		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
+		if err != nil {
+			return nil, err
+		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
 
