@@ -393,14 +393,14 @@ func (m *MspaUsFL) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
@@ -443,7 +443,7 @@ func (m *MspaUsMT) ParseConsent() (GppParsedConsent, error) {
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
@@ -479,14 +479,14 @@ func (m *MspaUsOR) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(11)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
@@ -522,14 +522,14 @@ func (m *MspaUsTX) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
@@ -565,14 +565,14 @@ func (m *MspaUsDE) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(9)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(5)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
 	// return the value of the string, and let downstream processing handle if the value is 0.
@@ -608,14 +608,14 @@ func (m *MspaUsIA) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
+	p.SensitiveDataProcessingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
-	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(9)
+	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
@@ -649,14 +649,14 @@ func (m *MspaUsNE) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
@@ -690,14 +690,14 @@ func (m *MspaUsNH) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
@@ -731,14 +731,14 @@ func (m *MspaUsNJ) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(10)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(5)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
@@ -772,14 +772,14 @@ func (m *MspaUsTN) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("non-v1 string passed.")
 	}
 
-	p.ProcessingNotice, _ = r.ReadMspaNotice()
+	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOut, _ = r.ReadMspaOptOut()
 	p.TargetedAdvertisingOptOut, _ = r.ReadMspaOptOut()
 	p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(8)
 	p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(1)
-	p.AdditionalDataProcessingConsent, _ = r.ReadMspaConsent()
+	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaOptOutOptionMode, _ = r.ReadMspaNaYesNo()
 	p.MspaServiceProviderMode, _ = r.ReadMspaNaYesNo()
 
