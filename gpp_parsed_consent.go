@@ -19,6 +19,12 @@ const (
 	UsMontanaSID
 	UsOregonSID
 	UsTexasSID
+	UsDelawareSID
+	UsIowaSID
+	UsNebraskaSID
+	UsNewHampshireSID
+	UsNewJerseySID
+	UsTennesseeSID
 )
 
 // GppHeader is the first section of a GPP Consent String.
