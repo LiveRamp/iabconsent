@@ -9,6 +9,7 @@ type MspaParsedConsent struct {
 	// 0 Not Applicable. The Business does not share Personal Data with Third Parties.
 	// 1 Yes, notice was provided
 	// 2 No, notice was not provided
+	// Note: ProcessingNotice and SharingNotice are the same
 	SharingNotice MspaNotice
 	// Notice of the Opportunity to Opt Out of the Sale of the Consumer’s Personal Data.
 	// 0 Not Applicable. The Business does not Sell Personal Data.
@@ -72,6 +73,7 @@ type MspaParsedConsent struct {
 	// 0 Not Applicable. The Business does not use, retain, Sell, or Share the Consumer’s Personal Data for advertising purposes that are unrelated to or incompatible with the purpose(s) for which the Consumer’s Personal Data was collected or processed.
 	// 1 No Consent
 	// 2 Consent
+	// Note: AdditionalDataProcessingConsent and PersonalDataConsents are the same
 	PersonalDataConsents MspaConsent
 	// Publisher or Advertiser, as applicable, is a signatory to the IAB Multistate Service Provider Agreement (MSPA), as may be amended from time to time, and declares that the transaction is a “Covered Transaction” as defined in the MSPA.
 	// 1 Yes
