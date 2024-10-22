@@ -30,6 +30,7 @@ type MspaParsedConsent struct {
 	// 0 Not Applicable. The Business does not Process Sensitive Data.
 	// 1 Yes, notice was provided
 	// 2 No, notice was not provided
+	// Note: SensitiveDataOptOutNotice and SensitiveDataProcessingOptOutNotice are the same
 	SensitiveDataProcessingOptOutNotice MspaNotice
 	// Notice of the Opportunity to Limit Use or Disclosure of the Consumer’s Sensitive Data.
 	// 0 Not Applicable. The Business does not use or disclose Sensitive Data.
