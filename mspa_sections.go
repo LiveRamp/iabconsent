@@ -95,7 +95,7 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
@@ -142,7 +142,7 @@ func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
@@ -187,7 +187,7 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
@@ -232,7 +232,7 @@ func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
@@ -278,7 +278,7 @@ func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
@@ -323,7 +323,7 @@ func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 		var gppSubsectionConsent *GppSubSection
 		gppSubsectionConsent, err = ParseGppSubSections(segments[1:])
 		if err != nil {
-			return nil, err
+			return p, err
 		}
 		p.Gpc = gppSubsectionConsent.Gpc
 	}
