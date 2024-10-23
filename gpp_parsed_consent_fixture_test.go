@@ -6,7 +6,7 @@ import (
 
 // Test fixtures can be created here: https://iabgpp.com/
 var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
-	// Valid GPP w/ US National MSPA, No Subsection (is thesame as false GPC subsection.
+	// Valid GPP w/ US National MSPA, No Subsection (is the same as false GPC subsection).
 	"DBABLA~BVVqAAEABCA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"]},
 	// Valid GPP w/ US National MSPA, Subsection of GPC False.
 	"DBABLA~BVVqAAEABCA.QA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"]},

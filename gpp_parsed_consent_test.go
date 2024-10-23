@@ -128,23 +128,7 @@ func (s *MspaSuite) TestMapGppSectionToParser(c *check.C) {
 	}
 }
 
-func (s *MspaSuite) TestParseGppConsent(c *check.C) {
-	for g, e := range gppParsedConsentFixtures {
-		c.Log(g)
-
-		var p, err = iabconsent.ParseGppConsent(g)
-
-		c.Check(err, check.IsNil)
-		c.Check(p, check.HasLen, len(e))
-		for i, expected := range e {
-			parsed, found := p[i]
-			c.Check(found, check.Equals, true)
-			c.Check(parsed, check.DeepEquals, expected)
-		}
-	}
-}
-
-func (s *MspaSuite) TestParseGppErrors(c *check.C) {
+func (s *MspaSuite) TestMapGppSectionToParserErrors(c *check.C) {
 	tcs := []struct {
 		desc     string
 		gpp      string
@@ -176,17 +160,59 @@ func (s *MspaSuite) TestParseGppErrors(c *check.C) {
 	}
 }
 
+func (s *MspaSuite) TestParseGppConsent(c *check.C) {
+	for g, e := range gppParsedConsentFixtures {
+		c.Log(g)
+
+		var p, err = iabconsent.ParseGppConsent(g)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.HasLen, len(e))
+		for i, expected := range e {
+			parsed, found := p[i]
+			c.Check(found, check.Equals, true)
+			c.Check(parsed, check.DeepEquals, expected)
+		}
+	}
+}
+
+func (s *MspaSuite) TestParseGppConsentError(c *check.C) {
+	tcs := []struct {
+		desc string
+		gpp  string
+	}{
+		{
+			desc: "Empty Subsection.",
+			gpp:  "DBABzw~1YNN~BVVqAAEABCA.",
+		},
+		{
+			desc: "Empty Subsection.",
+			gpp:  "DBABAw~Bqqqqqqo.",
+		},
+	}
+	for _, tc := range tcs {
+		c.Log(tc.desc)
+
+		var p, err = iabconsent.ParseGppConsent(tc.gpp)
+
+		// Despite an error in the underlying parsing, we quietly do not add the bad value to the map.
+		c.Check(err, check.IsNil)
+		c.Check(p, check.HasLen, 0)
+	}
+}
+
 func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 	var tcs = []struct {
-		description string
-		subsections string
-		expected    *iabconsent.GppSubSection
+		description        string
+		subsections        string
+		expectedSubsection *iabconsent.GppSubSection
+		expectedError      error
 	}{
 		{
 			description: "GPC Type, false value",
 			// 01000000
 			subsections: "QA",
-			expected: &iabconsent.GppSubSection{
+			expectedSubsection: &iabconsent.GppSubSection{
 				Gpc: false,
 			},
 		},
@@ -194,7 +220,7 @@ func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 			description: "GPC Type, true value.",
 			// 01100000
 			subsections: "YA",
-			expected: &iabconsent.GppSubSection{
+			expectedSubsection: &iabconsent.GppSubSection{
 				Gpc: true,
 			},
 		},
@@ -202,7 +228,7 @@ func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 			description: "No GPC Type.",
 			// 00000000
 			subsections: "AA",
-			expected: &iabconsent.GppSubSection{
+			expectedSubsection: &iabconsent.GppSubSection{
 				Gpc: false,
 			},
 		},
@@ -210,7 +236,7 @@ func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 			description: "GPC True, then GPC False, should remain True.",
 			// 01100000.01000000
 			subsections: "YA.QA",
-			expected: &iabconsent.GppSubSection{
+			expectedSubsection: &iabconsent.GppSubSection{
 				Gpc: true,
 			},
 		},
@@ -218,9 +244,16 @@ func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 			description: "GPC False, then GPC True, should remain True.",
 			// 01000000.01100000
 			subsections: "QA.YA",
-			expected: &iabconsent.GppSubSection{
+			expectedSubsection: &iabconsent.GppSubSection{
 				Gpc: true,
 			},
+		},
+		{
+			description: "GPC Error.",
+			// Blank value
+			subsections:        "",
+			expectedSubsection: nil,
+			expectedError:      errors.New("parse gpp subsection type: read int: read bits (index=0, length=2): bits: index out of range"),
 		},
 	}
 
@@ -229,8 +262,12 @@ func (s *GppParseSuite) TestParseGppSubSections(c *check.C) {
 		// There may be >1 subsections, and func expects them as an array, so split.
 		subsect := strings.Split(tc.subsections, ".")
 		var g, err = iabconsent.ParseGppSubSections(subsect)
-		c.Check(err, check.IsNil)
-		c.Check(g, check.DeepEquals, tc.expected)
+		if tc.expectedError == nil {
+			c.Check(err, check.IsNil)
+		} else {
+			c.Check(err.Error(), check.Equals, tc.expectedError.Error())
+		}
+		c.Check(g, check.DeepEquals, tc.expectedSubsection)
 	}
 }
 
