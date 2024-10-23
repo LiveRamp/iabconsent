@@ -178,9 +178,8 @@ func (s *MspaSuite) TestParseGppConsent(c *check.C) {
 
 func (s *MspaSuite) TestParseGppConsentError(c *check.C) {
 	tcs := []struct {
-		desc     string
-		gpp      string
-		expected error
+		desc string
+		gpp  string
 	}{
 		{
 			desc: "Empty Subsection.",
