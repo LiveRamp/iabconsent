@@ -114,7 +114,14 @@ func NewMspa(sid int, section string) GppSectionParser {
 }
 
 func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usnat sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usnat no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -164,7 +171,14 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usca sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usca no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -211,7 +225,14 @@ func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usva sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usva no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -256,7 +277,14 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usco sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usco no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -301,7 +329,14 @@ func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usut sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usut no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -347,7 +382,14 @@ func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usct sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usct no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -392,7 +434,14 @@ func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsFL) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usfl sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usfl no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -438,7 +487,14 @@ func (m *MspaUsFL) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsMT) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usmt sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usmt no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -484,7 +540,14 @@ func (m *MspaUsMT) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsOR) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usor sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usor no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -530,7 +593,14 @@ func (m *MspaUsOR) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsTX) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("ustx sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("ustx no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -576,7 +646,14 @@ func (m *MspaUsTX) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsDE) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usde sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usde no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -622,7 +699,14 @@ func (m *MspaUsDE) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsIA) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usai sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usai no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -666,7 +750,14 @@ func (m *MspaUsIA) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsNE) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usne sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usne no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -710,7 +801,14 @@ func (m *MspaUsNE) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsNH) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usnh sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usnh no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -754,7 +852,14 @@ func (m *MspaUsNH) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsNJ) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("usnj sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("usnj no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
@@ -798,7 +903,14 @@ func (m *MspaUsNJ) ParseConsent() (GppParsedConsent, error) {
 }
 
 func (m *MspaUsTN) ParseConsent() (GppParsedConsent, error) {
-	var segments = strings.Split(m.sectionValue, ".")
+	if m == nil || m.sectionValue == "" {
+		return nil, errors.New("ustn sectionValue is nil/empty")
+	}
+
+	segments := strings.Split(m.sectionValue, ".")
+	if len(segments) < 1 {
+		return nil, errors.New("ustn no segments found")
+	}
 
 	var b, err = base64.RawURLEncoding.DecodeString(segments[0])
 	if err != nil {
