@@ -427,18 +427,7 @@ func ParseV2(s string) (*V2ParsedConsent, error) {
 	p.SpecialFeaturesOptIn, _ = r.ReadBitField(12)
 	p.PurposesConsent, _ = r.ReadBitField(24)
 	p.PurposesLITransparency, _ = r.ReadBitField(24)
-	// Check for specific 2.2 Requirements and exit early.
-	// From IAB Docs: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20Consent%20string%20and%20vendor%20list%20formats%20v2.md#the-core-string
-	// "With TCF v2.2 support for legitimate interest for purpose 3 to 6 has been deprecated. Bits 2 to 5 are required to be set to 0."
-	// All future versions will also have the requirement.
-	// if mv, _ := p.MinorVersion(); mv >= 2 {
-	// 	// Bitfield uses 1-indexing, so we need to check for purposes 3-6 (not bit positions 2-5).
-	// 	for lit := 3; lit <= 6; lit++ {
-	// 		if p.PurposesLITransparency[lit] != false {
-	// 			return nil, errors.Errorf("TCF String Version 2.2 or higher has invalid PurposesLIT %d not set to 0.", lit)
-	// 		}
-	// 	}
-	// }
+
 	p.PurposeOneTreatment, _ = r.ReadBool()
 	p.PublisherCC, _ = r.ReadString(2)
 
