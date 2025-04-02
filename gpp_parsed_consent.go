@@ -9,7 +9,10 @@ import (
 )
 
 const (
-	UsNationalSID = iota + 7
+	EuropeTCFv2SID = 2
+	CanadaTCFSID   = iota + 4
+	UsPVSID
+	UsNationalSID
 	UsCaliforniaSID
 	UsVirginiaSID
 	UsColoradoSID
@@ -50,11 +53,17 @@ type GppSection struct {
 type GppSectionParser interface {
 	ParseConsent() (GppParsedConsent, error)
 	GetSectionId() int
+	GetSectionValue() string
 }
 
 // GetSectionId returns the Section ID for a given GppSection.
 func (g *GppSection) GetSectionId() int {
 	return g.sectionId
+}
+
+// GetSectionValue returns the Section Value for a given GppSection.
+func (g *GppSection) GetSectionValue() string {
+	return g.sectionValue
 }
 
 type GppSubSection struct {
@@ -79,7 +88,13 @@ func ParseGppHeader(s string) (*GppHeader, error) {
 	// IAB's base64 conversion means a 6 bit grouped value can be converted to 8 bit bytes.
 	// Any leftover bits <8 would be skipped in normal base64 decoding.
 	// Therefore, pad with 6 '0's w/ `A` to ensure that all bits are decoded into bytes.
-	var b, err = base64.RawURLEncoding.DecodeString(s + "A")
+
+	gap := 3 - len(s)%4
+	if gap != 0 {
+		s += strings.Repeat("A", gap)
+	}
+
+	var b, err = base64.RawURLEncoding.DecodeString(s)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse gpp header consent string")
 	}
@@ -115,18 +130,34 @@ func MapGppSectionToParser(s string) ([]GppSectionParser, error) {
 	gppHeader, err = ParseGppHeader(segments[0])
 	if err != nil {
 		return nil, errors.Wrap(err, "read gpp header")
-	} else if len(segments[1:]) != len(gppHeader.Sections) {
-		// Return early if sections in header do not match sections passed.
-		return nil, errors.New("mismatch number of sections")
+	} else if len(segments) > len(gppHeader.Sections) && len(gppHeader.Sections) > 0 {
+		//if len(segments[1:]) != len(gppHeader.Sections) {
+		//	// Return early if sections in header do not match sections passed.
+		//	return nil, errors.New("mismatch number of sections")
+		//}
+		segments = segments[0 : len(gppHeader.Sections)+1]
 	}
+
 	// Go through each section and add parsing function and section value to returned value.
 	var gppSections = make([]GppSectionParser, 0)
 	for i := 1; i < len(segments); i++ {
 		var gppSection GppSectionParser
-		gppSection = NewMspa(gppHeader.Sections[i-1], segments[i])
-		if gppSection != nil {
-			gppSections = append(gppSections, gppSection)
+		switch sid := gppHeader.Sections[i-1]; sid {
+		case EuropeTCFv2SID:
+			gppSection = NewTCFEU(segments[i])
+		case CanadaTCFSID:
+			gppSection = NewTCFCA(segments[i])
+		case UsPVSID:
+			gppSection = NewUSPV(segments[i])
+		case UsNationalSID, UsCaliforniaSID, UsVirginiaSID, UsColoradoSID, UsUtahSID, UsConnecticutSID, UsFloridaSID,
+			UsMontanaSID, UsOregonSID, UsTexasSID, UsDelawareSID, UsIowaSID, UsNebraskaSID, UsNewHampshireSID,
+			UsNewJerseySID, UsTennesseeSID:
+			gppSection = NewMspa(sid, segments[i])
+		default:
+			gppSection = NewNotSupported(segments[i], sid)
 		}
+
+		gppSections = append(gppSections, gppSection)
 	}
 	return gppSections, nil
 }

@@ -124,6 +124,80 @@ type V2ParsedConsent struct {
 	*PublisherTCEntry
 }
 
+// V2CAParsedConsent represents data extracted from an v2 CA TCF Consent String.
+type V2CAParsedConsent struct {
+	// Version number of the encoding format.
+	Version int
+	// Epoch deciseconds when this TC String was first created (should not be changed
+	// unless a new TCString is created from scratch).
+	Created time.Time
+	// Epoch deciseconds when TC String was last updated (Must be updated any time a
+	// value is changed).
+	LastUpdated time.Time
+	// Consent Management Platform ID that last updated the TC String.
+	// A unique ID will be assigned to each Consent Management Platform.
+	CMPID int
+	// Consent Management Platform version of the CMP that last updated this TC String.
+	// Each change to a CMP should increment their internally assigned version number as
+	// a record of which version the user gave consent and transparency was established.
+	CMPVersion int
+	// CMP Screen number at which consent was given for a user with the CMP that last
+	// updated this TC String. The number is a CMP internal designation and is CMPVersion
+	// specific. The number is used for identifying on which screen a user gave consent
+	// as a record.
+	ConsentScreen int
+	// Two-letter ISO 639-1 language code in which the CMP UI was presented.
+	ConsentLanguage string
+	// Number corresponds to the Global Vendor List (GVL) vendorListVersion.
+	VendorListVersion int
+	// Version of policy used within GVL.
+	TCFPolicyVersion int
+	// Setting this to 1 means that a publisher-run CMP – that is still IAB Europe
+	// registered – is using customized Stack descriptions and not the standard stack
+	// descriptions defined in the Policies. A CMP that services multiple publishers sets
+	// this value to 0.
+	UseNonStandardStacks bool
+	// The TCF Policies designates certain Features as “special” which means a CMP must
+	// afford the user a means to opt in to their use. These “Special Features” are
+	// published and numerically identified in the Global Vendor List separately from
+	// normal Features.
+	SpecialFeatureExpressConsent map[int]bool
+	// The user’s consent value for each Purpose established on the legal basis of consent.
+	// The Purposes are numerically identified and published in the Global Vendor List.
+	// From left to right, Purpose 1 maps to the 0th bit, purpose 24 maps to the bit at
+	// index 23. Special Purposes are a different ID space and not included in this field.
+	PurposesExpressConsent map[int]bool
+	// The Purpose’s transparency requirements are met for each Purpose on the legal basis
+	// of legitimate interest and the user has not exercised their “Right to Object” to that
+	// Purpose. By default or if the user has exercised their “Right to Object” to a Purpose,
+	// the corresponding bit for that Purpose is set to 0. From left to right, Purpose 1 maps
+	// to the 0th bit, purpose 24 maps to the bit at index 23. Special Purposes are a
+	// different ID space and not included in this field.
+	PurposesImpliedConsent map[int]bool
+
+	MaxExpressConsentVendorID     int
+	IsExpressConsentRangeEncoding bool
+	// The consent value for each Vendor ID.
+	ExpressConsentedVendors map[int]bool
+	// Number of RangeEntry sections to follow.
+	NumExpressConsentEntries int
+	// A single or range of Vendor ID(s) who have received consent. If a Vendor ID is not within
+	// the bounds of the ranges then the vendor is assumed to have “No Consent”.
+	VendorExpressConsent []*RangeEntry
+
+	MaxImpliedConsentVendorID     int
+	IsImpliedConsentRangeEncoding bool
+	// The consent value for each Vendor ID.
+	ImpliedConsentedVendors map[int]bool
+	// Number of RangeEntry sections to follow.
+	NumImpliedConsentEntries int
+	// A single or range of Vendor ID(s) who have received consent. If a Vendor ID is not within
+	// the bounds of the ranges then the vendor is assumed to have “No Consent”.
+	VendorImpliedConsent []*RangeEntry
+
+	*PublisherTCEntry
+}
+
 // RestrictionType is an enum type of publisher restriction types.
 type RestrictionType int
 
@@ -280,6 +354,7 @@ func (p *V2ParsedConsent) EveryPurposeAllowed(ps []int) bool {
 
 // PurposeAllowed returns true if the passed purpose number exists in
 // the V2ParsedConsent, otherwise false.
+// Deprecated and replaced by PurposeAllowedForConsent
 func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
 	if !p.PurposesConsent[ps] {
 		return false
@@ -289,12 +364,47 @@ func (p *V2ParsedConsent) PurposeAllowed(ps int) bool {
 
 // VendorAllowed returns true if the ParsedConsent contains affirmative consent
 // for VendorID |v|.
+// Deprecated and replaced by VendorAllowedForConsent
 func (p *V2ParsedConsent) VendorAllowed(v int) bool {
 	if p.IsConsentRangeEncoding {
 		return inRangeEntries(v, p.ConsentedVendorsRange)
 	}
 
 	return p.ConsentedVendors[v]
+}
+
+// VendorAllowedForConsent returns true if the ParsedConsent contains affirmative consent
+// for VendorID |v|.
+func (p *V2ParsedConsent) VendorAllowedForConsent(v int) bool {
+	if p.IsConsentRangeEncoding {
+		return inRangeEntries(v, p.ConsentedVendorsRange)
+	}
+
+	return p.ConsentedVendors[v]
+}
+
+func (p *V2ParsedConsent) PurposeAllowedForConsent(ps int) bool {
+	if !p.PurposesConsent[ps] {
+		return false
+	}
+	return true
+}
+
+// VendorAllowedForConsent returns true if the ParsedConsent contains affirmative legitimate interest
+// for VendorID |v|.
+func (p *V2ParsedConsent) VendorAllowedForLI(v int) bool {
+	if p.IsInterestsRangeEncoding {
+		return inRangeEntries(v, p.InterestsVendorsRange)
+	}
+
+	return p.InterestsVendors[v]
+}
+
+func (p *V2ParsedConsent) PurposeAllowedForLI(ps int) bool {
+	if !p.PurposesLITransparency[ps] {
+		return false
+	}
+	return true
 }
 
 // PublisherRestricted returns true if any purpose in |ps| is
@@ -357,4 +467,12 @@ func (p *V2ParsedConsent) MinorVersion() (int, error) {
 	default:
 		return 100, errors.Errorf("Unsupported TCFPolicyVersion %d", p.TCFPolicyVersion)
 	}
+}
+
+// IsVendorRestricted returns true if the vendor is restricted by PubRestrictionEntry
+func (p *PubRestrictionEntry) IsVendorRestricted(v int) bool {
+	if inRangeEntries(v, p.RestrictionsRange) {
+		return true
+	}
+	return false
 }

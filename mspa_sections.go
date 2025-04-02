@@ -2,6 +2,7 @@ package iabconsent
 
 import (
 	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -111,6 +112,54 @@ func NewMspa(sid int, section string) GppSectionParser {
 	// Skip if no matching struct, as Section ID is not supported yet.
 	// Any newly supported Section IDs should be added as cases here.
 	return nil
+}
+
+type TCFEU struct {
+	GppSection
+}
+
+type TCFCA struct {
+	GppSection
+}
+
+type USPV struct {
+	GppSection
+}
+
+type NotSupported struct {
+	GppSection
+}
+
+func NewTCFEU(section string) *TCFEU {
+	return &TCFEU{GppSection{sectionId: EuropeTCFv2SID, sectionValue: section}}
+}
+
+func NewTCFCA(section string) *TCFCA {
+	return &TCFCA{GppSection{sectionId: CanadaTCFSID, sectionValue: section}}
+}
+
+func NewUSPV(section string) *USPV {
+	return &USPV{GppSection{sectionId: UsPVSID, sectionValue: section}}
+}
+
+func NewNotSupported(section string, sectionID int) *NotSupported {
+	return &NotSupported{GppSection{sectionId: sectionID, sectionValue: section}}
+}
+
+func (n *NotSupported) ParseConsent() (GppParsedConsent, error) {
+	return nil, errors.New(fmt.Sprintf("Section ID %d is not supported", n.sectionId))
+}
+
+func (t *TCFEU) ParseConsent() (GppParsedConsent, error) {
+	return ParseV2(t.sectionValue)
+}
+
+func (t *TCFCA) ParseConsent() (GppParsedConsent, error) {
+	return ParseCAV2(t.sectionValue)
+}
+
+func (u *USPV) ParseConsent() (GppParsedConsent, error) {
+	return ParseCCPA(u.sectionValue)
 }
 
 func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {

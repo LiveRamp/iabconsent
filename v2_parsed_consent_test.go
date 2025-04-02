@@ -304,6 +304,152 @@ func (v *V2ParsedConsentSuite) TestPublisherRestricted(c *check.C) {
 	}
 }
 
+func (p *V2ParsedConsentSuite) TestPurposeAllowedForLI(c *check.C) {
+	var tcs = []struct {
+		purposes []int
+		consent  map[int]bool
+	}{
+		{
+			purposes: []int{1, 2, 3},
+			consent:  map[int]bool{1: true, 2: true, 3: true},
+		},
+		{
+			purposes: []int{1, 2, 3},
+			consent:  map[int]bool{1: true, 2: true, 3: false},
+		},
+		{
+			purposes: []int{1, 2, 3},
+			consent:  map[int]bool{1: true, 2: true},
+		},
+		{
+			purposes: []int{1, 2},
+			consent:  map[int]bool{1: true, 2: true, 3: true},
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		var pc = &iabconsent.V2ParsedConsent{
+			PurposesLITransparency: tc.consent,
+		}
+
+		for i, p := range tc.purposes {
+			c.Check(pc.PurposeAllowedForLI(p), check.Equals, tc.consent[i+1])
+		}
+
+	}
+}
+
+func (v *V2ParsedConsentSuite) TestVendorAllowedForLI(c *check.C) {
+	var tcs = []struct {
+		vendor  int
+		isRange bool
+		entries []*iabconsent.RangeEntry
+		vendors map[int]bool
+		exp     bool
+	}{
+		{
+			vendor:  123,
+			isRange: true,
+			entries: []*iabconsent.RangeEntry{
+				{
+					StartVendorID: 100,
+					EndVendorID:   200,
+				},
+			},
+			exp: true,
+		},
+		{
+			vendor:  123,
+			isRange: true,
+			entries: []*iabconsent.RangeEntry{
+				{
+					StartVendorID: 50,
+					EndVendorID:   60,
+				},
+				{
+					StartVendorID: 100,
+					EndVendorID:   200,
+				},
+				{
+					StartVendorID: 250,
+					EndVendorID:   260,
+				},
+			},
+			exp: true,
+		},
+		{
+			vendor:  123,
+			isRange: true,
+			entries: []*iabconsent.RangeEntry{
+				{
+					StartVendorID: 123,
+					EndVendorID:   123,
+				},
+			},
+			exp: true,
+		},
+		{
+			vendor:  123,
+			isRange: true,
+			entries: []*iabconsent.RangeEntry{
+				{
+					StartVendorID: 50,
+					EndVendorID:   60,
+				},
+				{
+					StartVendorID: 250,
+					EndVendorID:   260,
+				},
+			},
+			exp: false,
+		},
+		{
+			vendor:  123,
+			isRange: true,
+			entries: []*iabconsent.RangeEntry{},
+			exp:     false,
+		},
+		{
+			vendor:  123,
+			isRange: false,
+			vendors: map[int]bool{123: true},
+			exp:     true,
+		},
+		{
+			vendor:  123,
+			isRange: false,
+			vendors: map[int]bool{123: true, 124: true},
+			exp:     true,
+		},
+		{
+			vendor:  123,
+			isRange: false,
+			vendors: map[int]bool{122: true, 124: true},
+			exp:     false,
+		},
+		{
+			vendor:  123,
+			isRange: false,
+			vendors: map[int]bool{123: false, 124: true},
+			exp:     false,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+
+		var pc = &iabconsent.V2ParsedConsent{
+			IsInterestsRangeEncoding: tc.isRange,
+			InterestsVendorsRange:    tc.entries,
+			InterestsVendors:         tc.vendors,
+		}
+
+		c.Check(pc.VendorAllowedForLI(tc.vendor), check.Equals, tc.exp)
+	}
+}
+
 func (v *V2ParsedConsentSuite) TestSuitableToProcess(c *check.C) {
 	var tcs = []struct {
 		vendor            int
@@ -479,6 +625,79 @@ func (v *V2ParsedConsentSuite) TestMinorVersion(c *check.C) {
 			c.Check(err, check.ErrorMatches, tc.err)
 		}
 		c.Check(minorVersion, check.Equals, tc.minorVersion)
+	}
+}
+
+func (v *V2ParsedConsentSuite) TestIsPublisherRestricted(c *check.C) {
+	var tcs = []struct {
+		vendor      int
+		restriction *iabconsent.PubRestrictionEntry
+		exp         bool
+	}{
+		{
+			vendor: 123,
+			restriction: &iabconsent.PubRestrictionEntry{
+				PurposeID:       4,
+				RestrictionType: iabconsent.RequireLegitimateInterest,
+				NumEntries:      1,
+				RestrictionsRange: []*iabconsent.RangeEntry{
+					{
+						StartVendorID: 110,
+						EndVendorID:   120,
+					},
+					{
+						StartVendorID: 123,
+						EndVendorID:   123,
+					},
+				},
+			},
+			exp: true,
+		},
+		{
+			vendor: 123,
+			restriction: &iabconsent.PubRestrictionEntry{
+				PurposeID:       3,
+				RestrictionType: iabconsent.RequireConsent,
+				NumEntries:      1,
+				RestrictionsRange: []*iabconsent.RangeEntry{
+					{
+						StartVendorID: 120,
+						EndVendorID:   122,
+					},
+				},
+			},
+			exp: false,
+		},
+		{
+			vendor: 123,
+			restriction: &iabconsent.PubRestrictionEntry{
+				PurposeID:       3,
+				RestrictionType: iabconsent.PurposeFlatlyNotAllowed,
+				RestrictionsRange: []*iabconsent.RangeEntry{
+					{
+						StartVendorID: 120,
+						EndVendorID:   123,
+					},
+				},
+			},
+			exp: true,
+		},
+	}
+
+	for _, tc := range tcs {
+		c.Log(tc)
+		c.Check(tc.restriction.IsVendorRestricted(tc.vendor), check.Equals, tc.exp)
+	}
+}
+
+func (v *V2ParsedConsentSuite) TestParseCAV2(c *check.C) {
+	for k, v := range v2CAConsentFixtures {
+		c.Log(k)
+
+		var p, err = iabconsent.ParseCAV2(k)
+
+		c.Check(err, check.IsNil)
+		c.Check(p, check.DeepEquals, v)
 	}
 }
 

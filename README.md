@@ -122,3 +122,8 @@ func main() {
 	}
 }
 ```
+
+
+Resources:
+1. https://github.com/LiveRamp/iabconsent
+2. https://github.com/StackAdapt/iabconsent
