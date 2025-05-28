@@ -8,5 +8,4 @@
   "description": "A Go implementation of the IAB Consent String Specs (v1.1 and v2)"
   "name": "iabconsent"
   "tags": []
-"spec": {}
 # END TERRAFORM MANAGED BLOCK
