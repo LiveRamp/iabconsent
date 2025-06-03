@@ -6,12 +6,14 @@ import (
 
 // Test fixtures can be created here: https://iabgpp.com/
 var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
-	// Valid GPP w/ US National MSPA, No Subsection (is the same as false GPC subsection).
+	// Valid GPP w/ V1 US National MSPA, No Subsection (is the same as false GPC subsection).
 	"DBABLA~BVVqAAEABCA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"]},
-	// Valid GPP w/ US National MSPA, Subsection of GPC False.
+	// Valid GPP w/ V1 US National MSPA, Subsection of GPC False.
 	"DBABLA~BVVqAAEABCA.QA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"]},
-	// Valid GPP w/ US National MSPA, Subsection of GPC True.
+	// Valid GPP w/ V1 US National MSPA, Subsection of GPC True.
 	"DBABLA~BVVqAAEABCA.YA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.YA"]},
+	// Valid GPP w/ V2 US National MSPA, Subsection of GPC True.
+	"DBABLA~CVVVVVVVVVVW.YA": {iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["CVVVVVVVVVVW.YA"]},
 	// Valid GPP w/ US California MSPA, Subsection of GPC False.
 	"DBABBg~BVoYYZoI": {iabconsent.UsCaliforniaSID: mspaConsentFixtures[iabconsent.UsCaliforniaSID]["BVoYYZoI"]},
 	// Valid GPP w/ US Virginia MSPA, Subsection of GPC False.
@@ -22,7 +24,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 	"DBABFg~BVaGGGCA": {iabconsent.UsUtahSID: mspaConsentFixtures[iabconsent.UsUtahSID]["BVaGGGCA.QA"]},
 	// Valid GPP w/ US Connecticut MSPA, Subsection of GPC False.
 	"DBABVg~BVoYYYQg": {iabconsent.UsConnecticutSID: mspaConsentFixtures[iabconsent.UsConnecticutSID]["BVoYYYQg"]},
-	// Valid GPP w/ US US National and Virgina MSPA, Subsection of GPC False.
+	// Valid GPP w/ US National and Virgina MSPA, Subsection of GPC False.
 	"DBACLMA~BVVqAAEABCA~BVoYYYI": {
 		iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsVirginiaSID: mspaConsentFixtures[iabconsent.UsVirginiaSID]["BVoYYYI"],

@@ -11,7 +11,7 @@ import (
 var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 	// UsNational
 	iabconsent.UsNationalSID: {
-		// usnat without false GPC subsection.
+		// usnat v1 without false GPC subsection.
 		"BVVqAAEABCA.QA": {
 			Version:                             1,
 			SharingNotice:                       iabconsent.NoticeProvided,
@@ -46,7 +46,7 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			MspaOptOutOptionMode:    iabconsent.MspaNotApplicable,
 			MspaServiceProviderMode: iabconsent.MspaNo,
 		},
-		// usnat with true GPC subsection.
+		// usnat v1 with true GPC subsection.
 		"BVVqAAEABCA.YA": {
 			Version:                             1,
 			SharingNotice:                       iabconsent.NoticeProvided,
@@ -82,7 +82,7 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			MspaServiceProviderMode: iabconsent.MspaNo,
 			Gpc:                     true,
 		},
-		// usnat without subsection.
+		// usnat v1 without subsection.
 		"BqqAqqqqqqA": {
 			Version:                             1,
 			SharingNotice:                       iabconsent.NoticeNotProvided,
@@ -118,7 +118,49 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			MspaServiceProviderMode: iabconsent.MspaNo,
 			Gpc:                     false,
 		},
+		// usnat v2 with true GPC subsection.
+		"CVVVVVVVVVVW.YA": {
+			Version:                             2,
+			SharingNotice:                       iabconsent.NoticeProvided,
+			SaleOptOutNotice:                    iabconsent.NoticeProvided,
+			SharingOptOutNotice:                 iabconsent.NoticeProvided,
+			TargetedAdvertisingOptOutNotice:     iabconsent.NoticeProvided,
+			SensitiveDataProcessingOptOutNotice: iabconsent.NoticeProvided,
+			SensitiveDataLimitUseNotice:         iabconsent.NoticeProvided,
+			SaleOptOut:                          iabconsent.OptedOut,
+			SharingOptOut:                       iabconsent.OptedOut,
+			TargetedAdvertisingOptOut:           iabconsent.OptedOut,
+			SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
+				0:  iabconsent.NoConsent,
+				1:  iabconsent.NoConsent,
+				2:  iabconsent.NoConsent,
+				3:  iabconsent.NoConsent,
+				4:  iabconsent.NoConsent,
+				5:  iabconsent.NoConsent,
+				6:  iabconsent.NoConsent,
+				7:  iabconsent.NoConsent,
+				8:  iabconsent.NoConsent,
+				9:  iabconsent.NoConsent,
+				10: iabconsent.NoConsent,
+				11: iabconsent.NoConsent,
+				12: iabconsent.NoConsent,
+				13: iabconsent.NoConsent,
+				14: iabconsent.NoConsent,
+				15: iabconsent.NoConsent,
+			},
+			KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
+				0: iabconsent.NoConsent,
+				1: iabconsent.NoConsent,
+				2: iabconsent.NoConsent,
+			},
+			PersonalDataConsents:    iabconsent.NoConsent,
+			MspaCoveredTransaction:  iabconsent.MspaYes,
+			MspaOptOutOptionMode:    iabconsent.MspaYes,
+			MspaServiceProviderMode: iabconsent.MspaYes,
+			Gpc:                     true,
+		},
 	},
+
 	// California
 	iabconsent.UsCaliforniaSID: {
 		// usca with subsection of GPC True.
@@ -728,15 +770,15 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			SensitiveDataProcessingOptOutNotice: iabconsent.NoticeProvided,
 			SaleOptOut:                          iabconsent.OptedOut,
 			TargetedAdvertisingOptOut:           iabconsent.OptedOut,
-			SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
-				0: iabconsent.NoConsent,
-				1: iabconsent.NoConsent,
-				2: iabconsent.NoConsent,
-				3: iabconsent.NoConsent,
-				4: iabconsent.NoConsent,
-				5: iabconsent.NoConsent,
-				6: iabconsent.NoConsent,
-				7: iabconsent.NoConsent,
+			SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+				0: iabconsent.OptedOut,
+				1: iabconsent.OptedOut,
+				2: iabconsent.OptedOut,
+				3: iabconsent.OptedOut,
+				4: iabconsent.OptedOut,
+				5: iabconsent.OptedOut,
+				6: iabconsent.OptedOut,
+				7: iabconsent.OptedOut,
 			},
 			KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
 				0: iabconsent.NoConsent,
@@ -755,15 +797,15 @@ var mspaConsentFixtures = map[int]map[string]*iabconsent.MspaParsedConsent{
 			SensitiveDataProcessingOptOutNotice: iabconsent.NoticeProvided,
 			SaleOptOut:                          iabconsent.OptedOut,
 			TargetedAdvertisingOptOut:           iabconsent.OptedOut,
-			SensitiveDataProcessingConsents: map[int]iabconsent.MspaConsent{
-				0: iabconsent.NoConsent,
-				1: iabconsent.NoConsent,
-				2: iabconsent.NoConsent,
-				3: iabconsent.NoConsent,
-				4: iabconsent.NoConsent,
-				5: iabconsent.NoConsent,
-				6: iabconsent.NoConsent,
-				7: iabconsent.NoConsent,
+			SensitiveDataProcessingOptOuts: map[int]iabconsent.MspaOptout{
+				0: iabconsent.OptedOut,
+				1: iabconsent.OptedOut,
+				2: iabconsent.OptedOut,
+				3: iabconsent.OptedOut,
+				4: iabconsent.OptedOut,
+				5: iabconsent.OptedOut,
+				6: iabconsent.OptedOut,
+				7: iabconsent.OptedOut,
 			},
 			KnownChildSensitiveDataConsents: map[int]iabconsent.MspaConsent{
 				0: iabconsent.NoConsent,

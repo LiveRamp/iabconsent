@@ -216,7 +216,7 @@ func (s *MspaSuite) TestParseMSPAError(c *check.C) {
 		{
 			desc:          "Wrong Version.",
 			consentString: "DVVqAAEABA",
-			expected:      "non-v1 string passed.",
+			expected:      "unsupported version: 3",
 		},
 		{
 			desc:          "Bad Decoding.",
