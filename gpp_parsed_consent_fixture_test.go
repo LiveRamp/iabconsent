@@ -24,7 +24,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 	"DBABFg~BVaGGGCA": {iabconsent.UsUtahSID: mspaConsentFixtures[iabconsent.UsUtahSID]["BVaGGGCA.QA"]},
 	// Valid GPP w/ US Connecticut MSPA, Subsection of GPC False.
 	"DBABVg~BVoYYYQg": {iabconsent.UsConnecticutSID: mspaConsentFixtures[iabconsent.UsConnecticutSID]["BVoYYYQg"]},
-	// Valid GPP w/ US National and Virgina MSPA, Subsection of GPC False.
+	// Valid GPP w/ US National and Virginia MSPA, Subsection of GPC False.
 	"DBACLMA~BVVqAAEABCA~BVoYYYI": {
 		iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsVirginiaSID: mspaConsentFixtures[iabconsent.UsVirginiaSID]["BVoYYYI"],
@@ -38,7 +38,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 		iabconsent.UsUtahSID:        mspaConsentFixtures[iabconsent.UsUtahSID]["BVaGGGCA.QA"],
 		iabconsent.UsConnecticutSID: mspaConsentFixtures[iabconsent.UsConnecticutSID]["BVoYYYQg"],
 	},
-	// Valid GPP w/ US US National, California MSPA, Virgina MSPA, Colorado MSPA, Utah MSPA, Conneticut MSPA, Florida MSPA and Montana MSPA Subsection of GPC False.
+	// Valid GPP w/ US US National, California MSPA, Virginia MSPA, Colorado MSPA, Utah MSPA, Conneticut MSPA, Florida MSPA and Montana MSPA Subsection of GPC False.
 	"DBABrWA~BVVqAAEABCA~BVoYYZoI~BVoYYYI~BVoYYQg~BVaGGGCA~BVoYYYQg~Bqqqqqqo~Bqqqqqqo": {
 		iabconsent.UsNationalSID:    mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsCaliforniaSID:  mspaConsentFixtures[iabconsent.UsCaliforniaSID]["BVoYYZoI"],
