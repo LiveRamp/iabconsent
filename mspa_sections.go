@@ -39,7 +39,7 @@ const (
 	MspaUsNeV1StringLength = 48
 	// MspaUsNhV1StringLength is 46 bits padded with 2 bits of 0s making valid length 48 bits
 	MspaUsNhV1StringLength = 48
-	// MspaUsNjV1StringLength is 54 bits padded with 2 bits of 0s making valid length 48 bits
+	// MspaUsNjV1StringLength is 54 bits padded with 2 bits of 0s making valid length 56 bits
 	MspaUsNjV1StringLength = 56
 	// MspaUsTnV1StringLength is 40 bits with no padding making valid length 40 bits
 	MspaUsTnV1StringLength = 40
