@@ -223,6 +223,11 @@ func (s *MspaSuite) TestParseMSPAError(c *check.C) {
 			consentString: "$%&*(",
 			expected:      "parse %s consent string: illegal base64 data at input byte 0",
 		},
+		{
+			desc:          "Invalid Section Length",
+			consentString: "BqqAqqqqqqqqAA",
+			expected:      "invalid consent string length for v1",
+		},
 	}
 	for _, s := range mspaTests {
 		for _, t := range tcs {

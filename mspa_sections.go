@@ -139,12 +139,11 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 	// length of v1 is 60 bits padded with 4 bits of 0s making valid length 64 bits
 	// length of v2 is 70 bits padded with 2 bits of 0s making valid length 72 bits
 	if p.Version == 1 && r.Size() != 64 {
-		return nil, errors.New("invalid consent string length for v1. expected: 60 actual: " + fmt.Sprint(r.Size()))
+		return nil, errors.New("invalid consent string length for v1")
 	} else if p.Version == 2 && r.Size() != 72 {
-		return nil, errors.New("invalid consent string length for v2. expected: 70 actual: " + fmt.Sprint(r.Size()))
+		return nil, errors.New("invalid consent string length for v2")
 	}
 
-	// 18  bits
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.SharingOptOutNotice, _ = r.ReadMspaNotice()
@@ -157,15 +156,12 @@ func (m *MspaUsNational) ParseConsent() (GppParsedConsent, error) {
 
 	// see spec in IAB GPP repo for differences between v1 and v2
 	if p.Version == 1 {
-		// 24 + 4 = 28 bits
 		p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(12)
 		p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(2)
 	} else if p.Version == 2 {
-		// 32 + 6 = 38 bits
 		p.SensitiveDataProcessingConsents, _ = r.ReadMspaBitfieldConsent(16)
 		p.KnownChildSensitiveDataConsents, _ = r.ReadMspaBitfieldConsent(3)
 	}
-	// 8 bits
 	p.PersonalDataConsents, _ = r.ReadMspaConsent()
 	p.MspaCoveredTransaction, _ = r.ReadMspaNaYesNo()
 	// 0 is not a valid value according to the docs for MspaCoveredTransaction. Instead of erroring,
@@ -203,6 +199,12 @@ func (m *MspaUsCA) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 46 bits padded with 2 bits of 0s making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
@@ -252,6 +254,12 @@ func (m *MspaUsVA) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 40 bits no padding needed
+	if p.Version == 1 && r.Size() != 40 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -297,6 +305,12 @@ func (m *MspaUsCO) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 38 bits with 2 bits of padding making valid length 40 bits
+	if p.Version == 1 && r.Size() != 40 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -340,6 +354,12 @@ func (m *MspaUsUT) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 42 bits with 6 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
@@ -388,6 +408,12 @@ func (m *MspaUsCT) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 44 bits with 4 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -431,6 +457,12 @@ func (m *MspaUsFL) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 46 bits with 2 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
@@ -479,6 +511,12 @@ func (m *MspaUsMT) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 46 bits with 2 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -523,6 +561,12 @@ func (m *MspaUsOR) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 52 bits with 4 bits of padding making valid length 56 bits
+	if p.Version == 1 && r.Size() != 56 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
@@ -571,6 +615,12 @@ func (m *MspaUsTX) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 42 bits with 6 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -615,6 +665,12 @@ func (m *MspaUsDE) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 52 bits with 4 bits of padding making valid length 56 bits
+	if p.Version == 1 && r.Size() != 56 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
@@ -664,6 +720,12 @@ func (m *MspaUsIA) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 42 bits with 6 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -706,6 +768,12 @@ func (m *MspaUsNE) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 42 bits with 6 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
@@ -752,6 +820,12 @@ func (m *MspaUsNH) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 46 bits with 2 bits of padding making valid length 48 bits
+	if p.Version == 1 && r.Size() != 48 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -796,6 +870,12 @@ func (m *MspaUsNJ) ParseConsent() (GppParsedConsent, error) {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
 	}
 
+	// validate the length of the bit string for v1
+	// length of v1 is 54 bits with 2 bits of padding making valid length 56 bits
+	if p.Version == 1 && r.Size() != 56 {
+		return nil, errors.New("invalid consent string length for v1")
+	}
+
 	p.SharingNotice, _ = r.ReadMspaNotice()
 	p.SaleOptOutNotice, _ = r.ReadMspaNotice()
 	p.TargetedAdvertisingOptOutNotice, _ = r.ReadMspaNotice()
@@ -838,6 +918,12 @@ func (m *MspaUsTN) ParseConsent() (GppParsedConsent, error) {
 
 	if p.Version != 1 {
 		return nil, errors.New("unsupported version: " + fmt.Sprint(p.Version))
+	}
+
+	// validate the length of the bit string for v1
+	// length of v1 is 40 bits with no padding making valid length 40 bits
+	if p.Version == 1 && r.Size() != 40 {
+		return nil, errors.New("invalid consent string length for v1")
 	}
 
 	p.SharingNotice, _ = r.ReadMspaNotice()
