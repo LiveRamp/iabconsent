@@ -29,7 +29,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 		iabconsent.UsNationalSID: mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsVirginiaSID: mspaConsentFixtures[iabconsent.UsVirginiaSID]["BVoYYYI"],
 	},
-	// Valid GPP w/ US US National, California MSPA, Virgina MSPA, Colorado MSPA, and Utah Subsection of GPC False.
+	// Valid GPP w/ V1 US National, California MSPA, Virgina MSPA, Colorado MSPA, and Utah Subsection of GPC False.
 	"DBABrGA~BVVqAAEABCA~BVoYYZoI~BVoYYYI~BVoYYQg~BVaGGGCA~BVoYYYQg": {
 		iabconsent.UsNationalSID:    mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsCaliforniaSID:  mspaConsentFixtures[iabconsent.UsCaliforniaSID]["BVoYYZoI"],
@@ -38,7 +38,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 		iabconsent.UsUtahSID:        mspaConsentFixtures[iabconsent.UsUtahSID]["BVaGGGCA.QA"],
 		iabconsent.UsConnecticutSID: mspaConsentFixtures[iabconsent.UsConnecticutSID]["BVoYYYQg"],
 	},
-	// Valid GPP w/ US US National, California MSPA, Virginia MSPA, Colorado MSPA, Utah MSPA, Conneticut MSPA, Florida MSPA and Montana MSPA Subsection of GPC False.
+	// Valid GPP w/ V1 US National, California MSPA, Virginia MSPA, Colorado MSPA, Utah MSPA, Conneticut MSPA, Florida MSPA and Montana MSPA Subsection of GPC False.
 	"DBABrWA~BVVqAAEABCA~BVoYYZoI~BVoYYYI~BVoYYQg~BVaGGGCA~BVoYYYQg~Bqqqqqqo~Bqqqqqqo": {
 		iabconsent.UsNationalSID:    mspaConsentFixtures[iabconsent.UsNationalSID]["BVVqAAEABCA.QA"],
 		iabconsent.UsCaliforniaSID:  mspaConsentFixtures[iabconsent.UsCaliforniaSID]["BVoYYZoI"],
@@ -52,7 +52,7 @@ var gppParsedConsentFixtures = map[string]map[int]*iabconsent.MspaParsedConsent{
 	// Valid GPP string w/ sections for EU TCF V2 and US Privacy
 	// Since both are not supported, Consent fixture should be blank.
 	"DBACNY~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN": {},
-	// Valid GPP w/ US National MSPA and US Privacy, but skip US Privacy until supported.
+	// Valid GPP w/ V1 US National MSPA and US Privacy, but skip US Privacy until supported.
 	"DBABzw~1YNN~BVVqAAEABCA.QA": {7: mspaConsentFixtures[7]["BVVqAAEABCA.QA"]},
 	// Valid GPP w/ US Florida MSPA, Subsection of GPC False.
 	"DBABAw~Bqqqqqqo": {iabconsent.UsFloridaSID: mspaConsentFixtures[iabconsent.UsFloridaSID]["Bqqqqqqo"]},

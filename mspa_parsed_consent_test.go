@@ -224,8 +224,13 @@ func (s *MspaSuite) TestParseMSPAError(c *check.C) {
 			expected:      "parse %s consent string: illegal base64 data at input byte 0",
 		},
 		{
-			desc:          "Invalid Section Length",
+			desc:          "Invalid Section Length. Too long for all v1 strings",
 			consentString: "BqqAqqqqqqqqAA",
+			expected:      "invalid consent string length for v1",
+		},
+		{
+			desc:          "Invalid Section Length. Too short for all v1 strings",
+			consentString: "BqqA",
 			expected:      "invalid consent string length for v1",
 		},
 	}
