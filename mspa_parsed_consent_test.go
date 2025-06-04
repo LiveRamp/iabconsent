@@ -216,12 +216,22 @@ func (s *MspaSuite) TestParseMSPAError(c *check.C) {
 		{
 			desc:          "Wrong Version.",
 			consentString: "DVVqAAEABA",
-			expected:      "non-v1 string passed.",
+			expected:      "unsupported version: 3",
 		},
 		{
 			desc:          "Bad Decoding.",
 			consentString: "$%&*(",
 			expected:      "parse %s consent string: illegal base64 data at input byte 0",
+		},
+		{
+			desc:          "Invalid Section Length. Too long for all v1 strings",
+			consentString: "BqqAqqqqqqqqAA",
+			expected:      "invalid consent string length for v1",
+		},
+		{
+			desc:          "Invalid Section Length. Too short for all v1 strings",
+			consentString: "BqqA",
+			expected:      "invalid consent string length for v1",
 		},
 	}
 	for _, s := range mspaTests {
